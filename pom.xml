@@ -5,12 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ovh.excale</groupId>
-	<artifactId>base-discord-bot</artifactId>
-	<version>1.0.0</version>
+	<artifactId>er-faina</artifactId>
+	<version>1.0</version>
 
-	<name>BaseDiscordBot</name>
-	<description>A Discord Bot you can use as a base for your project.</description>
-	<url>https://github.com/Cr4zy5kyU/BaseDiscordBot</url>
+	<name>ErFaina</name>
+	<description>Er Faina che fischia alle e-girls</description>
+	<url>https://github.com/Cr4zy5kyU/ErFaina</url>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -31,27 +31,7 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>4.2.0_168</version>
-			<exclusions>
-				<exclusion>
-					<groupId>club.minnced</groupId>
-					<artifactId>opus-java</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jagrosh</groupId>
-			<artifactId>jda-utilities-commons</artifactId>
-			<version>${jda.utilities.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jagrosh</groupId>
-			<artifactId>jda-utilities-command</artifactId>
-			<version>${jda.utilities.version}</version>
-			<scope>compile</scope>
+			<version>4.2.0_222</version>
 		</dependency>
 
 	</dependencies>

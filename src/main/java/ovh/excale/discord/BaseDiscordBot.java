@@ -1,8 +1,5 @@
 package ovh.excale.discord;
 
-import com.jagrosh.jdautilities.command.CommandClient;
-import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -10,7 +7,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ovh.excale.discord.commands.BaseCommand;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -76,21 +72,15 @@ public class BaseDiscordBot {
 
 	public static void main(String[] args) {
 
-		CommandClient client = new CommandClientBuilder().setOwnerId(OWNER)
-				.addCommands(new BaseCommand())
-				.setCoOwnerIds(CO_OWNERS)
-				.setActivity(Activity.listening("excale"))
-				.setPrefix("bot:")
-				.build();
-
 		try {
 
-			jda = JDABuilder.create(TOKEN, GatewayIntent.GUILD_MESSAGES)
+			jda = JDABuilder.create(TOKEN, GatewayIntent.GUILD_VOICE_STATES)
 					.disableCache(CacheFlag.ACTIVITY,
-							CacheFlag.VOICE_STATE,
+							CacheFlag.CLIENT_STATUS,
 							CacheFlag.EMOTE,
-							CacheFlag.CLIENT_STATUS)
-					.addEventListeners(new EventWaiter(), client)
+							CacheFlag.MEMBER_OVERRIDES)
+					.setActivity(Activity.listening("donne"))
+					.setToken(TOKEN)
 					.build()
 					.awaitReady();
 
