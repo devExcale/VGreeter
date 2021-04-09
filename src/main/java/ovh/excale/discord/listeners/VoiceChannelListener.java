@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
+import ovh.excale.discord.FainaAudioHandler;
 
 public class VoiceChannelListener extends ListenerAdapter {
 
@@ -21,13 +22,19 @@ public class VoiceChannelListener extends ListenerAdapter {
 
 		if(isGirl) {
 
+			FainaAudioHandler audioHandler = new FainaAudioHandler();
+			// TODO: LOG
+			if(!audioHandler.canProvide())
+				System.err.println("Couldn't load audio file");
+
 			VoiceChannel channel = event.getChannelJoined();
 			AudioManager audioManager = event.getGuild()
 					.getAudioManager();
 
-			audioManager.openAudioConnection(channel);
+			audioHandler.onTrackEnd(() -> audioManager.closeAudioConnection());
 
-			
+			audioManager.setSendingHandler(audioHandler);
+			audioManager.openAudioConnection(channel);
 
 		}
 

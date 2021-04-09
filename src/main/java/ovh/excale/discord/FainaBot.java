@@ -15,14 +15,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class BaseDiscordBot {
+public class FainaBot {
 
 	public static final Logger logger;
 	public static final String VERSION;
 	public static final String OWNER;
 	public static final String[] CO_OWNERS;
 
-	private static final Class<BaseDiscordBot> selfClass = BaseDiscordBot.class;
+	private static final Class<FainaBot> selfClass = FainaBot.class;
 	private static final transient String TOKEN;
 	private static JDA jda;
 

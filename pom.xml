@@ -34,6 +34,12 @@
 			<version>4.2.0_222</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.gagravarr</groupId>
+			<artifactId>vorbis-java-core</artifactId>
+			<version>0.8</version>
+		</dependency>
+
 	</dependencies>
 
 	<repositories>
@@ -69,7 +75,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>ovh.excale.discord.BaseDiscordBot</mainClass>
+							<mainClass>ovh.excale.discord.FainaBot</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
