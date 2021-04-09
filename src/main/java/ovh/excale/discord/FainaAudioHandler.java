@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.audio.AudioSendHandler;
 import org.gagravarr.ogg.OggPacket;
 import org.gagravarr.ogg.OggPacketReader;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -15,12 +17,13 @@ import java.util.concurrent.TimeUnit;
 
 public class FainaAudioHandler implements AudioSendHandler {
 
+	private final static Logger logger = LoggerFactory.getLogger(FainaAudioHandler.class);
 	private static final List<OggPacket> packetList = new LinkedList<>();
 
 	static {
 
 		try(InputStream fainaIS = FainaAudioHandler.class.getClassLoader()
-				.getResourceAsStream("erfaina-encoded.opus")) {
+				.getResourceAsStream("tracks/a_fantastica.opus")) {
 
 			OggPacketReader packetReader = new OggPacketReader(fainaIS);
 
@@ -29,8 +32,7 @@ public class FainaAudioHandler implements AudioSendHandler {
 				packetList.add(packet);
 
 		} catch(Exception e) {
-			// TODO: LOG
-			e.printStackTrace();
+			logger.error("Cannot load track", e);
 		}
 
 	}
