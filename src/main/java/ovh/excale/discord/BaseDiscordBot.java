@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ovh.excale.discord.listeners.VoiceChannelListener;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -79,6 +80,7 @@ public class BaseDiscordBot {
 							CacheFlag.CLIENT_STATUS,
 							CacheFlag.EMOTE,
 							CacheFlag.MEMBER_OVERRIDES)
+					.addEventListeners(new VoiceChannelListener())
 					.setActivity(Activity.listening("donne"))
 					.setToken(TOKEN)
 					.build()
