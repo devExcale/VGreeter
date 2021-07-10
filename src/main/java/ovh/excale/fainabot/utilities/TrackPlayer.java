@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class TrackPlayer implements AudioSendHandler {
 
@@ -62,12 +63,15 @@ public class TrackPlayer implements AudioSendHandler {
 
 		ByteBuffer buffer = null;
 
-		if(packetIterator.hasNext())
+		if(packetIterator.hasNext()) {
+
 			buffer = ByteBuffer.wrap(packetIterator.next()
 					.getData());
-		else
-			Executors.newSingleThreadExecutor()
-					.execute(trackEndAction);
+
+			if(!packetIterator.hasNext())
+				Executors.newSingleThreadScheduledExecutor()
+						.schedule(trackEndAction, 40, TimeUnit.MILLISECONDS);
+		}
 
 		return buffer;
 	}

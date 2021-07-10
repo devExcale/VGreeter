@@ -22,6 +22,7 @@ import ovh.excale.fainabot.utilities.TrackPlayer;
 import javax.security.auth.login.LoginException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -32,11 +33,17 @@ public class DiscordService implements EventListener {
 	private final TrackService trackService;
 	private final Set<Long> guildLocks = Collections.synchronizedSet(new HashSet<>());
 	private final JDA jda;
+	private final Random random;
 
-	public DiscordService(TrackService trackService,
-			@Value("${discord.token}") String token) throws LoginException, InterruptedException {
+	// TODO: reloadable probability
+	private final int joinProbability;
 
+	public DiscordService(TrackService trackService, @Value("${application.discord.token}") String token,
+			@Value("${application.discord.join-probability}") Integer joinProbability) throws LoginException, InterruptedException {
+
+		this.joinProbability = joinProbability;
 		this.trackService = trackService;
+		random = new Random();
 		jda = JDABuilder.create(token, GatewayIntent.GUILD_VOICE_STATES)
 				.disableCache(CacheFlag.ACTIVITY,
 						CacheFlag.ONLINE_STATUS,
@@ -61,6 +68,9 @@ public class DiscordService implements EventListener {
 			Guild guild = joinEvent.getGuild();
 
 			if(guildLocks.contains(guild.getIdLong()))
+				return;
+
+			if(random.nextInt(100) + 1 > joinProbability)
 				return;
 
 			TrackPlayer trackPlayer = new TrackPlayer(trackService.randomTrack());
