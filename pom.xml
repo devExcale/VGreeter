@@ -4,16 +4,24 @@
 		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.5.2</version>
+		<relativePath/>
+	</parent>
+
 	<groupId>ovh.excale</groupId>
 	<artifactId>er-faina</artifactId>
-	<version>1.0</version>
+	<version>2.0</version>
 
 	<name>ErFaina</name>
 	<description>Er Faina che fischia alle e-girls</description>
-	<url>https://github.com/Cr4zy5kyU/ErFaina</url>
+	<url>https://github.com/devExcale/ErFaina</url>
 	<packaging>jar</packaging>
 
 	<properties>
+		<java.version>1.8</java.version>
 		<maven.compiler.source>8</maven.compiler.source>
 		<maven.compiler.target>8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,22 +30,42 @@
 
 	<dependencies>
 
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+		</dependency>
+
+		<!-- Discord -->
+		<dependency>
+			<groupId>net.dv8tion</groupId>
+			<artifactId>JDA</artifactId>
+			<version>4.3.0_277</version>
+		</dependency>
+
+		<!-- Opus processing -->
+		<dependency>
+			<groupId>org.gagravarr</groupId>
+			<artifactId>vorbis-java-core</artifactId>
+			<version>0.8</version>
+		</dependency>
+
+		<!-- Logging -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.3</version>
 		</dependency>
 
+		<!-- PostgreSQL Driver -->
 		<dependency>
-			<groupId>net.dv8tion</groupId>
-			<artifactId>JDA</artifactId>
-			<version>4.2.1_255</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.gagravarr</groupId>
-			<artifactId>vorbis-java-core</artifactId>
-			<version>0.8</version>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.22</version>
 		</dependency>
 
 	</dependencies>
@@ -67,6 +95,12 @@
 		<plugins>
 
 			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.5.2</version>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2-beta-5</version>
@@ -75,7 +109,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>ovh.excale.discord.FainaBot</mainClass>
+							<mainClass>ovh.excale.fainabot.FainaBotApplication</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

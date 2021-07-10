@@ -10,13 +10,16 @@
 		</layout>
 	</appender>
 
-	<logger name="ovh.excale"
-			level="debug"
+	<logger name="ovh.excale.fainabot"
+			level="info"
 			additivity="false">
 		<appender-ref ref="CONSOLE"/>
 	</logger>
 
-	<root level="error">
+	<logger name="ch.qos.logback"
+			level="warn"/>
+
+	<root level="warn">
 		<appender-ref ref="CONSOLE"/>
 	</root>
 
