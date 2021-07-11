@@ -17,13 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+import ovh.excale.fainabot.models.GuildModel;
+import ovh.excale.fainabot.repositories.GuildRepository;
 import ovh.excale.fainabot.utilities.TrackPlayer;
 
 import javax.security.auth.login.LoginException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class DiscordService implements EventListener {
@@ -31,18 +30,17 @@ public class DiscordService implements EventListener {
 	private final static Logger logger = LoggerFactory.getLogger(DiscordService.class);
 
 	private final TrackService trackService;
+	private final GuildRepository guildRepo;
 	private final Set<Long> guildLocks = Collections.synchronizedSet(new HashSet<>());
 	private final JDA jda;
 	private final Random random;
 
-	// TODO: reloadable probability
-	private final int joinProbability;
+	public DiscordService(TrackService trackService, GuildRepository guildRepo,
+			@Value("${DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
 
-	public DiscordService(TrackService trackService, @Value("${application.discord.token}") String token,
-			@Value("${application.discord.join-probability}") Integer joinProbability) throws LoginException, InterruptedException {
-
-		this.joinProbability = joinProbability;
 		this.trackService = trackService;
+		this.guildRepo = guildRepo;
+
 		random = new Random();
 		jda = JDABuilder.create(token, GatewayIntent.GUILD_VOICE_STATES)
 				.disableCache(CacheFlag.ACTIVITY,
@@ -69,6 +67,19 @@ public class DiscordService implements EventListener {
 
 			if(guildLocks.contains(guild.getIdLong()))
 				return;
+
+			int joinProbability;
+
+			Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
+			if(opt.isPresent())
+				joinProbability = opt.get()
+						.getJoinProbability();
+			else {
+				GuildModel guildModel = new GuildModel(guild.getIdLong());
+				joinProbability = guildModel.getJoinProbability();
+				// TODO: async
+				guildRepo.save(guildModel);
+			}
 
 			if(random.nextInt(100) + 1 > joinProbability)
 				return;
