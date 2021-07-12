@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Er Faina <i>(ma versione bot)</i> che non fa catcalling quando una donna entra in vocale.
  * <br/>
- * <a href="https://discord.com/api/oauth2/authorize?client_id=829982567217233920&permissions=3145728&scope=bot">Invitalo ora!</a>
+ * <a href="https://discord.com/api/oauth2/authorize?client_id=829982567217233920&permissions=2150632448&scope=bot%20applications.commands">Invitalo ora!</a>
  */
 @SpringBootApplication
 public class FainaBotApplication implements CommandLineRunner {

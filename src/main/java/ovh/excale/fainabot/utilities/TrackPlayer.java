@@ -6,7 +6,7 @@ import org.gagravarr.ogg.OggPacketReader;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ovh.excale.fainabot.models.Track;
+import ovh.excale.fainabot.models.TrackModel;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,11 +20,11 @@ public class TrackPlayer implements AudioSendHandler {
 
 	private final static Logger logger = LoggerFactory.getLogger(TrackPlayer.class);
 
-	private final Track track;
+	private final TrackModel track;
 	private final Iterator<OggPacket> packetIterator;
 	private Runnable trackEndAction;
 
-	public TrackPlayer(Track track) {
+	public TrackPlayer(TrackModel track) {
 		this.track = track;
 		this.trackEndAction = () -> { };
 		List<OggPacket> packetList = new LinkedList<>();
@@ -45,7 +45,7 @@ public class TrackPlayer implements AudioSendHandler {
 		packetIterator = packetList.iterator();
 	}
 
-	public Track getTrack() {
+	public TrackModel getTrack() {
 		return track;
 	}
 

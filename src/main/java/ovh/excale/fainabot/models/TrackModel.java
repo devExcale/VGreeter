@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 
 @Entity
 @Table(name = "track")
-public class Track {
+public class TrackModel {
 
 	@Id
 	@Column(name = "track_id")
@@ -28,7 +28,7 @@ public class Track {
 	@JoinColumn(name = "uploader_id")
 	private UserModel uploader;
 
-	public Track() {
+	public TrackModel() {
 
 	}
 
@@ -36,7 +36,7 @@ public class Track {
 		return id;
 	}
 
-	public Track setId(Long id) {
+	public TrackModel setId(Long id) {
 		this.id = id;
 		return this;
 	}
@@ -45,7 +45,7 @@ public class Track {
 		return name;
 	}
 
-	public Track setName(String name) {
+	public TrackModel setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -54,7 +54,7 @@ public class Track {
 		return size;
 	}
 
-	public Track setSize(Long size) {
+	public TrackModel setSize(Long size) {
 		this.size = size;
 		return this;
 	}
@@ -63,7 +63,7 @@ public class Track {
 		return data;
 	}
 
-	public Track setData(byte[] data) {
+	public TrackModel setData(byte[] data) {
 		this.data = data;
 		return this;
 	}
@@ -72,7 +72,7 @@ public class Track {
 		return uploader;
 	}
 
-	public Track setUploader(UserModel uploader) {
+	public TrackModel setUploader(UserModel uploader) {
 		this.uploader = uploader;
 		return this;
 	}

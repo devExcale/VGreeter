@@ -17,10 +17,12 @@ public class GuildModel {
 	private Integer joinProbability;
 
 	public GuildModel() {
+		joinProbability = 15;
 	}
 
 	public GuildModel(Long id) {
 		this.id = id;
+		joinProbability = 15;
 	}
 
 	public Long getId() {
