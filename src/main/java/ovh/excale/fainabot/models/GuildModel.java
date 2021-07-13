@@ -9,6 +9,8 @@ import javax.persistence.Table;
 @Table(name = "guild")
 public class GuildModel {
 
+	public static final int DEFAULT_JOIN_PROBABILITY = 15;
+
 	@Id
 	@Column(name = "id_guild")
 	private Long id;
@@ -17,12 +19,12 @@ public class GuildModel {
 	private Integer joinProbability;
 
 	public GuildModel() {
-		joinProbability = 15;
+		joinProbability = DEFAULT_JOIN_PROBABILITY;
 	}
 
 	public GuildModel(Long id) {
 		this.id = id;
-		joinProbability = 15;
+		joinProbability = DEFAULT_JOIN_PROBABILITY;
 	}
 
 	public Long getId() {

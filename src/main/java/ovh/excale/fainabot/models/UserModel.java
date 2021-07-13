@@ -3,11 +3,14 @@ package ovh.excale.fainabot.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 public class UserModel {
 
 	@Id
 	private Long snowflake;
+
+	@Basic
+	private String altname;
 
 	@Basic
 	@Column(name = "tracks_max")
@@ -22,6 +25,15 @@ public class UserModel {
 
 	public UserModel setSnowflake(Long snowflake) {
 		this.snowflake = snowflake;
+		return this;
+	}
+
+	public String getAltname() {
+		return altname;
+	}
+
+	public UserModel setAltname(String altname) {
+		this.altname = altname;
 		return this;
 	}
 
