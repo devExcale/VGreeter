@@ -9,7 +9,7 @@ import ovh.excale.fainabot.repositories.TrackRepository;
 @Service
 public class TrackService {
 
-	public static final int DEFAULT_MAX_TRACK_SIZE = 1024 * 40;
+	public static final int DEFAULT_MAX_TRACK_SIZE = 1024 * 64;
 
 	private final TrackRepository trackRepo;
 

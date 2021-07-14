@@ -39,14 +39,12 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 	private final GuildRepository guildRepo;
 	private final TrackService trackService;
 
-	private final Set<Long> guildLocks;
 	private final Random random;
 
 	public DiscordEventHandlerService(UserRepository userRepo, GuildRepository guildRepo, TrackService trackService) {
 		this.userRepo = userRepo;
 		this.guildRepo = guildRepo;
 		this.trackService = trackService;
-		guildLocks = Collections.synchronizedSet(new HashSet<>());
 		random = new Random();
 	}
 
@@ -57,6 +55,7 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 		User user = event.getMember()
 				.getUser();
 
+		Set<Long> guildLocks = DiscordService.getGuildVoiceLocks();
 		if(user.isBot() || guildLocks.contains(guild.getIdLong()))
 			return;
 
@@ -82,6 +81,7 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 		}
 
 		VoiceChannel channel = event.getChannelJoined();
+
 		AudioManager audioManager = event.getGuild()
 				.getAudioManager();
 
@@ -90,6 +90,7 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 			audioManager.closeAudioConnection();
 		});
 
+		// TODO: PERMS
 		audioManager.setSendingHandler(trackPlayer);
 		audioManager.openAudioConnection(channel);
 		guildLocks.add(guild.getIdLong());
@@ -167,6 +168,14 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 
 						// TODO: USE TRACK_SERVICE
 						TrackRepository trackRepo = trackService.getTrackRepo();
+						String trackname = filenameMatcher.group(1);
+
+						if(trackRepo.existsByNameAndUploader(trackname, userModel)) {
+							message.reply("You've already uploaded a track with the same name")
+									.queue();
+							return;
+						}
+
 						TrackModel track = new TrackModel().setName(filenameMatcher.group(1))
 								.setUploader(userModel)
 								.setSize((long) data.length)

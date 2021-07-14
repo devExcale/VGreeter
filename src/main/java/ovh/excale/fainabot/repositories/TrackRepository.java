@@ -8,7 +8,7 @@ import ovh.excale.fainabot.models.TrackModel;
 import ovh.excale.fainabot.models.UserModel;
 
 @Repository
-public interface TrackRepository extends CrudRepository<TrackModel, Integer> {
+public interface TrackRepository extends CrudRepository<TrackModel, Long> {
 
 	Page<TrackModel> findAll(Pageable pageable);
 

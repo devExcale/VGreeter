@@ -26,7 +26,7 @@ public class TrackModel {
 	@Basic
 	private Timestamp uploadDate;
 
-	@Basic
+	@Basic(fetch = FetchType.LAZY)
 	private byte[] data;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -92,7 +92,7 @@ public class TrackModel {
 	}
 
 	public OggPacketReader getPacketReader() {
-		return new OggPacketReader(new ByteArrayInputStream(data));
+		return new OggPacketReader(new ByteArrayInputStream(getData()));
 	}
 
 }
