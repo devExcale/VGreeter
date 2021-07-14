@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -39,17 +38,14 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 	private final UserRepository userRepo;
 	private final GuildRepository guildRepo;
 	private final TrackService trackService;
-	private final DiscordCommandHandlerService commandHandler;
 
 	private final Set<Long> guildLocks;
 	private final Random random;
 
-	public DiscordEventHandlerService(UserRepository userRepo, GuildRepository guildRepo, TrackService trackService,
-			DiscordCommandHandlerService commandHandler) {
+	public DiscordEventHandlerService(UserRepository userRepo, GuildRepository guildRepo, TrackService trackService) {
 		this.userRepo = userRepo;
 		this.guildRepo = guildRepo;
 		this.trackService = trackService;
-		this.commandHandler = commandHandler;
 		guildLocks = Collections.synchronizedSet(new HashSet<>());
 		random = new Random();
 	}
@@ -58,8 +54,10 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 	public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
 
 		Guild guild = event.getGuild();
+		User user = event.getMember()
+				.getUser();
 
-		if(guildLocks.contains(guild.getIdLong()))
+		if(user.isBot() || guildLocks.contains(guild.getIdLong()))
 			return;
 
 		int joinProbability;
@@ -195,27 +193,6 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 					logger.warn("Error while opening OpusFile", e);
 					return null;
 				});
-
-	}
-
-	@Override
-	public void onSlashCommand(@NotNull SlashCommandEvent event) {
-
-		if(event.getGuild() == null) {
-			event.reply("This ain't a guild")
-					.setEphemeral(true)
-					.queue();
-			return;
-		}
-
-		//noinspection SwitchStatementWithTooFewBranches
-		switch(event.getName()) {
-
-			case "probab":
-				commandHandler.manageProbability(event);
-				break;
-
-		}
 
 	}
 

@@ -14,9 +14,6 @@ public class CommandBuilder {
 		return new CommandBuilderPrototype(name);
 	}
 
-	private String name;
-	private String description;
-
 	private final CommandData commandData;
 	private final List<SubcommandData> subcommands;
 	private SubcommandData currentSubcommand;
@@ -24,8 +21,6 @@ public class CommandBuilder {
 	private Boolean subcommand;
 
 	private CommandBuilder(String name, String description) {
-		this.name = name;
-		this.description = description;
 
 		commandData = new CommandData(name, description);
 		subcommands = new LinkedList<>();
@@ -75,7 +70,7 @@ public class CommandBuilder {
 
 	public CommandData build() {
 
-		if(subcommand)
+		if(subcommand != null && subcommand)
 			commandData.addSubcommands(subcommands);
 
 		return commandData;

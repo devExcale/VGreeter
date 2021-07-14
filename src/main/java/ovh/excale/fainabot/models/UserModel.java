@@ -19,6 +19,10 @@ public class UserModel {
 	public UserModel() {
 	}
 
+	public UserModel(long snowflake) {
+		this.snowflake = snowflake;
+	}
+
 	public Long getSnowflake() {
 		return snowflake;
 	}

@@ -4,6 +4,8 @@ import org.gagravarr.ogg.OggPacketReader;
 
 import javax.persistence.*;
 import java.io.ByteArrayInputStream;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "track")
@@ -22,6 +24,9 @@ public class TrackModel {
 	private Long size;
 
 	@Basic
+	private Timestamp uploadDate;
+
+	@Basic
 	private byte[] data;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -29,7 +34,7 @@ public class TrackModel {
 	private UserModel uploader;
 
 	public TrackModel() {
-
+		uploadDate = Timestamp.from(Instant.now());
 	}
 
 	public Long getId() {
@@ -74,6 +79,15 @@ public class TrackModel {
 
 	public TrackModel setUploader(UserModel uploader) {
 		this.uploader = uploader;
+		return this;
+	}
+
+	public Timestamp getUploadDate() {
+		return uploadDate;
+	}
+
+	public TrackModel setUploadDate(Timestamp uploadDate) {
+		this.uploadDate = uploadDate;
 		return this;
 	}
 

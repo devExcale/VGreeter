@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
@@ -12,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import ovh.excale.fainabot.utilities.CommandBuilder;
+import ovh.excale.fainabot.commands.AltnameCommand;
+import ovh.excale.fainabot.commands.CommandRegister;
+import ovh.excale.fainabot.commands.ProbabilityCommand;
+import ovh.excale.fainabot.commands.UploadCommand;
 
 import javax.security.auth.login.LoginException;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ public class DiscordService {
 
 	private final JDA jda;
 
-	public DiscordService(DiscordEventHandlerService handler,
+	public DiscordService(DiscordEventHandlerService eventHandler, CommandRegister commands,
 			@Value("${DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
 
 		jda = JDABuilder.create(token, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.DIRECT_MESSAGES)
@@ -34,19 +36,16 @@ public class DiscordService {
 						CacheFlag.MEMBER_OVERRIDES,
 						CacheFlag.EMOTE)
 				.setActivity(Activity.listening("people"))
-				.addEventListeners(handler)
+				.addEventListeners(eventHandler, commands.getListener())
 				.build()
 				.awaitReady();
 
 		jda.updateCommands()
-				.addCommands(CommandBuilder.create("probab")
-						.setDescription("Manage the Voice Chat Join Probability")
-						.subcommand("set", "Set the new Join Probability")
-						.addOptionRequired("percent", "Join Probability (0 to 100)", OptionType.INTEGER)
-						.subcommand("get", "Get the current Join Probability")
-						.subcommand("default", "Reset the Join Probability to its default")
-						.build())
-				.queue(commands -> logger.info("[Registered commands] " + commands.stream()
+				.addCommands(commands.register(new ProbabilityCommand())
+						.register(new AltnameCommand())
+						.register(new UploadCommand())
+						.getData())
+				.queue(commandList -> logger.info("[Registered commands] " + commandList.stream()
 						.map(Command::getName)
 						.collect(Collectors.joining(", "))), e -> logger.warn("Couldn't update commands", e));
 

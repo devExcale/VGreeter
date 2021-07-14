@@ -1,38 +1,64 @@
-package ovh.excale.fainabot.services;
+package ovh.excale.fainabot.commands;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import org.springframework.stereotype.Service;
+import ovh.excale.fainabot.FainaBotApplication;
 import ovh.excale.fainabot.models.GuildModel;
 import ovh.excale.fainabot.repositories.GuildRepository;
 
 import java.util.Optional;
 
-@Service
-public class DiscordCommandHandlerService {
+public class ProbabilityCommand extends AbstractCommand {
 
 	private final GuildRepository guildRepo;
 
-	public DiscordCommandHandlerService(GuildRepository guildRepo) {
-		this.guildRepo = guildRepo;
+	public ProbabilityCommand() {
+		super("probab", "Manage the Voice Chat Join Probability");
+		this.getBuilder()
+				.subcommand("set", "Set the new Join Probability")
+				.addOptionRequired("percent", "Join Probability (0 to 100)", OptionType.INTEGER)
+				.subcommand("get", "Get the current Join Probability")
+				.subcommand("default", "Reset the Join Probability to its default");
+
+		guildRepo = FainaBotApplication.getApplicationContext()
+				.getBean(GuildRepository.class);
+
 	}
 
-	@SuppressWarnings("ConstantConditions")
-	public void manageProbability(SlashCommandEvent event) {
+	@Override
+	public ReplyAction execute(SlashCommandEvent event) {
 
 		Guild guild = event.getGuild();
+
+		if(guild == null)
+			return event.reply("This ain't a guild")
+					.setEphemeral(true);
+
 		Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
 		GuildModel guildModel = opt.orElseGet(() -> new GuildModel(guild.getIdLong()));
+
+		Member member = event.getMember();
+		//noinspection ConstantConditions
+		if(!member.hasPermission(Permission.ADMINISTRATOR))
+			return event.reply("You must have ADMINISTRATOR permission to use this command")
+					.setEphemeral(true);
 
 		int prevProbab = guildModel.getJoinProbability();
 		ReplyAction reply;
 
-		switch(event.getSubcommandName()) {
+		String subcommand = Optional.ofNullable(event.getSubcommandName())
+				.orElse("");
+
+		switch(subcommand) {
 
 			case "set":
 
+				//noinspection ConstantConditions
 				int newProbab = Optional.of(event.getOption("percent"))
 						.map(OptionMapping::getAsString)
 						.map(Integer::parseInt)
@@ -64,8 +90,7 @@ public class DiscordCommandHandlerService {
 
 		}
 
-		reply.queue();
-
+		return reply;
 	}
 
 }

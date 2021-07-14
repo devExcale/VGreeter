@@ -7,4 +7,6 @@ import ovh.excale.fainabot.models.UserModel;
 @Repository
 public interface UserRepository extends CrudRepository<UserModel, Long> {
 
+	boolean existsByAltname(String altname);
+
 }

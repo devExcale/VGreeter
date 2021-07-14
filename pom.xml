@@ -13,7 +13,7 @@
 
 	<groupId>ovh.excale</groupId>
 	<artifactId>er-faina</artifactId>
-	<version>2.1</version>
+	<version>2.2</version>
 
 	<name>ErFaina</name>
 	<description>Er Faina che fischia alle e-girls</description>
