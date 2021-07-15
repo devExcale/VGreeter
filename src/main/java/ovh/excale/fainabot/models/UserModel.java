@@ -14,13 +14,15 @@ public class UserModel {
 
 	@Basic
 	@Column(name = "tracks_max")
-	private Integer maxTracks;
+	private Integer trackMaxSize;
 
 	public UserModel() {
+		trackMaxSize = 64 * 1024;
 	}
 
 	public UserModel(long snowflake) {
 		this.snowflake = snowflake;
+		trackMaxSize = 64 * 1024;
 	}
 
 	public Long getSnowflake() {
@@ -41,12 +43,12 @@ public class UserModel {
 		return this;
 	}
 
-	public Integer getMaxTracks() {
-		return maxTracks;
+	public Integer getTrackMaxSize() {
+		return trackMaxSize;
 	}
 
-	public UserModel setMaxTracks(Integer maxTracks) {
-		this.maxTracks = maxTracks;
+	public UserModel setTrackMaxSize(Integer maxTracks) {
+		this.trackMaxSize = maxTracks;
 		return this;
 	}
 
