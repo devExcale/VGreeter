@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.gagravarr.ogg.OggFile;
@@ -79,16 +80,17 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 		}
 
 		VoiceChannel channel = event.getChannelJoined();
-
 		AudioManager audioManager = event.getGuild()
 				.getAudioManager();
 
 		trackPlayer.setTrackEndAction(audioManager::closeAudioConnection);
 
-		// TODO: PERMS
-		audioManager.setSendingHandler(trackPlayer);
-		audioManager.openAudioConnection(channel);
-		guildLocks.add(guild.getIdLong());
+		try {
+			audioManager.setSendingHandler(trackPlayer);
+			audioManager.openAudioConnection(channel);
+			guildLocks.add(guild.getIdLong());
+		} catch(InsufficientPermissionException ignored) {
+		}
 
 	}
 

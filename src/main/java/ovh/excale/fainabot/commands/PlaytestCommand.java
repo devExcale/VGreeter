@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
@@ -76,10 +77,12 @@ public class PlaytestCommand extends AbstractCommand {
 		AudioManager audioManager = guild.getAudioManager();
 		trackPlayer.setTrackEndAction(audioManager::closeAudioConnection);
 
-		// TODO: PERMS
-		audioManager.setSendingHandler(trackPlayer);
-		audioManager.openAudioConnection(channel);
-		guildLocks.add(guild.getIdLong());
+		try {
+			audioManager.setSendingHandler(trackPlayer);
+			audioManager.openAudioConnection(channel);
+			guildLocks.add(guild.getIdLong());
+		} catch(InsufficientPermissionException ignored) {
+		}
 
 		return event.reply("Playing track `#" + trackId + "`")
 				.setEphemeral(true);
