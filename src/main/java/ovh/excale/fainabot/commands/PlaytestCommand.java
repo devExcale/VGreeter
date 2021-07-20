@@ -74,10 +74,7 @@ public class PlaytestCommand extends AbstractCommand {
 		}
 
 		AudioManager audioManager = guild.getAudioManager();
-		trackPlayer.setTrackEndAction(() -> {
-			guildLocks.remove(guild.getIdLong());
-			audioManager.closeAudioConnection();
-		});
+		trackPlayer.setTrackEndAction(audioManager::closeAudioConnection);
 
 		// TODO: PERMS
 		audioManager.setSendingHandler(trackPlayer);

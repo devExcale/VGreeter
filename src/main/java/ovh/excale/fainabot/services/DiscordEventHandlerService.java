@@ -1,10 +1,8 @@
 package ovh.excale.fainabot.services;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -85,15 +83,27 @@ public class DiscordEventHandlerService extends ListenerAdapter {
 		AudioManager audioManager = event.getGuild()
 				.getAudioManager();
 
-		trackPlayer.setTrackEndAction(() -> {
-			guildLocks.remove(guild.getIdLong());
-			audioManager.closeAudioConnection();
-		});
+		trackPlayer.setTrackEndAction(audioManager::closeAudioConnection);
 
 		// TODO: PERMS
 		audioManager.setSendingHandler(trackPlayer);
 		audioManager.openAudioConnection(channel);
 		guildLocks.add(guild.getIdLong());
+
+	}
+
+	@Override
+	public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
+
+		Guild guild = event.getGuild();
+		User user = event.getMember()
+				.getUser();
+		SelfUser selfUser = event.getJDA()
+				.getSelfUser();
+
+		Set<Long> guildLocks = DiscordService.getGuildVoiceLocks();
+		if(user.getIdLong() == selfUser.getIdLong())
+			guildLocks.remove(guild.getIdLong());
 
 	}
 
