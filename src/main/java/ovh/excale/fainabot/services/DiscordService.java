@@ -50,6 +50,7 @@ public class DiscordService {
 						.register(new UploadCommand())
 						.register(new PlaytestCommand())
 						.register(new TracknameCommand())
+						.register(new TrackIndexCommand())
 						.getData())
 				.queue(commandList -> logger.info("[Registered commands] " + commandList.stream()
 						.map(Command::getName)
