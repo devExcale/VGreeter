@@ -44,6 +44,7 @@ public class DiscordService {
 				.build()
 				.awaitReady();
 
+
 		jda.updateCommands()
 				.addCommands(commands.register(new ProbabilityCommand())
 						.register(new AltnameCommand())
