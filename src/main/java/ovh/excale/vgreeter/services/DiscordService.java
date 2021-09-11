@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.services;
+package ovh.excale.vgreeter.services;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import ovh.excale.fainabot.commands.*;
+import ovh.excale.vgreeter.commands.*;
 
 import javax.security.auth.login.LoginException;
 import java.util.Collections;

@@ -1,13 +1,13 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import ovh.excale.fainabot.FainaBotApplication;
-import ovh.excale.fainabot.models.TrackModel;
-import ovh.excale.fainabot.models.UserModel;
-import ovh.excale.fainabot.repositories.TrackRepository;
+import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.models.UserModel;
+import ovh.excale.vgreeter.repositories.TrackRepository;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -25,7 +25,8 @@ public class TracknameCommand extends AbstractCommand {
 				.addOptionRequired("trackid", "Track's id", OptionType.INTEGER)
 				.addOptionRequired("trackname", "Track's new name", OptionType.STRING);
 
-		trackRepo = FainaBotApplication.getApplicationContext()
+		trackRepo = VGreeterApplication
+				.getApplicationContext()
 				.getBean(TrackRepository.class);
 
 	}

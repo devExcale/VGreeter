@@ -12,7 +12,7 @@
 		</layout>
 	</appender>
 
-	<logger name="ovh.excale.fainabot"
+	<logger name="ovh.excale.vgreeter"
 			level="info"
 			additivity="false">
 		<appender-ref ref="CONSOLE"/>

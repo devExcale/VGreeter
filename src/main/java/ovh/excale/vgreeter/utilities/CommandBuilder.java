@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.utilities;
+package ovh.excale.vgreeter.utilities;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;

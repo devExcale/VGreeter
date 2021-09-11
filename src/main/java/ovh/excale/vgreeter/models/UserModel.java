@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.models;
+package ovh.excale.vgreeter.models;
 
 import javax.persistence.*;
 

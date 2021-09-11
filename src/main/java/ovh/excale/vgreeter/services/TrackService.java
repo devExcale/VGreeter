@@ -1,10 +1,10 @@
-package ovh.excale.fainabot.services;
+package ovh.excale.vgreeter.services;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ovh.excale.fainabot.models.TrackModel;
-import ovh.excale.fainabot.repositories.TrackRepository;
+import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.repositories.TrackRepository;
 
 @Service
 public class TrackService {

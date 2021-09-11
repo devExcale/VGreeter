@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;

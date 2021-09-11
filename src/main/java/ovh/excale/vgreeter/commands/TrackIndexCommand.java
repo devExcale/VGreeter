@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import ovh.excale.fainabot.FainaBotApplication;
-import ovh.excale.fainabot.models.TrackModel;
-import ovh.excale.fainabot.repositories.TrackRepository;
+import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.repositories.TrackRepository;
 
 import java.awt.*;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class TrackIndexCommand extends AbstractCommand {
 		super("trackindex", "List all the tracks");
 		getBuilder().addOption("page", "Page number", OptionType.INTEGER);
 
-		trackRepo = FainaBotApplication
+		trackRepo = VGreeterApplication
 				.getApplicationContext()
 				.getBean(TrackRepository.class);
 

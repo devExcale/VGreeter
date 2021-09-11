@@ -1,11 +1,11 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.jetbrains.annotations.Nullable;
-import ovh.excale.fainabot.utilities.CommandBuilder;
+import ovh.excale.vgreeter.utilities.CommandBuilder;
 
 public abstract class AbstractCommand {
 

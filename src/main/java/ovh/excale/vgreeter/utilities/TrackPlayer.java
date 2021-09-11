@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.utilities;
+package ovh.excale.vgreeter.utilities;
 
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import org.gagravarr.ogg.OggPacket;
@@ -6,7 +6,7 @@ import org.gagravarr.ogg.OggPacketReader;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ovh.excale.fainabot.models.TrackModel;
+import ovh.excale.vgreeter.models.TrackModel;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

@@ -1,4 +1,4 @@
-package ovh.excale.fainabot;
+package ovh.excale.vgreeter;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -12,19 +12,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-/**
- * Er Faina <i>(ma versione bot)</i> che non fa catcalling quando una donna entra in vocale.
- * <br/>
- * <a href="https://discord.com/api/oauth2/authorize?client_id=829982567217233920&permissions=2150632448&scope=bot%20applications.commands">Invitalo ora!</a>
- */
 @SpringBootApplication
-public class FainaBotApplication implements CommandLineRunner, ApplicationContextAware {
+public class VGreeterApplication implements CommandLineRunner, ApplicationContextAware {
 
 	private static ApplicationContext ctx;
 
 	public static void main(String[] args) {
 
-		SpringApplication app = new SpringApplication(FainaBotApplication.class);
+		SpringApplication app = new SpringApplication(VGreeterApplication.class);
 		app.setBannerMode(Banner.Mode.OFF);
 		app.run(args);
 
@@ -37,9 +32,9 @@ public class FainaBotApplication implements CommandLineRunner, ApplicationContex
 	public final Logger logger;
 	public final String version;
 
-	public FainaBotApplication(@Value("${application.version}") String version) {
+	public VGreeterApplication(@Value("${application.version}") String version) {
 		this.version = version;
-		logger = LoggerFactory.getLogger(FainaBotApplication.class);
+		logger = LoggerFactory.getLogger(VGreeterApplication.class);
 	}
 
 	@Override

@@ -1,8 +1,8 @@
-package ovh.excale.fainabot.repositories;
+package ovh.excale.vgreeter.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ovh.excale.fainabot.models.GuildModel;
+import ovh.excale.vgreeter.models.GuildModel;
 
 @Repository
 public interface GuildRepository extends CrudRepository<GuildModel, Long> {

@@ -12,12 +12,12 @@
 	</parent>
 
 	<groupId>ovh.excale</groupId>
-	<artifactId>er-faina</artifactId>
-	<version>2.2.1</version>
+	<artifactId>vgreeter</artifactId>
+	<version>2.3.0</version>
 
-	<name>ErFaina</name>
-	<description>Er Faina che fischia alle e-girls</description>
-	<url>https://github.com/devExcale/ErFaina</url>
+	<name>VGreeter</name>
+	<description>Let the bot greet your friends when they join vocal chat on Discord!</description>
+	<url>https://github.com/devExcale/VGreeter</url>
 	<packaging>jar</packaging>
 
 	<properties>

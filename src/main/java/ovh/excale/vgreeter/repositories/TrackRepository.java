@@ -1,9 +1,9 @@
-package ovh.excale.fainabot.repositories;
+package ovh.excale.vgreeter.repositories;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
-import ovh.excale.fainabot.models.TrackModel;
-import ovh.excale.fainabot.models.UserModel;
+import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.models.UserModel;
 
 @Repository
 public interface TrackRepository extends PagingAndSortingRepository<TrackModel, Long> {

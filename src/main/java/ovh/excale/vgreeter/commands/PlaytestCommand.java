@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -10,11 +10,11 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ovh.excale.fainabot.FainaBotApplication;
-import ovh.excale.fainabot.models.TrackModel;
-import ovh.excale.fainabot.repositories.TrackRepository;
-import ovh.excale.fainabot.services.DiscordService;
-import ovh.excale.fainabot.utilities.TrackPlayer;
+import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.services.DiscordService;
+import ovh.excale.vgreeter.utilities.TrackPlayer;
 
 import java.util.Optional;
 import java.util.Set;
@@ -54,7 +54,8 @@ public class PlaytestCommand extends AbstractCommand {
 			return event.reply("You must be connected to a Voice Channel to use this command")
 					.setEphemeral(true);
 
-		TrackRepository trackRepo = FainaBotApplication.getApplicationContext()
+		TrackRepository trackRepo = VGreeterApplication
+				.getApplicationContext()
 				.getBean(TrackRepository.class);
 
 		//noinspection ConstantConditions

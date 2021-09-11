@@ -1,13 +1,13 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import ovh.excale.fainabot.FainaBotApplication;
-import ovh.excale.fainabot.models.UserModel;
-import ovh.excale.fainabot.repositories.UserRepository;
+import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.models.UserModel;
+import ovh.excale.vgreeter.repositories.UserRepository;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -23,7 +23,8 @@ public class AltnameCommand extends AbstractCommand {
 		this.getBuilder()
 				.addOption("username", "New username", OptionType.STRING);
 
-		userRepo = FainaBotApplication.getApplicationContext()
+		userRepo = VGreeterApplication
+				.getApplicationContext()
 				.getBean(UserRepository.class);
 
 	}

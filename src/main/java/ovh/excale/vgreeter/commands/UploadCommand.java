@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
@@ -20,7 +20,7 @@ public class UploadCommand extends AbstractCommand {
 				.append("Then send me (DM) a file with the following requirements:")
 				.append('\n')
 				.append(" • The filename can only contain alphanumeric characters, dashes `-` and underscores `_`, ")
-				.append("followed by `.opus`. (ex. `er-faina-catcall.opus`)")
+				.append("followed by `.opus`. (ex. `faina-catcall.opus`)")
 				.append('\n')
 				.append(" • The track must be opus-encoded (48KHz, 20ms packets)")
 				.append('\n')

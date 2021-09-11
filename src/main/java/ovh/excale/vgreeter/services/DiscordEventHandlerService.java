@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.services;
+package ovh.excale.vgreeter.services;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -13,13 +13,13 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ovh.excale.fainabot.models.GuildModel;
-import ovh.excale.fainabot.models.TrackModel;
-import ovh.excale.fainabot.models.UserModel;
-import ovh.excale.fainabot.repositories.GuildRepository;
-import ovh.excale.fainabot.repositories.TrackRepository;
-import ovh.excale.fainabot.repositories.UserRepository;
-import ovh.excale.fainabot.utilities.TrackPlayer;
+import ovh.excale.vgreeter.models.GuildModel;
+import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.models.UserModel;
+import ovh.excale.vgreeter.repositories.GuildRepository;
+import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.repositories.UserRepository;
+import ovh.excale.vgreeter.utilities.TrackPlayer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

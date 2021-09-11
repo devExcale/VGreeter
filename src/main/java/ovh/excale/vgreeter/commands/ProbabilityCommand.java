@@ -1,4 +1,4 @@
-package ovh.excale.fainabot.commands;
+package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import ovh.excale.fainabot.FainaBotApplication;
-import ovh.excale.fainabot.models.GuildModel;
-import ovh.excale.fainabot.repositories.GuildRepository;
+import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.models.GuildModel;
+import ovh.excale.vgreeter.repositories.GuildRepository;
 
 import java.util.Optional;
 
@@ -25,7 +25,8 @@ public class ProbabilityCommand extends AbstractCommand {
 				.subcommand("get", "Get the current Join Probability")
 				.subcommand("default", "Reset the Join Probability to its default");
 
-		guildRepo = FainaBotApplication.getApplicationContext()
+		guildRepo = VGreeterApplication
+				.getApplicationContext()
 				.getBean(GuildRepository.class);
 
 	}
@@ -39,14 +40,9 @@ public class ProbabilityCommand extends AbstractCommand {
 			return event.reply("This ain't a guild")
 					.setEphemeral(true);
 
+		Member member = event.getMember();
 		Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
 		GuildModel guildModel = opt.orElseGet(() -> new GuildModel(guild.getIdLong()));
-
-		Member member = event.getMember();
-		//noinspection ConstantConditions
-		if(!member.hasPermission(Permission.ADMINISTRATOR))
-			return event.reply("You must have ADMINISTRATOR permission to use this command")
-					.setEphemeral(true);
 
 		int prevProbab = guildModel.getJoinProbability();
 		ReplyAction reply;
@@ -57,6 +53,11 @@ public class ProbabilityCommand extends AbstractCommand {
 		switch(subcommand) {
 
 			case "set":
+
+				//noinspection ConstantConditions
+				if(!member.hasPermission(Permission.ADMINISTRATOR))
+					return event.reply("You must have ADMINISTRATOR permission to use this command")
+							.setEphemeral(true);
 
 				//noinspection ConstantConditions
 				int newProbab = Optional.of(event.getOption("percent"))
@@ -75,13 +76,22 @@ public class ProbabilityCommand extends AbstractCommand {
 				break;
 
 			case "get":
+
 				reply = event.reply("The Join Probability is " + prevProbab + "%");
+
 				break;
 
 			case "default":
+
+				//noinspection ConstantConditions
+				if(!member.hasPermission(Permission.ADMINISTRATOR))
+					return event.reply("You must have ADMINISTRATOR permission to use this command")
+							.setEphemeral(true);
+
 				guildModel.setJoinProbability(GuildModel.DEFAULT_JOIN_PROBABILITY);
 				guildRepo.save(guildModel);
 				reply = event.reply("Reset the Join Probability to " + guildModel.getJoinProbability() + "%");
+
 				break;
 
 			default:
