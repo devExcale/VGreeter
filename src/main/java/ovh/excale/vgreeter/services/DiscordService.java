@@ -28,7 +28,7 @@ public class DiscordService {
 	private final JDA jda;
 
 	public DiscordService(DiscordEventHandlerService eventHandler, CommandRegister commands,
-			@Value("${DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
+			@Value("${env.DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
 
 		jda = JDABuilder.create(token,
 				GatewayIntent.GUILD_VOICE_STATES,
