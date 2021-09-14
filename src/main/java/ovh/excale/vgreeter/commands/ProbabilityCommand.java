@@ -43,7 +43,10 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 
 		Member member = event.getMember();
 		Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
-		GuildModel guildModel = opt.orElseGet(() -> new GuildModel(guild.getIdLong()));
+		GuildModel guildModel = opt.orElseGet(() -> GuildModel
+				.builder()
+				.id(guild.getIdLong())
+				.build());
 
 		int prevProbab = guildModel.getJoinProbability();
 		ReplyAction reply;

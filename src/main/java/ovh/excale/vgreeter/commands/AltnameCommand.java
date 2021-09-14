@@ -48,7 +48,10 @@ public class AltnameCommand extends AbstractSlashCommand {
 				if(!userRepo.existsByAltname(name)) {
 
 					UserModel userModel = userRepo.findById(user.getIdLong())
-							.orElseGet(() -> new UserModel(user.getIdLong()));
+							.orElseGet(() -> UserModel
+									.builder()
+									.snowflake(user.getIdLong())
+									.build());
 
 					userModel.setAltname(name);
 					userRepo.save(userModel);

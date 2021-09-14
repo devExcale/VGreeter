@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.models;
 
+import lombok.*;
 import org.gagravarr.ogg.OggPacketReader;
 
 import javax.persistence.*;
@@ -7,6 +8,12 @@ import java.io.ByteArrayInputStream;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@ToString
 @Entity
 @Table(name = "track")
 public class TrackModel {
@@ -24,75 +31,27 @@ public class TrackModel {
 	private Long size;
 
 	@Basic
-	private Timestamp uploadDate;
+	private Timestamp uploadDate = Timestamp.from(Instant.now());
 
+	@ToString.Exclude
 	@Basic(fetch = FetchType.LAZY)
 	private byte[] data;
 
+	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "uploader_id")
 	private UserModel uploader;
 
-	public TrackModel() {
-		uploadDate = Timestamp.from(Instant.now());
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public TrackModel setId(Long id) {
-		this.id = id;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public TrackModel setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public Long getSize() {
-		return size;
-	}
-
-	public TrackModel setSize(Long size) {
-		this.size = size;
-		return this;
-	}
-
-	public byte[] getData() {
-		return data;
-	}
-
-	public TrackModel setData(byte[] data) {
-		this.data = data;
-		return this;
-	}
-
-	public UserModel getUploader() {
-		return uploader;
-	}
-
-	public TrackModel setUploader(UserModel uploader) {
-		this.uploader = uploader;
-		return this;
-	}
-
-	public Timestamp getUploadDate() {
-		return uploadDate;
-	}
-
-	public TrackModel setUploadDate(Timestamp uploadDate) {
-		this.uploadDate = uploadDate;
-		return this;
-	}
-
 	public OggPacketReader getPacketReader() {
 		return new OggPacketReader(new ByteArrayInputStream(getData()));
+	}
+
+	@SuppressWarnings("unused")
+	public static class TrackModelBuilder {
+
+		@SuppressWarnings({ "FieldMayBeFinal", "unused" })
+		private Timestamp uploadDate = Timestamp.from(Instant.now());
+
 	}
 
 }

@@ -1,10 +1,18 @@
 package ovh.excale.vgreeter.models;
 
+import lombok.*;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@ToString
 @Entity
 @Table(name = "guild")
 public class GuildModel {
@@ -16,33 +24,14 @@ public class GuildModel {
 	private Long id;
 
 	@Column(name = "join_probability")
-	private Integer joinProbability;
+	private Integer joinProbability = DEFAULT_JOIN_PROBABILITY;
 
-	public GuildModel() {
-		joinProbability = DEFAULT_JOIN_PROBABILITY;
-	}
+	@SuppressWarnings("unused")
+	public static class GuildModelBuilder {
 
-	public GuildModel(Long id) {
-		this.id = id;
-		joinProbability = DEFAULT_JOIN_PROBABILITY;
-	}
+		@SuppressWarnings({ "FieldMayBeFinal", "unused" })
+		private Integer joinProbability = DEFAULT_JOIN_PROBABILITY;
 
-	public Long getId() {
-		return id;
-	}
-
-	public GuildModel setId(Long id) {
-		this.id = id;
-		return this;
-	}
-
-	public Integer getJoinProbability() {
-		return joinProbability;
-	}
-
-	public GuildModel setJoinProbability(Integer joinProbability) {
-		this.joinProbability = joinProbability;
-		return this;
 	}
 
 }

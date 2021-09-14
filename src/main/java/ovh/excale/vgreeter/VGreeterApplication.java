@@ -1,9 +1,8 @@
 package ovh.excale.vgreeter;
 
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
@@ -14,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
+@Log4j2
 @SpringBootApplication
 public class VGreeterApplication implements CommandLineRunner, ApplicationContextAware {
 
@@ -70,17 +70,15 @@ public class VGreeterApplication implements CommandLineRunner, ApplicationContex
 		return ctx;
 	}
 
-	public final Logger logger;
 	public final String version;
 
 	public VGreeterApplication(@Value("${application.version}") String version) {
 		this.version = version;
-		logger = LoggerFactory.getLogger(VGreeterApplication.class);
 	}
 
 	@Override
 	public void run(String[] args) {
-		logger.info("Running on version {}", version);
+		log.info("Running on version {}", version);
 	}
 
 	@Override

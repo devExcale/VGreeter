@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands;
 
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
@@ -8,8 +9,6 @@ import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractMessageCommand;
 import ovh.excale.vgreeter.models.TrackModel;
@@ -21,7 +20,6 @@ import ovh.excale.vgreeter.services.TrackService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -29,9 +27,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Log4j2
 public class UploadCommand extends AbstractMessageCommand {
 
-	private static final Logger logger = LoggerFactory.getLogger(UploadCommand.class);
 	private static final Pattern TRACK_NAME_PATTERN = Pattern.compile("([\\w\\d-_]+)\\.opus");
 
 	private final UserRepository userRepo;
@@ -96,10 +94,9 @@ public class UploadCommand extends AbstractMessageCommand {
 
 		} catch(Exception e) {
 
-			logger.warn("Error while retrieving Track InputStream", e);
-			return message.reply(
-					"There has been an internal error while computing the file, please retry. " +
-							"If the error persists, contact a developer");
+			log.warn("Error while retrieving Track InputStream", e);
+			return message.reply("There has been an internal error while computing the file, please retry. " +
+					"If the error persists, contact a developer");
 
 		}
 
@@ -118,7 +115,7 @@ public class UploadCommand extends AbstractMessageCommand {
 			in.close();
 
 			if(read != size) {
-				logger.warn("Size mismatch while reading InputStream. Expected size: " + size + ", read: " + read);
+				log.warn("Size mismatch while reading InputStream. Expected size: " + size + ", read: " + read);
 				data = Arrays.copyOfRange(data, 0, read);
 			}
 
@@ -131,19 +128,20 @@ public class UploadCommand extends AbstractMessageCommand {
 			if(trackRepo.existsByNameAndUploader(trackName, userModel))
 				return message.reply("You've already uploaded a track with the same name");
 
-			TrackModel track = new TrackModel()
-					.setName(filenameMatcher.group(1))
-					.setUploader(userModel)
-					.setSize((long) data.length)
-					.setData(data);
+			TrackModel track = TrackModel
+					.builder()
+					.name(filenameMatcher.group(1))
+					.uploader(userModel)
+					.size((long) data.length)
+					.data(data)
+					.build();
 			trackRepo.save(track);
 
 		} catch(IOException e) {
 
-			logger.warn("Error while reading Track InputStream", e);
-			return message.reply(
-					"There has been an internal error while computing the file, please retry. " +
-							"If the error persists, contact a developer");
+			log.warn("Error while reading Track InputStream", e);
+			return message.reply("There has been an internal error while computing the file, please retry. " +
+					"If the error persists, contact a developer");
 
 		} catch(IllegalArgumentException e) {
 			// Not an opus track

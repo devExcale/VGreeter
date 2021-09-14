@@ -1,13 +1,12 @@
 package ovh.excale.vgreeter.services;
 
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -20,10 +19,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Service
 public class DiscordService {
 
-	private static final Logger logger = LoggerFactory.getLogger(DiscordService.class);
 	private static final Set<Long> guildVoiceLocks = Collections.synchronizedSet(new HashSet<>());
 
 	private final JDA jda;
@@ -61,12 +60,12 @@ public class DiscordService {
 						.register(new RestartCommand())
 						.register(new UploadCommand())
 						.getSlashCommandsData())
-				.queue(commandList -> logger.info("[Registered SlashCommands] " + commandList
+				.queue(commandList -> log.info("[Registered SlashCommands] " + commandList
 						.stream()
 						.map(Command::getName)
-						.collect(Collectors.joining(", "))), e -> logger.warn("Couldn't update commands", e));
+						.collect(Collectors.joining(", "))), e -> log.warn("Couldn't update commands", e));
 
-		logger.info("JDA connected");
+		log.info("JDA connected");
 
 	}
 

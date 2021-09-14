@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands;
 
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -20,9 +21,8 @@ import ovh.excale.vgreeter.utilities.TrackPlayer;
 import java.util.Optional;
 import java.util.Set;
 
+@Log4j2
 public class PlaytestCommand extends AbstractSlashCommand {
-
-	private static final Logger logger = LoggerFactory.getLogger(PlaytestCommand.class);
 
 	public PlaytestCommand() {
 		super("playtest", "Test a track");
@@ -71,7 +71,7 @@ public class PlaytestCommand extends AbstractSlashCommand {
 
 		TrackPlayer trackPlayer = new TrackPlayer(opt.get());
 		if(!trackPlayer.canProvide()) {
-			logger.error("TrackPlayer cannot provide");
+			log.error("TrackPlayer cannot provide");
 			return event.reply("There has been an internal error, retry or contact a developer.")
 					.setEphemeral(true);
 		}

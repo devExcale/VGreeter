@@ -1,25 +1,28 @@
 package ovh.excale.vgreeter.services;
 
-import net.dv8tion.jda.api.entities.*;
+import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.models.GuildModel;
 import ovh.excale.vgreeter.repositories.GuildRepository;
 import ovh.excale.vgreeter.utilities.TrackPlayer;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 
+@Log4j2
 @Service
 public class VoiceChannelHandler extends ListenerAdapter {
-
-	private final static Logger logger = LoggerFactory.getLogger(VoiceChannelHandler.class);
 
 	private final GuildRepository guildRepo;
 	private final TrackService trackService;
@@ -52,7 +55,10 @@ public class VoiceChannelHandler extends ListenerAdapter {
 			joinProbability = opt.get()
 					.getJoinProbability();
 		else {
-			GuildModel guildModel = new GuildModel(guild.getIdLong());
+			GuildModel guildModel = GuildModel
+					.builder()
+					.id(guild.getIdLong())
+					.build();
 			joinProbability = guildModel.getJoinProbability();
 			guildRepo.save(guildModel);
 		}
@@ -62,7 +68,7 @@ public class VoiceChannelHandler extends ListenerAdapter {
 
 		TrackPlayer trackPlayer = new TrackPlayer(trackService.randomTrack());
 		if(!trackPlayer.canProvide()) {
-			logger.error("TrackPlayer cannot provide");
+			log.error("TrackPlayer cannot provide");
 			return;
 		}
 

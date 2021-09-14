@@ -1,11 +1,10 @@
 package ovh.excale.vgreeter.utilities;
 
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import org.gagravarr.ogg.OggPacket;
 import org.gagravarr.ogg.OggPacketReader;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ovh.excale.vgreeter.models.TrackModel;
 
 import java.io.IOException;
@@ -16,9 +15,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+@Log4j2
 public class TrackPlayer implements AudioSendHandler {
-
-	private final static Logger logger = LoggerFactory.getLogger(TrackPlayer.class);
 
 	private final TrackModel track;
 	private final Iterator<OggPacket> packetIterator;
@@ -37,7 +35,7 @@ public class TrackPlayer implements AudioSendHandler {
 				while((packet = packetReader.getNextPacket()) != null)
 					packetList.add(packet);
 			} catch(IOException e) {
-				logger.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 			}
 
 		}
