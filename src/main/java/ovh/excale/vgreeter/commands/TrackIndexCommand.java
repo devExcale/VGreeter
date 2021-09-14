@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
 
@@ -25,7 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class TrackIndexCommand extends AbstractCommand {
+public class TrackIndexCommand extends AbstractSlashCommand {
 
 	public static final String BUTTON_COMMAND = "trackindex:";
 

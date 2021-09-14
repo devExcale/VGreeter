@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.commands.*;
+import ovh.excale.vgreeter.commands.core.CommandRegister;
 
 import javax.security.auth.login.LoginException;
 import java.util.Collections;
@@ -27,13 +28,14 @@ public class DiscordService {
 
 	private final JDA jda;
 
-	public DiscordService(DiscordEventHandlerService eventHandler, CommandRegister commands,
+	public DiscordService(VoiceChannelHandler eventHandler, CommandRegister commands,
 			@Value("${env.DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
 
-		jda = JDABuilder.create(token,
-				GatewayIntent.GUILD_VOICE_STATES,
-				GatewayIntent.DIRECT_MESSAGES,
-				GatewayIntent.GUILD_VOICE_STATES)
+		jda = JDABuilder
+				.create(token,
+						GatewayIntent.GUILD_VOICE_STATES,
+						GatewayIntent.DIRECT_MESSAGES,
+						GatewayIntent.GUILD_VOICE_STATES)
 				.disableCache(CacheFlag.ACTIVITY,
 						CacheFlag.ONLINE_STATUS,
 						CacheFlag.CLIENT_STATUS,
@@ -45,15 +47,22 @@ public class DiscordService {
 				.awaitReady();
 
 
-		jda.updateCommands()
-				.addCommands(commands.register(new ProbabilityCommand())
+		jda
+				.updateCommands()
+				.addCommands(commands
+						// SLASH COMMANDS
+						.register(new ProbabilityCommand())
 						.register(new AltnameCommand())
-						.register(new UploadCommand())
+						.register(new UploadHelpCommand())
 						.register(new PlaytestCommand())
 						.register(new TracknameCommand())
 						.register(new TrackIndexCommand())
-						.getData())
-				.queue(commandList -> logger.info("[Registered commands] " + commandList.stream()
+						// MESSAGE COMMANDS
+						.register(new RestartCommand())
+						.register(new UploadCommand())
+						.getSlashCommandsData())
+				.queue(commandList -> logger.info("[Registered SlashCommands] " + commandList
+						.stream()
 						.map(Command::getName)
 						.collect(Collectors.joining(", "))), e -> logger.warn("Couldn't update commands", e));
 
@@ -65,7 +74,7 @@ public class DiscordService {
 		return guildVoiceLocks;
 	}
 
-	@Bean
+	@Bean(destroyMethod = "shutdown")
 	public JDA getJda() {
 		return jda;
 	}

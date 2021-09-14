@@ -8,12 +8,13 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.GuildModel;
 import ovh.excale.vgreeter.repositories.GuildRepository;
 
 import java.util.Optional;
 
-public class ProbabilityCommand extends AbstractCommand {
+public class ProbabilityCommand extends AbstractSlashCommand {
 
 	private final GuildRepository guildRepo;
 

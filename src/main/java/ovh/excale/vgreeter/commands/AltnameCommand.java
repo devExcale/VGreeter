@@ -6,13 +6,14 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.UserModel;
 import ovh.excale.vgreeter.repositories.UserRepository;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class AltnameCommand extends AbstractCommand {
+public class AltnameCommand extends AbstractSlashCommand {
 
 	private static final Pattern ALTNAME_PATTERN = Pattern.compile("[\\w\\d-_]{3,}");
 

@@ -11,11 +11,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class VGreeterApplication implements CommandLineRunner, ApplicationContextAware {
 
-	private static ApplicationContext ctx;
+	@Value("${env.VGREETER_MAINTENANCE:false}")
+	private static boolean maintenance;
+	private static ConfigurableApplicationContext ctx;
 
 	public static void main(String[] args) {
 
@@ -23,6 +26,27 @@ public class VGreeterApplication implements CommandLineRunner, ApplicationContex
 		app.setBannerMode(Banner.Mode.OFF);
 		app.run(args);
 
+	}
+
+	public static void restart(boolean maintenance) {
+
+		Thread thread = new Thread(() -> {
+			ctx.close();
+			ctx = SpringApplication.run(VGreeterApplication.class);
+			// TODO: MAINTENANCE AS APPLICATION ARGUMENT
+			VGreeterApplication.setMaintenance(maintenance);
+		});
+
+		thread.setDaemon(false);
+		thread.start();
+	}
+
+	public static boolean isInMaintenance() {
+		return maintenance;
+	}
+
+	public static void setMaintenance(boolean maintenanceOn) {
+		maintenance = maintenanceOn;
 	}
 
 	public static ApplicationContext getApplicationContext() {
@@ -44,7 +68,7 @@ public class VGreeterApplication implements CommandLineRunner, ApplicationContex
 
 	@Override
 	public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {
-		ctx = context;
+		ctx = (ConfigurableApplicationContext) context;
 	}
 
 }

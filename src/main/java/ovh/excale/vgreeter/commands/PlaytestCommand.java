@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
 import ovh.excale.vgreeter.services.DiscordService;
@@ -19,7 +20,7 @@ import ovh.excale.vgreeter.utilities.TrackPlayer;
 import java.util.Optional;
 import java.util.Set;
 
-public class PlaytestCommand extends AbstractCommand {
+public class PlaytestCommand extends AbstractSlashCommand {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlaytestCommand.class);
 

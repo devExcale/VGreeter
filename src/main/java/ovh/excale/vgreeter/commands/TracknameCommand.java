@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.models.UserModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
@@ -12,7 +13,7 @@ import ovh.excale.vgreeter.repositories.TrackRepository;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class TracknameCommand extends AbstractCommand {
+public class TracknameCommand extends AbstractSlashCommand {
 
 	private static final Pattern TRACKNAME_PATTERN = Pattern.compile("[\\w\\d-_]+");
 
