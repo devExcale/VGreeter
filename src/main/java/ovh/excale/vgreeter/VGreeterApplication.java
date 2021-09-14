@@ -1,6 +1,7 @@
 package ovh.excale.vgreeter;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -16,8 +17,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class VGreeterApplication implements CommandLineRunner, ApplicationContextAware {
 
-	@Value("${env.VGREETER_MAINTENANCE:false}")
-	private static boolean maintenance;
+	private static Boolean maintenance;
 	private static ConfigurableApplicationContext ctx;
 
 	public static void main(String[] args) {
@@ -28,25 +28,42 @@ public class VGreeterApplication implements CommandLineRunner, ApplicationContex
 
 	}
 
-	public static void restart(boolean maintenance) {
+	// TODO: DON'T CONNECT TO DB DURING MAINTENANCE
+
+	// keep previous maintenance state
+	public static void restart(@Nullable final Runnable then, @Nullable final Boolean maintenance) {
+
+		// TODO: log("Restarting app")
 
 		Thread thread = new Thread(() -> {
 			ctx.close();
-			ctx = SpringApplication.run(VGreeterApplication.class);
-			// TODO: MAINTENANCE AS APPLICATION ARGUMENT
-			VGreeterApplication.setMaintenance(maintenance);
+
+			VGreeterApplication.maintenance = maintenance != null ? maintenance : VGreeterApplication.maintenance;
+
+			SpringApplication app = new SpringApplication(VGreeterApplication.class);
+			app.setBannerMode(Banner.Mode.OFF);
+			app.run();
+
+			if(then != null)
+				then.run();
+
 		});
 
 		thread.setDaemon(false);
 		thread.start();
+
+	}
+
+	public static void restart(@NotNull Runnable then) {
+		restart(then, null);
+	}
+
+	public static void restart(boolean maintenance) {
+		restart(null, maintenance);
 	}
 
 	public static boolean isInMaintenance() {
 		return maintenance;
-	}
-
-	public static void setMaintenance(boolean maintenanceOn) {
-		maintenance = maintenanceOn;
 	}
 
 	public static ApplicationContext getApplicationContext() {

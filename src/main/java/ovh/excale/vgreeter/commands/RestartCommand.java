@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -17,21 +18,31 @@ public class RestartCommand extends AbstractMessageCommand {
 	}
 
 	@Override
-	public @Nullable RestAction<?> execute(@NotNull PrivateMessageReceivedEvent event) {
+	public @Nullable RestAction<?> execute(@NotNull final PrivateMessageReceivedEvent event) {
 
 		Message message = event.getMessage();
 		ArgumentsParser arguments = new ArgumentsParser(message.getContentRaw());
 
-		boolean maintenance = arguments.getArgumentBoolean(1, false);
+		boolean maintenance = arguments
+				.getArgumentString(1)
+				.map("maintenance"::equalsIgnoreCase)
+				.orElse(false);
 		String restartMessage = maintenance ? "*Restarting on maintenance mode...*" : "*Restarting...*";
 
-		message
-				.reply(restartMessage)
+		message.reply(restartMessage)
+				// Wait for message to be sent and then restart
 				.complete();
 
-		VGreeterApplication.restart(maintenance);
-
-		// TODO: SUCCESS MESSAGE ON COMPLETE
+		//noinspection ConstantConditions
+		VGreeterApplication.restart(() -> VGreeterApplication
+				.getApplicationContext()
+				.getBean(JDA.class)
+				.getUserById(event
+						.getAuthor()
+						.getIdLong())
+				.openPrivateChannel()
+				.flatMap(dm -> dm.sendMessage("*Done!*"))
+				.queue(), maintenance);
 
 		return null;
 	}
