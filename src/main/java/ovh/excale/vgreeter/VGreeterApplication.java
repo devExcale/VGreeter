@@ -33,7 +33,7 @@ public class VGreeterApplication implements CommandLineRunner, ApplicationContex
 	// keep previous maintenance state
 	public static void restart(@Nullable final Runnable then, @Nullable final Boolean maintenance) {
 
-		// TODO: log("Restarting app")
+		log.info("Restarting app");
 
 		Thread thread = new Thread(() -> {
 			ctx.close();
