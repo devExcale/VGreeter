@@ -10,4 +10,6 @@ public class Emojis {
 
 	public static final Emoji RELOAD = Emoji.fromUnicode("U+1F504");
 
+	public static final Emoji CLOSE = Emoji.fromUnicode("U+1F1FD");
+
 }

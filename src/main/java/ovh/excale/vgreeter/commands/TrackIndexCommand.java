@@ -122,7 +122,9 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 		Button reloadButton = Button.secondary(BUTTON_COMMAND + (zeroBasedPage + 1), Emojis.RELOAD);
 
-		return new Component[] { prevButton, nextButton, reloadButton };
+		Button closeButton = Button.secondary(BUTTON_COMMAND + "close", Emojis.CLOSE);
+
+		return new Component[] { prevButton, nextButton, reloadButton, closeButton };
 
 	}
 
@@ -136,8 +138,21 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 			String stringPage = event
 					.getComponentId()
 					.replace(BUTTON_COMMAND, "");
-			int humanBasedPage;
 
+			// Close TrackIndex action
+			if(stringPage.equalsIgnoreCase("close")) {
+
+				//noinspection ConstantConditions
+				event
+						.getMessage()
+						.delete()
+						.queue();
+				return;
+
+			}
+
+			// Index page
+			int humanBasedPage;
 			try {
 
 				humanBasedPage = Integer.parseInt(stringPage);
