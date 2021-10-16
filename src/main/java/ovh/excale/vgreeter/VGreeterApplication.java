@@ -72,8 +72,10 @@ public class VGreeterApplication implements CommandLineRunner, ApplicationContex
 
 	public final String version;
 
-	public VGreeterApplication(@Value("${application.version}") String version) {
+	public VGreeterApplication(@Value("${application.version}") String version,
+			@Value("${env.MAINTENANCE:false}") boolean maintenance) {
 		this.version = version;
+		VGreeterApplication.maintenance = maintenance;
 	}
 
 	@Override
