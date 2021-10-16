@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands.core;
 
+import lombok.Getter;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -10,8 +11,13 @@ import ovh.excale.vgreeter.utilities.CommandBuilder;
 // TODO: MERGE AbstractSlashCommand AND AbstractMessageCommand WITH A PARENT AbstractCommand CLASS
 public abstract class AbstractSlashCommand {
 
+	@Getter
 	private final String name;
+
+	@Getter
 	private final String description;
+
+	@Getter
 	private final CommandBuilder builder;
 
 	protected AbstractSlashCommand(String name, String description) {
@@ -25,18 +31,6 @@ public abstract class AbstractSlashCommand {
 	}
 
 	public abstract ReplyAction execute(SlashCommandEvent event);
-
-	public String getName() {
-		return name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	protected CommandBuilder getBuilder() {
-		return builder;
-	}
 
 	public CommandData getData() {
 		return builder.build();

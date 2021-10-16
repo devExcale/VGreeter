@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands.core;
 
+import lombok.Getter;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -10,7 +11,10 @@ public abstract class AbstractMessageCommand {
 
 	public static final String PREFIX = "vg:";
 
+	@Getter
 	private final String name;
+
+	@Getter
 	private final String description;
 
 	protected AbstractMessageCommand(String name, String description) {
@@ -19,14 +23,6 @@ public abstract class AbstractMessageCommand {
 	}
 
 	public abstract @Nullable RestAction<?> execute(@NotNull PrivateMessageReceivedEvent event);
-
-	public String getName() {
-		return name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
 
 	public boolean hasListener() {
 		return false;
