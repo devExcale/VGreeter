@@ -1,7 +1,6 @@
 package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -20,6 +19,7 @@ import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.utilities.Emojis;
 
 import java.awt.*;
 import java.util.Optional;
@@ -59,9 +59,8 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 					.reply("Page option must be positive!")
 					.setEphemeral(true);
 
-		Page<TrackModel> trackPage = trackRepo.findAll(PageRequest.of(humanBasedPage - 1,
-				15,
-				Sort.by(Sort.Direction.ASC, "id")));
+		Page<TrackModel> trackPage = trackRepo.findAll(
+				PageRequest.of(humanBasedPage - 1, 15, Sort.by(Sort.Direction.ASC, "id")));
 
 		if(trackPage.isEmpty())
 			return event
@@ -114,13 +113,16 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 		int zeroBasedPage = trackPage.getNumber();
 
 		Button prevButton = Button
-				.secondary(BUTTON_COMMAND + (zeroBasedPage), Emoji.fromUnicode("\u25C0"))
+				.secondary(BUTTON_COMMAND + zeroBasedPage, Emojis.PREVIOUS)
 				.withDisabled(!trackPage.hasPrevious());
+
 		Button nextButton = Button
-				.secondary(BUTTON_COMMAND + (zeroBasedPage + 2), Emoji.fromUnicode("\u25B6"))
+				.secondary(BUTTON_COMMAND + (zeroBasedPage + 2), Emojis.NEXT)
 				.withDisabled(!trackPage.hasNext());
 
-		return new Component[] { prevButton, nextButton };
+		Button reloadButton = Button.secondary(BUTTON_COMMAND + (zeroBasedPage + 1), Emojis.RELOAD);
+
+		return new Component[] { prevButton, nextButton, reloadButton };
 
 	}
 
@@ -156,9 +158,8 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 				return;
 			}
 
-			Page<TrackModel> trackPage = trackRepo.findAll(PageRequest.of(humanBasedPage - 1,
-					15,
-					Sort.by(Sort.Direction.ASC, "id")));
+			Page<TrackModel> trackPage = trackRepo.findAll(
+					PageRequest.of(humanBasedPage - 1, 15, Sort.by(Sort.Direction.ASC, "id")));
 
 			if(trackPage.isEmpty()) {
 				event
