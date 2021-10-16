@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.services;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class DiscordService {
 
+	@Getter
 	private static final Set<Long> guildVoiceLocks = Collections.synchronizedSet(new HashSet<>());
 
 	private final JDA jda;
@@ -45,8 +47,9 @@ public class DiscordService {
 				.build()
 				.awaitReady();
 
+		log.info("JDA connected");
 
-		jda
+		String commandListString = jda
 				.updateCommands()
 				.addCommands(commands
 						// SLASH COMMANDS
@@ -60,17 +63,13 @@ public class DiscordService {
 						.register(new RestartCommand())
 						.register(new UploadCommand())
 						.getSlashCommandsData())
-				.queue(commandList -> log.info("[Registered SlashCommands] " + commandList
-						.stream()
-						.map(Command::getName)
-						.collect(Collectors.joining(", "))), e -> log.warn("Couldn't update commands", e));
+				.complete()
+				.stream()
+				.map(Command::getName)
+				.collect(Collectors.joining(", "));
 
-		log.info("JDA connected");
+		log.info("[Registered SlashCommands] " + commandListString);
 
-	}
-
-	public static Set<Long> getGuildVoiceLocks() {
-		return guildVoiceLocks;
 	}
 
 	@Bean(destroyMethod = "shutdown")

@@ -2,6 +2,7 @@ package ovh.excale.vgreeter.commands;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
@@ -33,14 +34,15 @@ public class RestartCommand extends AbstractMessageCommand {
 				// Wait for message to be sent and then restart
 				.complete();
 
-		//noinspection ConstantConditions
+		final long authorId = event
+				.getAuthor()
+				.getIdLong();
+
 		VGreeterApplication.restart(() -> VGreeterApplication
 				.getApplicationContext()
 				.getBean(JDA.class)
-				.getUserById(event
-						.getAuthor()
-						.getIdLong())
-				.openPrivateChannel()
+				.retrieveUserById(authorId)
+				.flatMap(User::openPrivateChannel)
 				.flatMap(dm -> dm.sendMessage("*Done!*"))
 				.queue(), maintenance);
 
