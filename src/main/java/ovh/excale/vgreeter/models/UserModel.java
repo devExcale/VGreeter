@@ -3,6 +3,7 @@ package ovh.excale.vgreeter.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -23,6 +24,10 @@ public class UserModel {
 	@Basic
 	@Column(name = "tracks_max")
 	private Integer trackMaxSize = 64 * 1024;
+
+	@ToString.Exclude
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "uploader")
+	private Set<TrackModel> tracks;
 
 	@SuppressWarnings("unused")
 	public static class UserModelBuilder {
