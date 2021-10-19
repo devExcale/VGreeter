@@ -13,7 +13,7 @@
 
 	<groupId>ovh.excale</groupId>
 	<artifactId>vgreeter</artifactId>
-	<version>2.4.0</version>
+	<version>2.5.0</version>
 
 	<name>VGreeter</name>
 	<description>Let the bot greet your friends when they join vocal chat on Discord!</description>
