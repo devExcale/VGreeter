@@ -58,7 +58,7 @@ public class DiscordService {
 						.register(new TrackRemoveCommand())
 						// MESSAGE COMMANDS
 						.register(new RestartCommand())
-						.register(new UploadCommand())
+						.register(new TrackUploadCommand())
 						.getSlashCommandsData())
 				.complete()
 				.stream()

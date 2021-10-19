@@ -28,14 +28,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Log4j2
-public class UploadCommand extends AbstractMessageCommand {
+public class TrackUploadCommand extends AbstractMessageCommand {
 
 	private static final Pattern TRACK_NAME_PATTERN = Pattern.compile("([\\w\\d-_]+)\\.opus");
 
 	private final UserRepository userRepo;
 	private final TrackService trackService;
 
-	public UploadCommand() {
+	public TrackUploadCommand() {
 		super("upload", "");
 
 		userRepo = VGreeterApplication
