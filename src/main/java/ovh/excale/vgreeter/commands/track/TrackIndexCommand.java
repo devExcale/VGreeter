@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands;
+package ovh.excale.vgreeter.commands.track;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;

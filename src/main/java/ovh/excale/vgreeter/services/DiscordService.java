@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.commands.*;
 import ovh.excale.vgreeter.commands.core.CommandRegister;
+import ovh.excale.vgreeter.commands.track.*;
 
 import javax.security.auth.login.LoginException;
 import java.util.Collections;
