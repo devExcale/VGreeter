@@ -42,6 +42,9 @@ public class TrackModel {
 	@JoinColumn(name = "uploader_id")
 	private UserModel uploader;
 
+	@Column(name = "uploader_id", insertable = false, updatable = false)
+	private Long uploaderId;
+
 	public OggPacketReader getPacketReader() {
 		return new OggPacketReader(new ByteArrayInputStream(getData()));
 	}

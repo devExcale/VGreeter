@@ -33,15 +33,10 @@ public class DiscordService {
 			@Value("${env.DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
 
 		jda = JDABuilder
-				.create(token,
-						GatewayIntent.GUILD_VOICE_STATES,
-						GatewayIntent.DIRECT_MESSAGES,
+				.create(token, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.DIRECT_MESSAGES,
 						GatewayIntent.GUILD_VOICE_STATES)
-				.disableCache(CacheFlag.ACTIVITY,
-						CacheFlag.ONLINE_STATUS,
-						CacheFlag.CLIENT_STATUS,
-						CacheFlag.MEMBER_OVERRIDES,
-						CacheFlag.EMOTE)
+				.disableCache(CacheFlag.ACTIVITY, CacheFlag.ONLINE_STATUS, CacheFlag.CLIENT_STATUS,
+						CacheFlag.MEMBER_OVERRIDES, CacheFlag.EMOTE)
 				.setActivity(Activity.listening("people"))
 				.addEventListeners(eventHandler, commands.getListener())
 				.build()
@@ -59,6 +54,7 @@ public class DiscordService {
 						.register(new PlaytestCommand())
 						.register(new TracknameCommand())
 						.register(new TrackIndexCommand())
+						.register(new TrackRemoveCommand())
 						// MESSAGE COMMANDS
 						.register(new RestartCommand())
 						.register(new UploadCommand())
