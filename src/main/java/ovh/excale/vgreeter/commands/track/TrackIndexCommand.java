@@ -76,11 +76,9 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 				.setActionRow(computeButtons(trackPage))
 				.queueAfter(2, TimeUnit.SECONDS);
 
-		String userMention = event
-				.getUser()
-				.getAsMention();
-
-		return event.reply("Track Index requested by " + userMention);
+		return event
+				.reply("Here's your track index!")
+				.setEphemeral(true);
 
 	}
 
