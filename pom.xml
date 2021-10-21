@@ -104,6 +104,9 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
+				<excludes>
+					<exclude>.env</exclude>
+				</excludes>
 			</resource>
 			<resource>
 				<directory>src/main/resources-filtered</directory>
