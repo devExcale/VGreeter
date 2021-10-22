@@ -126,7 +126,6 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 	}
 
-	// TODO: CLOSE INDEX BUTTON
 	public class ButtonClickListener extends ListenerAdapter {
 
 		@Override
