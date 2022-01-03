@@ -20,6 +20,11 @@ public class ArgumentsParser {
 				.split(" ");
 	}
 
+	public ArgumentsParser(String rawArguments, String splitRegex) {
+		this.rawArguments = rawArguments;
+		splitArguments = rawArguments.split(splitRegex);
+	}
+
 	public String getRawArguments() {
 		return rawArguments;
 	}

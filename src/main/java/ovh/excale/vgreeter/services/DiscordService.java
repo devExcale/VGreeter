@@ -11,7 +11,10 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.commands.*;
+import ovh.excale.vgreeter.commands.AltnameCommand;
+import ovh.excale.vgreeter.commands.ProbabilityCommand;
+import ovh.excale.vgreeter.commands.RestartCommand;
+import ovh.excale.vgreeter.commands.UploadHelpCommand;
 import ovh.excale.vgreeter.commands.core.CommandRegister;
 import ovh.excale.vgreeter.commands.track.*;
 
