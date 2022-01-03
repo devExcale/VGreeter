@@ -48,7 +48,7 @@ public class DiscordService {
 
 		log.info("JDA connected");
 
-		String commandListString = jda
+		String commandListString = jda.getGuildById(386229289449684994L)
 				.updateCommands()
 				.addCommands(commands
 						// SLASH COMMANDS
@@ -59,6 +59,7 @@ public class DiscordService {
 						.register(new TracknameCommand())
 						.register(new TrackIndexCommand())
 						.register(new TrackRemoveCommand())
+						.register(new TrackDownloadCommand())
 						// MESSAGE COMMANDS
 						.register(new RestartCommand())
 						.register(new TrackUploadCommand())

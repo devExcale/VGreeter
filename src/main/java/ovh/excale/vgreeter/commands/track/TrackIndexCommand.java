@@ -161,6 +161,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 	}
 
+	// TODO: cyclic prev/next (first/last page)
 	// TODO: json as component_id
 	private Component[] computeButtons(Page<TrackModel> trackPage, String subcommand, Object... args) {
 
