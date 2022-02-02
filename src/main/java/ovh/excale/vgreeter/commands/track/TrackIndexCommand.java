@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class TrackIndexCommand extends AbstractSlashCommand {
@@ -68,7 +67,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public @NotNull RestAction<?> execute(SlashCommandEvent event) {
 
 		int humanBasedPage = Optional
 				.ofNullable(event.getOption("page"))
@@ -125,15 +124,11 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 		EmbedBuilder eb = computeEmbed(trackPage);
 
 		// TODO: CHECK PERMS AND MESSAGECHANNEL
-		event
-				.getChannel()
-				.sendMessage(eb.build())
-				.setActionRow(computeButtons(trackPage, subcommand))
-				.queueAfter(2, TimeUnit.SECONDS);
-
-		return event
-				.reply("Here's your track index!")
-				.setEphemeral(true);
+		return event.reply("Here's your track index!")
+				.setEphemeral(true)
+				.and(event.getChannel()
+						.sendMessage(eb.build())
+						.setActionRow(computeButtons(trackPage, subcommand)));
 
 	}
 

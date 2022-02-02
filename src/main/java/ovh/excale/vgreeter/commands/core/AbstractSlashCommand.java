@@ -4,7 +4,9 @@ import lombok.Getter;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ovh.excale.vgreeter.utilities.CommandBuilder;
 
@@ -30,7 +32,7 @@ public abstract class AbstractSlashCommand {
 
 	}
 
-	public abstract ReplyAction execute(SlashCommandEvent event);
+	public abstract @NotNull RestAction<?> execute(SlashCommandEvent event);
 
 	public CommandData getData() {
 		return builder.build();

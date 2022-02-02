@@ -124,7 +124,7 @@ public class CommandRegister {
 			}
 
 			AbstractSlashCommand command = slashCommands.get(event.getName());
-			ReplyAction action;
+			RestAction<?> action;
 
 			if(command == null)
 				action = event
