@@ -107,11 +107,12 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 						.getOption("name")
 						.getAsString();
 
+				String formattedTrackName = "%" + trackName.replaceAll("\\s+", "%") + "%";
 				titleAppendix = "Name";
 				footerAppendix = "Filter: \"" + trackName + "\"";
 
 				options.put("track_name", trackName);
-				trackPage = trackRepo.findAllByNameLike(trackName,
+				trackPage = trackRepo.findAllByNameQuery(formattedTrackName,
 						PageRequest.of(humanBasedPage - 1, 15, Sort.by(Sort.Direction.ASC, "id")));
 
 				break;
@@ -195,20 +196,26 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 		ObjectMapper json = new ObjectMapper();
 		int zeroBasedPage = trackPage.getNumber();
 
+		// TODO: disable prev/next buttons on 1 page
+
 		// <previous> button
 		options.put("page", Integer.toString(trackPage.hasPrevious() ? zeroBasedPage - 1 : trackPage.getTotalPages() - 1));
+		options.put("emoji", Emojis.PREVIOUS.getName());
 		Button prevButton = Button.secondary(json.writeValueAsString(options), Emojis.PREVIOUS);
 
 		// <next> button
 		options.put("page", Integer.toString(!trackPage.isLast() ? zeroBasedPage + 1 : 0));
+		options.put("emoji", Emojis.NEXT.getName());
 		Button nextButton = Button.secondary(json.writeValueAsString(options), Emojis.NEXT);
 
 		// <reload> button
 		options.put("page", Integer.toString(zeroBasedPage));
+		options.put("emoji", Emojis.RELOAD.getName());
 		Button reloadButton = Button.secondary(json.writeValueAsString(options), Emojis.RELOAD);
 
 		Map<String, String> closeCommand = new HashMap<>();
 		closeCommand.put("command", "close");
+		closeCommand.put("emoji", Emojis.CLOSE.getName());
 		Button closeButton = Button.secondary(json.writeValueAsString(closeCommand), Emojis.CLOSE);
 
 		return new Component[] { prevButton, nextButton, reloadButton, closeButton };
@@ -297,10 +304,12 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 						return;
 					}
 
+
+					String formattedTrackName = "%" + trackName.replaceAll("\\s+", "%") + "%";
 					titleAppendix = "Name";
 					footerAppendix = "Filter: \"" + trackName + "\"";
 
-					trackPage = trackRepo.findAllByNameLike(trackName,
+					trackPage = trackRepo.findAllByNameQuery(formattedTrackName,
 							PageRequest.of(zeroBasedPage, 15, Sort.by(Sort.Direction.ASC, "id")));
 
 					break;
