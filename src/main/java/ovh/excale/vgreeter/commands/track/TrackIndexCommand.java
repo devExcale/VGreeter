@@ -27,7 +27,9 @@ import ovh.excale.vgreeter.repositories.TrackRepository;
 import ovh.excale.vgreeter.utilities.Emojis;
 
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -81,6 +83,8 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 		Page<TrackModel> trackPage;
 		Map<String, String> options = new HashMap<>();
 
+		String titleAppendix = null;
+		String footerAppendix = null;
 		String subcommand = event.getSubcommandName();
 		options.put("command", getName());
 		options.put("subcommand", subcommand);
@@ -97,10 +101,14 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 			case SUBCOMMAND_NAME:
 
+
 				//noinspection ConstantConditions
 				String trackName = event
 						.getOption("name")
 						.getAsString();
+
+				titleAppendix = "Name";
+				footerAppendix = "Filter: \"" + trackName + "\"";
 
 				options.put("track_name", trackName);
 				trackPage = trackRepo.findAllByNameLike(trackName,
@@ -115,6 +123,14 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 						.getOption("user")
 						.getAsUser()
 						.getIdLong();
+
+				String userTag = event.getJDA()
+						.retrieveUserById(userId)
+						.complete()
+						.getAsTag();
+
+				titleAppendix = "User";
+				footerAppendix = "Filter: " + userTag;
 
 				options.put("user_id", Long.toString(userId));
 				trackPage = trackRepo.findAllByUploaderIdIs(userId,
@@ -134,7 +150,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 					.reply("Empty page")
 					.setEphemeral(true);
 
-		EmbedBuilder eb = computeEmbed(trackPage);
+		EmbedBuilder eb = computeEmbed(trackPage, titleAppendix, footerAppendix);
 
 		// TODO: CHECK PERMS AND MESSAGECHANNEL
 		return event.reply("Here's your track index!")
@@ -155,11 +171,15 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 		return buttonListener;
 	}
 
-	private @NotNull EmbedBuilder computeEmbed(Page<TrackModel> trackPage) {
+	private @NotNull EmbedBuilder computeEmbed(Page<TrackModel> trackPage, @Nullable String titleAppendix, @Nullable String footerAppendix) {
+
+		String pageCount = "Page " + (trackPage.getNumber() + 1) + "/" + trackPage.getTotalPages();
+		String footer = footerAppendix == null ? pageCount : pageCount + "  |  " + footerAppendix;
+		String title = titleAppendix == null ? "Track Index" : "Track Index (" + titleAppendix + ")";
 
 		return new EmbedBuilder()
-				.setTitle("Track Index")
-				.setFooter("Page " + (trackPage.getNumber() + 1) + "/" + trackPage.getTotalPages())
+				.setTitle(title)
+				.setFooter(footer)
 				.setColor(Color.BLUE)
 				.setDescription(trackPage
 						.getContent()
@@ -260,6 +280,9 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 				return;
 			}
 
+			String titleAppendix = null;
+			String footerAppendix = null;
+
 			switch(subcommand) {
 
 				case SUBCOMMAND_ALL:
@@ -276,6 +299,9 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 						log.debug("Invalid button (trackName) -> " + rawJson);
 						return;
 					}
+
+					titleAppendix = "Name";
+					footerAppendix = "Filter: \"" + trackName + "\"";
 
 					trackPage = trackRepo.findAllByNameLike(trackName,
 							PageRequest.of(zeroBasedPage, 15, Sort.by(Sort.Direction.ASC, "id")));
@@ -295,6 +321,14 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 						return;
 					}
 
+					String userTag = event.getJDA()
+							.retrieveUserById(userId)
+							.complete()
+							.getAsTag();
+
+					titleAppendix = "User";
+					footerAppendix = "Filter: " + userTag;
+
 					trackPage = trackRepo.findAllByUploaderIdIs(userId,
 							PageRequest.of(zeroBasedPage, 15, Sort.by(Sort.Direction.ASC, "id")));
 
@@ -313,7 +347,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 			}
 
-			EmbedBuilder eb = computeEmbed(trackPage);
+			EmbedBuilder eb = computeEmbed(trackPage, titleAppendix, footerAppendix);
 
 			//noinspection ConstantConditions
 			event
