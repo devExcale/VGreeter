@@ -189,7 +189,6 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 	}
 
-	// TODO: cyclic prev/next (first/last page)
 	@SneakyThrows
 	private Component[] computeButtons(Page<TrackModel> trackPage, Map<String, String> options) {
 
@@ -197,14 +196,12 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 		int zeroBasedPage = trackPage.getNumber();
 
 		// <previous> button
-		options.put("page", Integer.toString(zeroBasedPage - 1));
-		Button prevButton = Button.secondary(json.writeValueAsString(options), Emojis.PREVIOUS)
-				.withDisabled(!trackPage.hasPrevious());
+		options.put("page", Integer.toString(trackPage.hasPrevious() ? zeroBasedPage - 1 : trackPage.getTotalPages() - 1));
+		Button prevButton = Button.secondary(json.writeValueAsString(options), Emojis.PREVIOUS);
 
 		// <next> button
-		options.put("page", Integer.toString(zeroBasedPage + 1));
-		Button nextButton = Button.secondary(json.writeValueAsString(options), Emojis.NEXT)
-				.withDisabled(!trackPage.hasNext());
+		options.put("page", Integer.toString(!trackPage.isLast() ? zeroBasedPage + 1 : 0));
+		Button nextButton = Button.secondary(json.writeValueAsString(options), Emojis.NEXT);
 
 		// <reload> button
 		options.put("page", Integer.toString(zeroBasedPage));
