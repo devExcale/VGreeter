@@ -1,7 +1,10 @@
 package ovh.excale.vgreeter.commands.track;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -21,19 +24,14 @@ import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
-import ovh.excale.vgreeter.utilities.ArgumentsParser;
 import ovh.excale.vgreeter.utilities.Emojis;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Log4j2
 public class TrackIndexCommand extends AbstractSlashCommand {
-
-	public static final String BUTTON_COMMAND = "trackindex";
 
 	public static final String SUBCOMMAND_ALL = "all";
 	public static final String SUBCOMMAND_NAME = "name";
@@ -81,32 +79,47 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 					.setEphemeral(true);
 
 		Page<TrackModel> trackPage;
+		Map<String, String> options = new HashMap<>();
+
 		String subcommand = event.getSubcommandName();
+		options.put("command", getName());
+		options.put("subcommand", subcommand);
 
 		//noinspection ConstantConditions
 		switch(subcommand) {
 
 			case SUBCOMMAND_ALL:
+
 				trackPage = trackRepo.findAll(
 						PageRequest.of(humanBasedPage - 1, 15, Sort.by(Sort.Direction.ASC, "id")));
+
 				break;
 
 			case SUBCOMMAND_NAME:
+
 				//noinspection ConstantConditions
-				String optionName = event
+				String trackName = event
 						.getOption("name")
 						.getAsString();
-				trackPage = trackRepo.findAllByNameLike(optionName,
+
+				options.put("track_name", trackName);
+				trackPage = trackRepo.findAllByNameLike(trackName,
 						PageRequest.of(humanBasedPage - 1, 15, Sort.by(Sort.Direction.ASC, "id")));
+
 				break;
 
 			case SUBCOMMAND_USER:
+
 				//noinspection ConstantConditions
-				User optionUser = event
+				long userId = event
 						.getOption("user")
-						.getAsUser();
-				trackPage = trackRepo.findAllByUploaderIdIs(optionUser.getIdLong(),
+						.getAsUser()
+						.getIdLong();
+
+				options.put("user_id", Long.toString(userId));
+				trackPage = trackRepo.findAllByUploaderIdIs(userId,
 						PageRequest.of(humanBasedPage - 1, 15, Sort.by(Sort.Direction.ASC, "id")));
+
 				break;
 
 			default:
@@ -128,7 +141,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 				.setEphemeral(true)
 				.and(event.getChannel()
 						.sendMessage(eb.build())
-						.setActionRow(computeButtons(trackPage, subcommand)));
+						.setActionRow(computeButtons(trackPage, options)));
 
 	}
 
@@ -157,42 +170,31 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 	}
 
 	// TODO: cyclic prev/next (first/last page)
-	// TODO: json as component_id
-	private Component[] computeButtons(Page<TrackModel> trackPage, String subcommand, Object... args) {
+	@SneakyThrows
+	private Component[] computeButtons(Page<TrackModel> trackPage, Map<String, String> options) {
 
+		ObjectMapper json = new ObjectMapper();
 		int zeroBasedPage = trackPage.getNumber();
-		String joinedArgs = (args.length == 0)
-				? ""
-				: Arrays
-						.stream(args)
-						.map(Object::toString)
-						.collect(Collectors.joining(":"));
 
-		Button prevButton = Button
-				.secondary(String.format("%s:%s:%s", BUTTON_COMMAND, subcommand,
-						argsAppendPageNumber(joinedArgs, zeroBasedPage)), Emojis.PREVIOUS)
+		// <previous> button
+		options.put("page", Integer.toString(zeroBasedPage - 1));
+		Button prevButton = Button.secondary(json.writeValueAsString(options), Emojis.PREVIOUS)
 				.withDisabled(!trackPage.hasPrevious());
 
-		Button nextButton = Button
-				.secondary(String.format("%s:%s:%s", BUTTON_COMMAND, subcommand,
-						argsAppendPageNumber(joinedArgs, zeroBasedPage + 2)), Emojis.NEXT)
+		// <next> button
+		options.put("page", Integer.toString(zeroBasedPage + 1));
+		Button nextButton = Button.secondary(json.writeValueAsString(options), Emojis.NEXT)
 				.withDisabled(!trackPage.hasNext());
 
-		Button reloadButton = Button.secondary(String.format("%s:%s:%s", BUTTON_COMMAND, subcommand,
-				argsAppendPageNumber(joinedArgs, zeroBasedPage + 1)), Emojis.RELOAD);
+		// <reload> button
+		options.put("page", Integer.toString(zeroBasedPage));
+		Button reloadButton = Button.secondary(json.writeValueAsString(options), Emojis.RELOAD);
 
-		Button closeButton = Button.secondary(String.format("%s:%s", BUTTON_COMMAND, "close"), Emojis.CLOSE);
+		Map<String, String> closeCommand = new HashMap<>();
+		closeCommand.put("command", "close");
+		Button closeButton = Button.secondary(json.writeValueAsString(closeCommand), Emojis.CLOSE);
 
 		return new Component[] { prevButton, nextButton, reloadButton, closeButton };
-
-	}
-
-	private static String argsAppendPageNumber(String joinedArgs, int page) {
-
-		if(joinedArgs.isEmpty())
-			return String.valueOf(page);
-		else
-			return joinedArgs + ":" + page;
 
 	}
 
@@ -205,46 +207,62 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 	public class ButtonClickListener extends ListenerAdapter {
 
+		@SneakyThrows
 		@Override
 		public void onButtonClick(@NotNull ButtonClickEvent event) {
 
-			// 0: command, 1: subcommand, 2+:args
-			ArgumentsParser parser = new ArgumentsParser(event.getComponentId(), ":");
+			ObjectReader jsonParser = new ObjectMapper()
+					.readerForMapOf(String.class);
+			String rawJson = event.getComponentId();
 
-			String command = parser.getArgumentString(0, "");
-			if(!command.equalsIgnoreCase(BUTTON_COMMAND))
+			Map<String, String> commandOptions = jsonParser.readValue(rawJson);
+			String commandName = commandOptions.get("command");
+
+			if(commandName == null) {
+				replyEphemeralWith("Invalid button", event);
+				log.debug("Invalid button (commandName) -> " + rawJson);
+				return;
+			}
+
+			// TODO: GENERIC CLOSE "BUTTON COMMAND" (listener)
+			if(commandName.equalsIgnoreCase("close")) {
+				//noinspection ConstantConditions
+				event
+						.getMessage()
+						.delete()
+						.queue();
+				return;
+			}
+
+			// TODO: AUTOMATIC "BUTTON COMMAND" FORWARDING
+			if(!commandName.equalsIgnoreCase(getName()))
 				return;
 
-			List<Object> args = new LinkedList<>();
-			Page<TrackModel> trackPage;
-			int zeroBasedPage;
+			String pageString = commandOptions.get("page");
+			try {
 
-			String subcommand = parser.getArgumentString(1, "");
+				if(Integer.parseInt(pageString) < 0)
+					throw new NullPointerException();
+
+			} catch(NumberFormatException | NullPointerException e) {
+				replyEphemeralWith("Invalid button", event);
+				log.debug("Invalid button (page) -> " + rawJson);
+				return;
+			}
+
+			Page<TrackModel> trackPage;
+			int zeroBasedPage = Integer.parseInt(pageString);
+			String subcommand = commandOptions.get("subcommand");
+
+			if(subcommand == null) {
+				replyEphemeralWith("Invalid button", event);
+				log.debug("Invalid button (subcommand) -> " + rawJson);
+				return;
+			}
+
 			switch(subcommand) {
 
-				case "close":
-					//noinspection ConstantConditions
-					event
-							.getMessage()
-							.delete()
-							.queue();
-					return;
-
 				case SUBCOMMAND_ALL:
-
-					zeroBasedPage = parser
-							.getArgumentInteger(2)
-							.map(i -> i - 1)
-							.orElse(0);
-
-					if(zeroBasedPage < 1) {
-
-						replyEphemeralWith("Invalid button", event);
-						return;
-
-					}
-
-					args.add(zeroBasedPage);
 
 					trackPage = trackRepo.findAll(PageRequest.of(zeroBasedPage, 15, Sort.by(Sort.Direction.ASC, "id")));
 
@@ -252,62 +270,32 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 
 				case SUBCOMMAND_NAME:
 
-					Optional<String> optStr = parser.getArgumentString(2);
-					if(!optStr.isPresent()) {
-
+					String trackName = commandOptions.get("track_name");
+					if(trackName == null) {
 						replyEphemeralWith("Invalid button", event);
+						log.debug("Invalid button (trackName) -> " + rawJson);
 						return;
-
 					}
 
-					String trackSubname = optStr.get();
-					zeroBasedPage = parser
-							.getArgumentInteger(3)
-							.map(i -> i - 1)
-							.orElse(0);
-
-					if(zeroBasedPage < 1) {
-
-						replyEphemeralWith("Invalid button", event);
-						return;
-
-					}
-
-					args.add(trackSubname);
-					args.add(zeroBasedPage);
-
-					trackPage = trackRepo.findAllByNameLike(trackSubname,
+					trackPage = trackRepo.findAllByNameLike(trackName,
 							PageRequest.of(zeroBasedPage, 15, Sort.by(Sort.Direction.ASC, "id")));
 
 					break;
 
 				case SUBCOMMAND_USER:
 
-					Optional<Long> optLong = parser.getArgumentLong(2);
-					if(!optLong.isPresent()) {
+					long userId;
+					try {
 
+						userId = Long.parseLong(commandOptions.get("user_id"));
+
+					} catch(NumberFormatException | NullPointerException e) {
 						replyEphemeralWith("Invalid button", event);
+						log.debug("Invalid button (userId) -> " + rawJson);
 						return;
-
 					}
 
-					long uploaderId = optLong.get();
-					zeroBasedPage = parser
-							.getArgumentInteger(3)
-							.map(i -> i - 1)
-							.orElse(0);
-
-					if(zeroBasedPage < 1) {
-
-						replyEphemeralWith("Invalid button", event);
-						return;
-
-					}
-
-					args.add(uploaderId);
-					args.add(zeroBasedPage);
-
-					trackPage = trackRepo.findAllByUploaderIdIs(uploaderId,
+					trackPage = trackRepo.findAllByUploaderIdIs(userId,
 							PageRequest.of(zeroBasedPage, 15, Sort.by(Sort.Direction.ASC, "id")));
 
 					break;
@@ -334,7 +322,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 					.and(event
 							.getChannel()
 							.sendMessage(eb.build())
-							.setActionRow(computeButtons(trackPage, subcommand, args.toArray())))
+							.setActionRow(computeButtons(trackPage, commandOptions)))
 					.queue();
 
 		}
