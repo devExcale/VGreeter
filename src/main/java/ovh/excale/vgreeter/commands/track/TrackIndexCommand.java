@@ -229,6 +229,7 @@ public class TrackIndexCommand extends AbstractSlashCommand {
 				.queue();
 	}
 
+	// TODO: turn this listener into a command (TrackIndexButtonCommand)
 	public class ButtonClickListener extends ListenerAdapter {
 
 		@SneakyThrows
