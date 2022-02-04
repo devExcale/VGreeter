@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.track;
+package ovh.excale.vgreeter.commands.slash;
 
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;

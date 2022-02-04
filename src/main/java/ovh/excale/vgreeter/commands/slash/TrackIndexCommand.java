@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.track;
+package ovh.excale.vgreeter.commands.slash;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;

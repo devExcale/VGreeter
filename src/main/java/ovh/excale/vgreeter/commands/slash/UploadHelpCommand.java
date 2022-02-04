@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands;
+package ovh.excale.vgreeter.commands.slash;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;

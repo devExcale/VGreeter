@@ -11,12 +11,13 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.commands.AltnameCommand;
-import ovh.excale.vgreeter.commands.ProbabilityCommand;
-import ovh.excale.vgreeter.commands.RestartCommand;
-import ovh.excale.vgreeter.commands.UploadHelpCommand;
+import ovh.excale.vgreeter.commands.slash.AltnameCommand;
+import ovh.excale.vgreeter.commands.slash.ProbabilityCommand;
+import ovh.excale.vgreeter.commands.message.RestartCommand;
+import ovh.excale.vgreeter.commands.slash.UploadHelpCommand;
 import ovh.excale.vgreeter.commands.core.CommandRegister;
-import ovh.excale.vgreeter.commands.track.*;
+import ovh.excale.vgreeter.commands.message.TrackUploadCommand;
+import ovh.excale.vgreeter.commands.slash.*;
 
 import javax.security.auth.login.LoginException;
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class DiscordService {
 						.register(new AltnameCommand())
 						.register(new UploadHelpCommand())
 						.register(new PlaytestCommand())
-						.register(new TracknameCommand())
+						.register(new TrackNameCommand())
 						.register(new TrackIndexCommand())
 						.register(new TrackRemoveCommand())
 						.register(new TrackDownloadCommand())

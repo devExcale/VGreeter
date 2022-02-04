@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.track;
+package ovh.excale.vgreeter.commands.slash;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -13,13 +13,13 @@ import ovh.excale.vgreeter.repositories.TrackRepository;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class TracknameCommand extends AbstractSlashCommand {
+public class TrackNameCommand extends AbstractSlashCommand {
 
 	private static final Pattern TRACKNAME_PATTERN = Pattern.compile("[\\w\\d-_]+");
 
 	private final TrackRepository trackRepo;
 
-	public TracknameCommand() {
+	public TrackNameCommand() {
 		super("trackname", "Edit the name of a track");
 
 		this.getBuilder()

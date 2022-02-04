@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.track;
+package ovh.excale.vgreeter.commands.slash;
 
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
