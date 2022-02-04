@@ -1,68 +1,64 @@
 package ovh.excale.vgreeter.commands.core;
 
-import net.dv8tion.jda.api.entities.Message;
+import com.sun.javafx.sg.prism.NGExternalNode;
+import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.VGreeterApplication;
 
+import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class CommandRegister {
 
-	private final Map<String, AbstractSlashCommand> slashCommands;
-	private final Map<String, AbstractMessageCommand> messageCommands;
-	private final RegisterListener registerListener;
+	private final ListenerRegister listenerRegister;
+	private final Map<Class<? extends GenericEvent>, Set<? extends AbstractCommand<?>>> masterRecord;
 
 	private CommandRegister() {
-		slashCommands = new HashMap<>();
-		messageCommands = new HashMap<>();
-		registerListener = new RegisterListener();
+		listenerRegister = new ListenerRegister();
+		masterRecord = new HashMap<>();
 	}
 
-	public CommandRegister register(AbstractSlashCommand command) {
+	public <Command extends AbstractCommand<?>> CommandRegister register(Command command) {
 
-		slashCommands.put(command.getName(), command);
+		Class<? extends GenericEvent> commandType = command.getTypeClass();
+		//noinspection unchecked
+		Set<Command> commandSet = (Set<Command>) masterRecord.computeIfAbsent(commandType, k -> new HashSet<>());
+
+		commandSet.add(command);
 		if(command.hasListener())
-			registerListener.register(command.getListener());
+			listenerRegister.register(command.getListener());
 
 		return this;
-	}
 
-	public CommandRegister register(AbstractMessageCommand command) {
-
-		messageCommands.put(command.getName(), command);
-		if(command.hasListener())
-			registerListener.register(command.getListener());
-
-		return this;
 	}
 
 	public CommandData[] getSlashCommandsData() {
-		return slashCommands
-				.values()
-				.stream()
+
+		//noinspection unchecked
+		return Optional.ofNullable((Set<AbstractSlashCommand>) masterRecord.get(SlashCommandEvent.class))
+				.map(Collection::stream)
+				.orElseGet(Stream::empty)
 				.map(AbstractSlashCommand::getData)
 				.toArray(CommandData[]::new);
+
 	}
 
-	public RegisterListener getListener() {
-		return registerListener;
+	public ListenerRegister getListener() {
+		return listenerRegister;
 	}
 
-	private class RegisterListener implements EventListener {
+	private class ListenerRegister implements EventListener {
 
 		public Set<EventListener> commandListeners;
 
-		protected RegisterListener() {
+		protected ListenerRegister() {
 			commandListeners = new HashSet<>();
 		}
 
@@ -70,73 +66,39 @@ public class CommandRegister {
 			commandListeners.add(listener);
 		}
 
+		@SneakyThrows
 		@Override
-		public void onEvent(@NotNull GenericEvent genericEvent) {
+		public void onEvent(@NotNull GenericEvent event) {
 
-			if(genericEvent instanceof SlashCommandEvent)
+			AbstractCommand<?> abstractCommand = masterRecord.entrySet()
+					.stream()
+					.filter(entry -> entry.getKey()
+							.isInstance(event))
+					.map(Map.Entry::getValue)
+					.flatMap(Collection::stream)
+					.filter(command -> command.accepts(event))
+					.findFirst()
+					.orElse(null);
 
-				onSlashCommand((SlashCommandEvent) genericEvent);
+			if(abstractCommand != null) {
 
-			else if(genericEvent instanceof PrivateMessageReceivedEvent) {
+				//noinspection OptionalGetWithoutIsPresent
+				Method execMethod = Arrays.stream(abstractCommand.getClass()
+								.getDeclaredMethods())
+						.filter(method -> method.getName()
+								.equals("execute"))
+						.findFirst()
+						.get();
 
-				PrivateMessageReceivedEvent messageEvent = (PrivateMessageReceivedEvent) genericEvent;
-				String message = messageEvent
-						.getMessage()
-						.getContentRaw()
-						.toLowerCase(Locale.ROOT);
-
-				if(message.startsWith(AbstractMessageCommand.PREFIX))
-					onMessageCommand(messageEvent);
+				Optional.ofNullable(execMethod.invoke(abstractCommand, event))
+						.map(result -> ((RestAction<?>) result))
+						.ifPresent(RestAction::queue);
 
 			}
 
 			for(EventListener commandListener : commandListeners)
-				commandListener.onEvent(genericEvent);
+				commandListener.onEvent(event);
 
-		}
-
-		private void onMessageCommand(PrivateMessageReceivedEvent event) {
-
-			Message message = event.getMessage();
-			String messageContent = message
-					.getContentRaw()
-					.toLowerCase(Locale.ROOT)
-					.replaceFirst(AbstractMessageCommand.PREFIX, "");
-			String[] split = messageContent.split(" ");
-
-			AbstractMessageCommand command = messageCommands.get(split[0]);
-
-			Optional
-					.ofNullable(command)
-					.map(c -> c.execute(event))
-					.ifPresent(RestAction::queue);
-
-		}
-
-		private void onSlashCommand(SlashCommandEvent event) {
-
-			if(VGreeterApplication.isInMaintenance()) {
-				event
-						.reply("The bot is currently under maintenance")
-						.setEphemeral(true)
-						.queue();
-				return;
-			}
-
-			AbstractSlashCommand command = slashCommands.get(event.getName());
-			RestAction<?> action;
-
-			if(command == null)
-				action = event
-						.reply("No such command")
-						.setEphemeral(true);
-			else
-				action = command.execute(event);
-
-			try {
-				action.queue();
-			} catch(ErrorResponseException ignored) {
-			}
 		}
 
 	}
