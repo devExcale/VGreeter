@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
-import ovh.excale.vgreeter.utilities.CommandBuilder;
 
 // TODO: MERGE AbstractSlashCommand AND AbstractMessageCommand WITH A PARENT AbstractCommand CLASS
 public abstract class AbstractSlashCommand extends AbstractCommand<SlashCommandEvent> {

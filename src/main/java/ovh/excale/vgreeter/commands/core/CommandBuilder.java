@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.utilities;
+package ovh.excale.vgreeter.commands.core;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;

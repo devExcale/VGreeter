@@ -14,7 +14,7 @@ import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
 import ovh.excale.vgreeter.services.DiscordService;
-import ovh.excale.vgreeter.utilities.TrackPlayer;
+import ovh.excale.vgreeter.track.TrackPlayer;
 
 import java.util.Optional;
 import java.util.Set;

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.models.GuildModel;
 import ovh.excale.vgreeter.repositories.GuildRepository;
-import ovh.excale.vgreeter.utilities.TrackPlayer;
+import ovh.excale.vgreeter.track.TrackPlayer;
 
 import java.util.Optional;
 import java.util.Random;
