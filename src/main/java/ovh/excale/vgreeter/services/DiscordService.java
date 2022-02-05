@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
+import ovh.excale.vgreeter.commands.button.TrackIndexButtonCommand;
 import ovh.excale.vgreeter.commands.slash.AltnameCommand;
 import ovh.excale.vgreeter.commands.slash.ProbabilityCommand;
 import ovh.excale.vgreeter.commands.message.RestartCommand;
@@ -58,12 +60,15 @@ public class DiscordService {
 						.register(new UploadHelpCommand())
 						.register(new PlaytestCommand())
 						.register(new TrackNameCommand())
-						.register(new TrackIndexCommand())
+						.register(new TrackIndexSlashCommand())
 						.register(new TrackRemoveCommand())
 						.register(new TrackDownloadCommand())
 						// MESSAGE COMMANDS
 						.register(new RestartCommand())
 						.register(new TrackUploadCommand())
+						// BUTTON COMMANDS
+						.register(new CloseEmbedCommand())
+						.register(new TrackIndexButtonCommand())
 						.getSlashCommandsData())
 				.complete()
 				.stream()
