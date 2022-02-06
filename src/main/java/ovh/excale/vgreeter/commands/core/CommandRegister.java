@@ -1,6 +1,5 @@
 package ovh.excale.vgreeter.commands.core;
 
-import com.sun.javafx.sg.prism.NGExternalNode;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
