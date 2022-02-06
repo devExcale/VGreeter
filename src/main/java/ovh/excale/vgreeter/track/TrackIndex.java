@@ -143,20 +143,14 @@ public class TrackIndex {
 		Button prevButton = Button.secondary(enablePageChange ? options.json() : "{\"_\":0}", Emojis.PREVIOUS)
 				.withDisabled(!enablePageChange);
 
-		System.out.println(options.json());
-
 		// <next> button
 		options.setPage(!trackPage.isLast() ? zeroBasedPage + 2 : 0);
 		Button nextButton = Button.secondary(enablePageChange ? options.json() : "{\"_\":1}", Emojis.NEXT)
 				.withDisabled(!enablePageChange);
 
-		System.out.println(options.json());
-
 		// <reload> button
 		options.setPage(zeroBasedPage + 1);
 		Button reloadButton = Button.secondary(options.json(), Emojis.RELOAD);
-
-		System.out.println(options.json());
 
 		CommandOptions closeCommand = new CommandOptions("close");
 		Button closeButton = Button.secondary(closeCommand.json(), Emojis.CLOSE);
