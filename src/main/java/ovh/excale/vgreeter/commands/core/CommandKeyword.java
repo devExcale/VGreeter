@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.StringKeySerializer;
-import lombok.Getter;
-import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,13 +12,12 @@ import java.util.Map;
 
 public enum CommandKeyword {
 
-	TRACK_NAME("tn", "trackName"),
-	USER_ID("uid", "userId");
+	TRACK_NAME("tn", "trackname"),
+	USER_ID("u", "user");
 
 	public static final String COMMAND = "cmd";
 	public static final String SUBCOMMAND = "scmd";
 	public static final String PAGE = "p";
-
 
 	private static final Map<String, String> encodeRecord;
 	private static final Map<String, String> decodeRecord;

@@ -14,9 +14,6 @@ import ovh.excale.vgreeter.track.TrackIndex;
 @Log4j2
 public class TrackIndexButtonCommand extends AbstractButtonCommand {
 
-	private static final String KEY_TRACK = "trackname";
-	private static final String KEY_USER = "user";
-
 	public TrackIndexButtonCommand() {
 		super("trackindex", "List all the tracks");
 	}
