@@ -12,6 +12,8 @@ import java.util.Map;
 
 public enum CommandKeyword {
 
+	// TODO: ADD OTHER PARAMETERS (e.g. track_id)
+	// TODO: CHANGE CASE TO snake_case (track_name)
 	TRACK_NAME("tn", "trackname"),
 	USER_ID("u", "user");
 
