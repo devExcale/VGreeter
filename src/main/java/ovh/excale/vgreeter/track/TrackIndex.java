@@ -147,7 +147,8 @@ public class TrackIndex {
 
 		// <next> button
 		options.setPage(!trackPage.isLast() ? zeroBasedPage + 2 : 0);
-		Button nextButton = Button.secondary(enablePageChange ? options.json() : "{\"_\":1}", Emojis.NEXT);
+		Button nextButton = Button.secondary(enablePageChange ? options.json() : "{\"_\":1}", Emojis.NEXT)
+				.withDisabled(!enablePageChange);
 
 		System.out.println(options.json());
 
