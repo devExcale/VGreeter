@@ -41,14 +41,6 @@ public enum CommandKeyword {
 		this.ext = ext;
 	}
 
-	public String getKey() {
-		return key;
-	}
-
-	public String getExt() {
-		return ext;
-	}
-
 	public static class KeywordDecoder extends KeyDeserializer {
 
 		@Override
