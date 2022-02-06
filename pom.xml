@@ -13,12 +13,16 @@
 
 	<groupId>ovh.excale</groupId>
 	<artifactId>vgreeter</artifactId>
-	<version>2.7.0</version>
+	<version>2.7.0-SNAPSHOT</version>
 
 	<name>VGreeter</name>
 	<description>Let the bot greet your friends when they join vocal chat on Discord!</description>
 	<url>https://github.com/devExcale/VGreeter</url>
 	<packaging>jar</packaging>
+
+	<scm>
+		<connection>scm:git:${project.url}</connection>
+	</scm>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -127,6 +131,24 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>2.5.2</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<version>1.5</version>
+				<configuration>
+					<tagBase>${project.url}/tags</tagBase>
+					<tag>${project.artifactId}.${project.version}</tag>
+				</configuration>
+				<executions>
+					<execution>
+						<id>create-tag</id>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
