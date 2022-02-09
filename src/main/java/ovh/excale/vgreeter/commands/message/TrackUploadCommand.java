@@ -15,6 +15,7 @@ import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.models.UserModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
 import ovh.excale.vgreeter.repositories.UserRepository;
+import ovh.excale.vgreeter.services.AudioConverterService;
 import ovh.excale.vgreeter.services.TrackService;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +35,7 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 
 	private final UserRepository userRepo;
 	private final TrackService trackService;
+	private final AudioConverterService audioConverter;
 
 	public TrackUploadCommand() {
 		super("upload", "");
@@ -45,6 +47,10 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 		trackService = VGreeterApplication
 				.getApplicationContext()
 				.getBean(TrackService.class);
+
+		audioConverter = VGreeterApplication
+				.getApplicationContext()
+				.getBean(AudioConverterService.class);
 
 	}
 
@@ -71,19 +77,15 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 
 		List<Message.Attachment> attachments = message.getAttachments();
 		if(attachments.isEmpty())
-			return message.reply("The track must be **opus encoded**");
+			return message.reply("You must send me a file containing the track you want to upload");
 
 		Message.Attachment attachment = attachments.get(0);
 		String filename = attachment.getFileName();
 		int size = attachment.getSize();
 
-		if(size > TrackService.DEFAULT_MAX_TRACK_SIZE)
-			return message.reply("The file is too big (Max. " + TrackService.DEFAULT_MAX_TRACK_SIZE + ")");
-
-		Matcher filenameMatcher = TRACK_NAME_PATTERN.matcher(filename.toLowerCase(Locale.ROOT));
-		if(!filenameMatcher.matches())
-			return message.reply("Filename or extension invalid (filename must be alphanumeric" +
-					" and can only contain *dashes* `-` and *underscores* `_`, extension must be `.opus`)");
+		// TODO: set 4 MB max for audio input, 16 or 32 KB for opus output
+//		if(size > TrackService.DEFAULT_MAX_TRACK_SIZE)
+//			return message.reply("The file is too big (Max. " + TrackService.DEFAULT_MAX_TRACK_SIZE + ")");
 
 		InputStream in;
 		try {
@@ -100,53 +102,35 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 
 		}
 
-		byte[] data = new byte[size];
+		byte[] trackData;
 		try {
 
-			int read = 0, c;
-			do {
-
-				c = in.read(data, read, size - read);
-				if(c > 0)
-					read += c;
-
-			} while(c > 0);
-
-			in.close();
-
-			if(read != size) {
-				log.warn("Size mismatch while reading InputStream. Expected size: " + size + ", read: " + read);
-				data = Arrays.copyOfRange(data, 0, read);
-			}
-
-			new OpusFile(new OggFile(new ByteArrayInputStream(data)));
-
-			// TODO: USE TRACK_SERVICE
-			TrackRepository trackRepo = trackService.getTrackRepo();
-			String trackName = filenameMatcher.group(1);
-
-			if(trackRepo.existsByNameAndUploader(trackName, userModel))
-				return message.reply("You've already uploaded a track with the same name");
-
-			TrackModel track = TrackModel
-					.builder()
-					.name(filenameMatcher.group(1))
-					.uploader(userModel)
-					.size((long) data.length)
-					.data(data)
-					.build();
-			trackRepo.save(track);
-
-		} catch(IOException e) {
-
-			log.warn("Error while reading Track InputStream", e);
-			return message.reply("There has been an internal error while computing the file, please retry. " +
-					"If the error persists, contact a developer");
+			trackData = audioConverter.toOpus(in);
 
 		} catch(IllegalArgumentException e) {
-			// Not an opus track
-			return message.reply("The track is not **opus-encoded**.");
+			return message.reply("The provided file doesn't have a valid audio stream");
 		}
+
+		if(trackData.length == 0)
+			return message.reply("There has been an error while converting the file");
+
+		// TODO: USE TRACK_SERVICE
+		TrackRepository trackRepo = trackService.getTrackRepo();
+
+		// Matcher filenameMatcher = TRACK_NAME_PATTERN.matcher(filename.toLowerCase(Locale.ROOT));
+		// String trackName = filename.toLowerCase();
+
+		if(trackRepo.existsByNameAndUploader(filename, userModel))
+			return message.reply("You've already uploaded a track with the same name");
+
+		TrackModel track = TrackModel
+				.builder()
+				.name(filename)
+				.uploader(userModel)
+				.size((long) trackData.length)
+				.data(trackData)
+				.build();
+		trackRepo.save(track);
 
 		return message.reply("Track successfully inserted!");
 	}
