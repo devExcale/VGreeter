@@ -94,6 +94,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- FFMPEG lib -->
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>ffmpeg-platform</artifactId>
+			<version>4.3.2-1.5.5</version>
+		</dependency>
+
 	</dependencies>
 
 	<repositories>
@@ -111,9 +118,9 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
-<!--				<excludes>-->
-<!--					<exclude>.env</exclude>-->
-<!--				</excludes>-->
+				<!--				<excludes>-->
+				<!--					<exclude>.env</exclude>-->
+				<!--				</excludes>-->
 			</resource>
 			<resource>
 				<directory>src/main/resources-filtered</directory>
