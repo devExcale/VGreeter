@@ -52,7 +52,7 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 	public @Nullable RestAction<?> execute(@NotNull PrivateMessageReceivedEvent event) {
 
 		// TODO: COMMAND PARAMETERS
-
+		// TODO: MOVE THIS CHECK TO SUPER
 		User user = event.getAuthor();
 		if(user.isBot())
 			return null;
