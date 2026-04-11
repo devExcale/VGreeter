@@ -1,9 +1,9 @@
 package ovh.excale.vgreeter.commands.slash;
 
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
@@ -28,9 +28,9 @@ public class TrackRemoveCommand extends AbstractSlashCommand {
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 
-		ReplyAction reply;
+		RestAction<?> reply;
 		User user = event.getUser();
 
 		//noinspection ConstantConditions

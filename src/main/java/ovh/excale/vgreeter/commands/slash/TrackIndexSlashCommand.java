@@ -1,18 +1,18 @@
 package ovh.excale.vgreeter.commands.slash;
 
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.jetbrains.annotations.NotNull;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
-import ovh.excale.vgreeter.commands.core.CommandKeyword;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static ovh.excale.vgreeter.commands.core.CommandKeyword.TRACK_NAME;
@@ -41,7 +41,7 @@ public class TrackIndexSlashCommand extends AbstractSlashCommand {
 	}
 
 	@Override
-	public @NotNull RestAction<?> execute(SlashCommandEvent event) {
+	public @NotNull RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		int page = Optional.ofNullable(event.getOption("page"))
 				.map(OptionMapping::getAsLong)
@@ -70,16 +70,13 @@ public class TrackIndexSlashCommand extends AbstractSlashCommand {
 		if(index.isEmpty())
 			return replyEphemeralWith("Empty page", event);
 
-		return event.reply("Here's your track index")
+		return event.replyEmbeds(index.buildEmbed().build())
 				.setEphemeral(true)
-				.and(event.getChannel()
-						.sendMessage(index.buildEmbed()
-								.build())
-						.setActionRow(index.buildButtons()));
+				.addComponents(ActionRow.of(Arrays.asList(index.buildButtons())));
 
 	}
 
-	private static ReplyAction replyEphemeralWith(String message, Interaction event) {
+	private static RestAction<?> replyEphemeralWith(String message, IReplyCallback event) {
 		return event.reply(message)
 				.setEphemeral(true);
 	}

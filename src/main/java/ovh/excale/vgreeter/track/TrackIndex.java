@@ -4,8 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -131,7 +130,7 @@ public class TrackIndex {
 	}
 
 	@SneakyThrows
-	public Component[] buildButtons() {
+	public Button[] buildButtons() {
 
 		trackPageCheck();
 
@@ -155,7 +154,7 @@ public class TrackIndex {
 		CommandOptions closeCommand = new CommandOptions("close");
 		Button closeButton = Button.secondary(closeCommand.json(), Emojis.CLOSE);
 
-		return new Component[] { prevButton, nextButton, reloadButton, closeButton };
+		return new Button[] { prevButton, nextButton, reloadButton, closeButton };
 
 	}
 

@@ -2,14 +2,16 @@ package ovh.excale.vgreeter.commands.button;
 
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.jetbrains.annotations.NotNull;
 import ovh.excale.vgreeter.commands.core.AbstractButtonCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
+
+import java.util.Arrays;
 
 @Log4j2
 public class TrackIndexButtonCommand extends AbstractButtonCommand {
@@ -20,7 +22,7 @@ public class TrackIndexButtonCommand extends AbstractButtonCommand {
 
 	@SneakyThrows
 	@Override
-	public @NotNull RestAction<?> execute(ButtonClickEvent event) {
+	public @NotNull RestAction<?> execute(ButtonInteractionEvent event) {
 
 		CommandOptions command = CommandOptions.fromJson(event.getComponentId());
 		//noinspection DuplicatedCode
@@ -40,17 +42,12 @@ public class TrackIndexButtonCommand extends AbstractButtonCommand {
 		if(index.isEmpty())
 			return replyEphemeralWith("Empty page", event);
 
-		//noinspection ConstantConditions
-		return event.getMessage()
-				.delete()
-				.and(event.getChannel()
-						.sendMessage(index.buildEmbed()
-								.build())
-						.setActionRow(index.buildButtons()));
+		return event.editMessageEmbeds(index.buildEmbed().build())
+				.setComponents(ActionRow.of(Arrays.asList(index.buildButtons())));
 
 	}
 
-	private static ReplyAction replyEphemeralWith(String message, Interaction event) {
+	private static RestAction<?> replyEphemeralWith(String message, IReplyCallback event) {
 		return event.reply(message)
 				.setEphemeral(true);
 	}

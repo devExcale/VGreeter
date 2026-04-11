@@ -3,7 +3,7 @@ package ovh.excale.vgreeter.commands.message;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ public class RestartCommand extends AbstractMessageCommand {
 	}
 
 	@Override
-	public @Nullable RestAction<?> execute(@NotNull final PrivateMessageReceivedEvent event) {
+	public @Nullable RestAction<?> execute(@NotNull final MessageReceivedEvent event) {
 
 		Message message = event.getMessage();
 		ArgumentsParser arguments = new ArgumentsParser(message.getContentRaw());

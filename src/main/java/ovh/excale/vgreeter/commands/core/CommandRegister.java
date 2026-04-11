@@ -2,7 +2,7 @@ package ovh.excale.vgreeter.commands.core;
 
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -24,11 +24,11 @@ public class CommandRegister {
 		masterRecord = new HashMap<>();
 	}
 
-	public <Command extends AbstractCommand<?>> CommandRegister register(Command command) {
+	public <C extends AbstractCommand<?>> CommandRegister register(C command) {
 
 		Class<? extends GenericEvent> commandType = command.getTypeClass();
 		//noinspection unchecked
-		Set<Command> commandSet = (Set<Command>) masterRecord.computeIfAbsent(commandType, k -> new HashSet<>());
+		Set<C> commandSet = (Set<C>) masterRecord.computeIfAbsent(commandType, k -> new HashSet<>());
 
 		commandSet.add(command);
 		if(command.hasListener())
@@ -41,7 +41,7 @@ public class CommandRegister {
 	public CommandData[] getSlashCommandsData() {
 
 		//noinspection unchecked
-		return Optional.ofNullable((Set<AbstractSlashCommand>) masterRecord.get(SlashCommandEvent.class))
+		return Optional.ofNullable((Set<AbstractSlashCommand>) masterRecord.get(SlashCommandInteractionEvent.class))
 				.map(Collection::stream)
 				.orElseGet(Stream::empty)
 				.map(AbstractSlashCommand::getData)

@@ -3,7 +3,7 @@ package ovh.excale.vgreeter.commands.message;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusFile;
@@ -49,7 +49,7 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 	}
 
 	@Override
-	public @Nullable RestAction<?> execute(@NotNull PrivateMessageReceivedEvent event) {
+	public @Nullable RestAction<?> execute(@NotNull MessageReceivedEvent event) {
 
 		// TODO: COMMAND PARAMETERS
 
@@ -89,7 +89,8 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 		try {
 
 			in = attachment
-					.retrieveInputStream()
+					.getProxy()
+					.download()
 					.join();
 
 		} catch(Exception e) {

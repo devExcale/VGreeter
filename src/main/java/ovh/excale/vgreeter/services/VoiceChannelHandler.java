@@ -4,9 +4,8 @@ import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -38,13 +37,21 @@ public class VoiceChannelHandler extends ListenerAdapter {
 	// TODO: DISABLE VOICE EVENT HANDLING UNDER MAINTENANCE
 
 	@Override
-	public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
+	public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
 
 		Guild guild = event.getGuild();
-		User user = event.getMember()
-				.getUser();
-
+		User user = event.getMember().getUser();
 		Set<Long> guildLocks = DiscordService.getGuildVoiceLocks();
+
+		if(event.getChannelLeft() != null) {
+			SelfUser selfUser = event.getJDA().getSelfUser();
+			if(user.getIdLong() == selfUser.getIdLong())
+				guildLocks.remove(guild.getIdLong());
+		}
+
+		if(event.getChannelJoined() == null)
+			return;
+
 		if(user.isBot() || guildLocks.contains(guild.getIdLong()))
 			return;
 
@@ -52,13 +59,9 @@ public class VoiceChannelHandler extends ListenerAdapter {
 
 		Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
 		if(opt.isPresent())
-			joinProbability = opt.get()
-					.getJoinProbability();
+			joinProbability = opt.get().getJoinProbability();
 		else {
-			GuildModel guildModel = GuildModel
-					.builder()
-					.id(guild.getIdLong())
-					.build();
+			GuildModel guildModel = GuildModel.builder().id(guild.getIdLong()).build();
 			joinProbability = guildModel.getJoinProbability();
 			guildRepo.save(guildModel);
 		}
@@ -72,10 +75,8 @@ public class VoiceChannelHandler extends ListenerAdapter {
 			return;
 		}
 
-		VoiceChannel channel = event.getChannelJoined();
-		AudioManager audioManager = event.getGuild()
-				.getAudioManager();
-
+		AudioChannelUnion channel = event.getChannelJoined();
+		AudioManager audioManager = guild.getAudioManager();
 		trackPlayer.setTrackEndAction(audioManager::closeAudioConnection);
 
 		try {
@@ -83,23 +84,10 @@ public class VoiceChannelHandler extends ListenerAdapter {
 			audioManager.openAudioConnection(channel);
 			guildLocks.add(guild.getIdLong());
 		} catch(InsufficientPermissionException ignored) {
+			// The bot doesn't have permissions to connect to the Voice Channel, do nothing
 		}
 
 	}
 
-	@Override
-	public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-
-		Guild guild = event.getGuild();
-		User user = event.getMember()
-				.getUser();
-		SelfUser selfUser = event.getJDA()
-				.getSelfUser();
-
-		Set<Long> guildLocks = DiscordService.getGuildVoiceLocks();
-		if(user.getIdLong() == selfUser.getIdLong())
-			guildLocks.remove(guild.getIdLong());
-
-	}
 
 }

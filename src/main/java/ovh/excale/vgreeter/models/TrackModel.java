@@ -3,7 +3,7 @@ package ovh.excale.vgreeter.models;
 import lombok.*;
 import org.gagravarr.ogg.OggPacketReader;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.ByteArrayInputStream;
 import java.sql.Timestamp;
 import java.time.Instant;

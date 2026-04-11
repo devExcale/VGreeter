@@ -2,7 +2,7 @@ package ovh.excale.vgreeter.models;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Set;
 
 @Builder

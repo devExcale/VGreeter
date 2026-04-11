@@ -3,13 +3,13 @@ package ovh.excale.vgreeter.repositories;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.models.UserModel;
 
 @Repository
-public interface TrackRepository extends PagingAndSortingRepository<TrackModel, Long> {
+public interface TrackRepository extends JpaRepository<TrackModel, Long> {
 
 	boolean existsByNameAndUploader(String name, UserModel uploader);
 

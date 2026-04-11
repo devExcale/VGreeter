@@ -1,15 +1,17 @@
 package ovh.excale.vgreeter.utilities;
 
-import net.dv8tion.jda.api.entities.Emoji;
+import lombok.NoArgsConstructor;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class Emojis {
 
-	public static final Emoji PREVIOUS = Emoji.fromUnicode("\u25C0");
+	public static final Emoji PREVIOUS = Emoji.fromUnicode("◀");
 
-	public static final Emoji NEXT = Emoji.fromUnicode("\u25B6");
+	public static final Emoji NEXT = Emoji.fromUnicode("▶");
 
-	public static final Emoji RELOAD = Emoji.fromUnicode("U+1F504");
+	public static final Emoji RELOAD = Emoji.fromUnicode("🔄");
 
-	public static final Emoji CLOSE = Emoji.fromUnicode("U+1F1FD");
+	public static final Emoji CLOSE = Emoji.fromUnicode("❌");
 
 }

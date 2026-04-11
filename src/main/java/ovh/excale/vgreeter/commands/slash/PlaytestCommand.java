@@ -3,12 +3,12 @@ package ovh.excale.vgreeter.commands.slash;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
@@ -31,7 +31,7 @@ public class PlaytestCommand extends AbstractSlashCommand {
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
@@ -46,7 +46,7 @@ public class PlaytestCommand extends AbstractSlashCommand {
 					.setEphemeral(true);
 
 		//noinspection ConstantConditions
-		VoiceChannel channel = member.getVoiceState()
+		AudioChannelUnion channel = member.getVoiceState()
 				.getChannel();
 
 		if(channel == null)
@@ -82,6 +82,8 @@ public class PlaytestCommand extends AbstractSlashCommand {
 			audioManager.openAudioConnection(channel);
 			guildLocks.add(guild.getIdLong());
 		} catch(InsufficientPermissionException ignored) {
+			return event.reply("The bot is missing permission to connect or speak in that voice channel")
+					.setEphemeral(true);
 		}
 
 		return event.reply("Playing track `#" + trackId + "`")

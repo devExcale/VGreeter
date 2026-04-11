@@ -2,29 +2,29 @@ package ovh.excale.vgreeter.commands.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractButtonCommand extends AbstractCommand<ButtonClickEvent> {
+public abstract class AbstractButtonCommand extends AbstractCommand<ButtonInteractionEvent> {
 
 	protected AbstractButtonCommand(String name, String description) {
-		super(name, description, ButtonClickEvent.class);
+		super(name, description, ButtonInteractionEvent.class);
 	}
 
 	@Override
-	public abstract @NotNull RestAction<?> execute(@NotNull ButtonClickEvent event);
+	public abstract @NotNull RestAction<?> execute(@NotNull ButtonInteractionEvent event);
 
 	@Override
 	public boolean accepts(GenericEvent event) {
 
-		if(!(event instanceof ButtonClickEvent))
+		if(!(event instanceof ButtonInteractionEvent))
 			return false;
 
 		CommandOptions command;
 		try {
 
-			command = CommandOptions.fromJson(((ButtonClickEvent) event).getComponentId());
+			command = CommandOptions.fromJson(((ButtonInteractionEvent) event).getComponentId());
 
 		} catch(JsonProcessingException e) {
 			return false;

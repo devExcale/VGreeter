@@ -3,10 +3,10 @@ package ovh.excale.vgreeter.commands.slash;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.GuildModel;
@@ -33,7 +33,7 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		Guild guild = event.getGuild();
 
@@ -49,7 +49,7 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 				.build());
 
 		int prevProbab = guildModel.getJoinProbability();
-		ReplyAction reply;
+		RestAction<?> reply;
 
 		String subcommand = Optional.ofNullable(event.getSubcommandName())
 				.orElse("");

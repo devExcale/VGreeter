@@ -2,8 +2,10 @@ package ovh.excale.vgreeter.services;
 
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
+import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -21,7 +23,6 @@ import ovh.excale.vgreeter.commands.core.CommandRegister;
 import ovh.excale.vgreeter.commands.message.TrackUploadCommand;
 import ovh.excale.vgreeter.commands.slash.*;
 
-import javax.security.auth.login.LoginException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,18 +37,33 @@ public class DiscordService {
 
 	private final JDA jda;
 
-	public DiscordService(VoiceChannelHandler eventHandler, CommandRegister commands,
-			@Value("${env.DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
+	public DiscordService(
+		VoiceChannelHandler eventHandler,
+		CommandRegister commands,
+		@Value("${env.DISCORD_TOKEN}") String token
+	) throws InterruptedException {
 
 		jda = JDABuilder
-				.create(token, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.DIRECT_MESSAGES,
-						GatewayIntent.GUILD_VOICE_STATES)
-				.disableCache(CacheFlag.ACTIVITY, CacheFlag.ONLINE_STATUS, CacheFlag.CLIENT_STATUS,
-						CacheFlag.MEMBER_OVERRIDES, CacheFlag.EMOTE)
-				.setActivity(Activity.listening("people"))
-				.addEventListeners(eventHandler, commands.getListener())
-				.build()
-				.awaitReady();
+			.create(
+				token,
+				GatewayIntent.GUILD_VOICE_STATES,
+				GatewayIntent.DIRECT_MESSAGES,
+				GatewayIntent.MESSAGE_CONTENT
+			)
+			.disableCache(
+				CacheFlag.ACTIVITY,
+				CacheFlag.ONLINE_STATUS,
+				CacheFlag.CLIENT_STATUS,
+				CacheFlag.MEMBER_OVERRIDES,
+				CacheFlag.EMOJI
+			)
+			.setActivity(Activity.listening("people"))
+			.addEventListeners(eventHandler, commands.getListener())
+			.setAudioModuleConfig(
+				new AudioModuleConfig().withDaveSessionFactory(new JDaveSessionFactory())
+			)
+			.build()
+			.awaitReady();
 
 		log.info("JDA connected");
 

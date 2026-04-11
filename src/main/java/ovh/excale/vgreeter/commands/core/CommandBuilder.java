@@ -2,7 +2,9 @@ package ovh.excale.vgreeter.commands.core;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +16,7 @@ public class CommandBuilder {
 		return new CommandBuilderPrototype(name);
 	}
 
-	private final CommandData commandData;
+	private final SlashCommandData commandData;
 	private final List<SubcommandData> subcommands;
 	private SubcommandData currentSubcommand;
 
@@ -22,7 +24,7 @@ public class CommandBuilder {
 
 	private CommandBuilder(String name, String description) {
 
-		commandData = new CommandData(name, description);
+		commandData = Commands.slash(name, description);
 		subcommands = new LinkedList<>();
 
 		currentSubcommand = null;
@@ -68,7 +70,7 @@ public class CommandBuilder {
 		return this;
 	}
 
-	public CommandData build() {
+	public SlashCommandData build() {
 
 		if(subcommand != null && subcommand)
 			commandData.addSubcommands(subcommands);
