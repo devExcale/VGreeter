@@ -21,6 +21,7 @@ public class UserModel {
 	@Basic
 	private String altname;
 
+	@Builder.Default
 	@Basic
 	@Column(name = "tracks_max")
 	private Integer trackMaxSize = 64 * 1024;
@@ -29,12 +30,5 @@ public class UserModel {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "uploader")
 	private Set<TrackModel> tracks;
 
-	@SuppressWarnings("unused")
-	public static class UserModelBuilder {
-
-		@SuppressWarnings({ "FieldMayBeFinal", "unused" })
-		private Integer trackMaxSize = 64 * 1024;
-
-	}
 
 }

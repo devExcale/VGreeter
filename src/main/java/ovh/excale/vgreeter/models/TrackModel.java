@@ -30,6 +30,7 @@ public class TrackModel {
 	@Basic
 	private Long size;
 
+	@Builder.Default
 	@Basic
 	private Timestamp uploadDate = Timestamp.from(Instant.now());
 
@@ -49,12 +50,5 @@ public class TrackModel {
 		return new OggPacketReader(new ByteArrayInputStream(getData()));
 	}
 
-	@SuppressWarnings("unused")
-	public static class TrackModelBuilder {
-
-		@SuppressWarnings({ "FieldMayBeFinal", "unused" })
-		private Timestamp uploadDate = Timestamp.from(Instant.now());
-
-	}
 
 }
