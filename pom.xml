@@ -124,9 +124,6 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
-<!--				<excludes>-->
-<!--					<exclude>.env</exclude>-->
-<!--				</excludes>-->
 			</resource>
 			<resource>
 				<directory>src/main/resources-filtered</directory>
@@ -137,26 +134,30 @@
 		<plugins>
 
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.1</version>
+				<configuration>
+					<release>${java.version}</release>
+					<proc>full</proc>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.44</version>
+						</path>
+						<path>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-configuration-processor</artifactId>
+							<version>${project.parent.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<version>1.5</version>
-				<configuration>
-					<tagBase>${project.url}/tags</tagBase>
-					<tag>${project.artifactId}.${project.version}</tag>
-				</configuration>
-				<executions>
-					<execution>
-						<id>create-tag</id>
-						<goals>
-							<goal>tag</goal>
-						</goals>
-					</execution>
-				</executions>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
 		</plugins>
