@@ -1,10 +1,18 @@
 package ovh.excale.vgreeter.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.*;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@ToString
 @Entity
 @Table(name = "guild")
 public class GuildModel {
@@ -15,34 +23,9 @@ public class GuildModel {
 	@Column(name = "id_guild")
 	private Long id;
 
+	@Builder.Default
 	@Column(name = "join_probability")
-	private Integer joinProbability;
-
-	public GuildModel() {
-		joinProbability = DEFAULT_JOIN_PROBABILITY;
-	}
-
-	public GuildModel(Long id) {
-		this.id = id;
-		joinProbability = DEFAULT_JOIN_PROBABILITY;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public GuildModel setId(Long id) {
-		this.id = id;
-		return this;
-	}
-
-	public Integer getJoinProbability() {
-		return joinProbability;
-	}
-
-	public GuildModel setJoinProbability(Integer joinProbability) {
-		this.joinProbability = joinProbability;
-		return this;
-	}
+	private Integer joinProbability = DEFAULT_JOIN_PROBABILITY;
 
 }
+

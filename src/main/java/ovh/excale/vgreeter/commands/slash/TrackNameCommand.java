@@ -1,10 +1,11 @@
-package ovh.excale.vgreeter.commands;
+package ovh.excale.vgreeter.commands.slash;
 
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.models.UserModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
@@ -12,13 +13,13 @@ import ovh.excale.vgreeter.repositories.TrackRepository;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class TracknameCommand extends AbstractCommand {
+public class TrackNameCommand extends AbstractSlashCommand {
 
 	private static final Pattern TRACKNAME_PATTERN = Pattern.compile("[\\w\\d-_]+");
 
 	private final TrackRepository trackRepo;
 
-	public TracknameCommand() {
+	public TrackNameCommand() {
 		super("trackname", "Edit the name of a track");
 
 		this.getBuilder()
@@ -32,7 +33,7 @@ public class TracknameCommand extends AbstractCommand {
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		//noinspection ConstantConditions
 		long trackId = Long.parseLong(event.getOption("trackid")

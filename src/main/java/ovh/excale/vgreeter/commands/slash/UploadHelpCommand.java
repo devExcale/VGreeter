@@ -1,16 +1,17 @@
-package ovh.excale.vgreeter.commands;
+package ovh.excale.vgreeter.commands.slash;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.requests.RestAction;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 
-public class UploadCommand extends AbstractCommand {
+public class UploadHelpCommand extends AbstractSlashCommand {
 
-	public UploadCommand() {
+	public UploadHelpCommand() {
 		super("upload", "Show help to upload a track");
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		//noinspection StringBufferReplaceableByString
 		StringBuilder sb = new StringBuilder();

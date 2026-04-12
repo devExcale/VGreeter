@@ -1,71 +1,101 @@
 package ovh.excale.vgreeter.services;
 
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.commands.*;
+import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
+import ovh.excale.vgreeter.commands.button.TrackIndexButtonCommand;
+import ovh.excale.vgreeter.commands.slash.AltnameCommand;
+import ovh.excale.vgreeter.commands.slash.ProbabilityCommand;
+import ovh.excale.vgreeter.commands.message.RestartCommand;
+import ovh.excale.vgreeter.commands.slash.UploadHelpCommand;
+import ovh.excale.vgreeter.commands.core.CommandRegister;
+import ovh.excale.vgreeter.commands.message.TrackUploadCommand;
+import ovh.excale.vgreeter.commands.slash.*;
 
-import javax.security.auth.login.LoginException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Service
 public class DiscordService {
 
-	private static final Logger logger = LoggerFactory.getLogger(DiscordService.class);
+	@Getter
 	private static final Set<Long> guildVoiceLocks = Collections.synchronizedSet(new HashSet<>());
 
 	private final JDA jda;
 
-	public DiscordService(DiscordEventHandlerService eventHandler, CommandRegister commands,
-			@Value("${env.DISCORD_TOKEN}") String token) throws LoginException, InterruptedException {
+	public DiscordService(
+		VoiceChannelHandler eventHandler,
+		CommandRegister commands,
+		@Value("${env.DISCORD_TOKEN}") String token
+	) throws InterruptedException {
 
-		jda = JDABuilder.create(token,
+		jda = JDABuilder
+			.create(
+				token,
 				GatewayIntent.GUILD_VOICE_STATES,
 				GatewayIntent.DIRECT_MESSAGES,
-				GatewayIntent.GUILD_VOICE_STATES)
-				.disableCache(CacheFlag.ACTIVITY,
-						CacheFlag.ONLINE_STATUS,
-						CacheFlag.CLIENT_STATUS,
-						CacheFlag.MEMBER_OVERRIDES,
-						CacheFlag.EMOTE)
-				.setActivity(Activity.listening("people"))
-				.addEventListeners(eventHandler, commands.getListener())
-				.build()
-				.awaitReady();
+				GatewayIntent.MESSAGE_CONTENT
+			)
+			.disableCache(
+				CacheFlag.ACTIVITY,
+				CacheFlag.ONLINE_STATUS,
+				CacheFlag.CLIENT_STATUS,
+				CacheFlag.MEMBER_OVERRIDES,
+				CacheFlag.EMOJI
+			)
+			.setActivity(Activity.listening("people"))
+			.addEventListeners(eventHandler, commands.getListener())
+			.setAudioModuleConfig(
+				new AudioModuleConfig().withDaveSessionFactory(new JDaveSessionFactory())
+			)
+			.build()
+			.awaitReady();
 
+		log.info("JDA connected");
 
-		jda.updateCommands()
-				.addCommands(commands.register(new ProbabilityCommand())
+		String commandListString = jda
+				.updateCommands()
+				.addCommands(commands
+						// SLASH COMMANDS
+						.register(new ProbabilityCommand())
 						.register(new AltnameCommand())
-						.register(new UploadCommand())
+						.register(new UploadHelpCommand())
 						.register(new PlaytestCommand())
-						.register(new TracknameCommand())
-						.register(new TrackIndexCommand())
-						.getData())
-				.queue(commandList -> logger.info("[Registered commands] " + commandList.stream()
-						.map(Command::getName)
-						.collect(Collectors.joining(", "))), e -> logger.warn("Couldn't update commands", e));
+						.register(new TrackNameCommand())
+						.register(new TrackIndexSlashCommand())
+						.register(new TrackRemoveCommand())
+						.register(new TrackDownloadCommand())
+						// MESSAGE COMMANDS
+						.register(new RestartCommand())
+						.register(new TrackUploadCommand())
+						// BUTTON COMMANDS
+						.register(new CloseEmbedCommand())
+						.register(new TrackIndexButtonCommand())
+						.getSlashCommandsData())
+				.complete()
+				.stream()
+				.map(Command::getName)
+				.collect(Collectors.joining(", "));
 
-		logger.info("JDA connected");
+		log.info("[Registered SlashCommands] " + commandListString);
 
 	}
 
-	public static Set<Long> getGuildVoiceLocks() {
-		return guildVoiceLocks;
-	}
-
-	@Bean
+	@Bean(destroyMethod = "shutdown")
 	public JDA getJda() {
 		return jda;
 	}

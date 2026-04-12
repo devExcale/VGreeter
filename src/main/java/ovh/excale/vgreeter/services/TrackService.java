@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.services;
 
+import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -11,12 +12,14 @@ public class TrackService {
 
 	public static final int DEFAULT_MAX_TRACK_SIZE = 1024 * 64;
 
+	@Getter
 	private final TrackRepository trackRepo;
 
 	public TrackService(TrackRepository trackRepo) {
 		this.trackRepo = trackRepo;
 	}
 
+	// TODO: nullsafe
 	public TrackModel randomTrack() {
 
 		long qty = trackRepo.count();
@@ -29,10 +32,6 @@ public class TrackService {
 					.get(0);
 
 		return track;
-	}
-
-	public TrackRepository getTrackRepo() {
-		return trackRepo;
 	}
 
 }

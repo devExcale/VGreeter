@@ -1,27 +1,26 @@
-package ovh.excale.vgreeter.commands;
+package ovh.excale.vgreeter.commands.slash;
 
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
+import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.models.TrackModel;
 import ovh.excale.vgreeter.repositories.TrackRepository;
 import ovh.excale.vgreeter.services.DiscordService;
-import ovh.excale.vgreeter.utilities.TrackPlayer;
+import ovh.excale.vgreeter.track.TrackPlayer;
 
 import java.util.Optional;
 import java.util.Set;
 
-public class PlaytestCommand extends AbstractCommand {
-
-	private static final Logger logger = LoggerFactory.getLogger(PlaytestCommand.class);
+@Log4j2
+public class PlaytestCommand extends AbstractSlashCommand {
 
 	public PlaytestCommand() {
 		super("playtest", "Test a track");
@@ -32,7 +31,7 @@ public class PlaytestCommand extends AbstractCommand {
 	}
 
 	@Override
-	public ReplyAction execute(SlashCommandEvent event) {
+	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
@@ -47,7 +46,7 @@ public class PlaytestCommand extends AbstractCommand {
 					.setEphemeral(true);
 
 		//noinspection ConstantConditions
-		VoiceChannel channel = member.getVoiceState()
+		AudioChannelUnion channel = member.getVoiceState()
 				.getChannel();
 
 		if(channel == null)
@@ -70,7 +69,7 @@ public class PlaytestCommand extends AbstractCommand {
 
 		TrackPlayer trackPlayer = new TrackPlayer(opt.get());
 		if(!trackPlayer.canProvide()) {
-			logger.error("TrackPlayer cannot provide");
+			log.error("TrackPlayer cannot provide");
 			return event.reply("There has been an internal error, retry or contact a developer.")
 					.setEphemeral(true);
 		}
@@ -83,6 +82,8 @@ public class PlaytestCommand extends AbstractCommand {
 			audioManager.openAudioConnection(channel);
 			guildLocks.add(guild.getIdLong());
 		} catch(InsufficientPermissionException ignored) {
+			return event.reply("The bot is missing permission to connect or speak in that voice channel")
+					.setEphemeral(true);
 		}
 
 		return event.reply("Playing track `#" + trackId + "`")

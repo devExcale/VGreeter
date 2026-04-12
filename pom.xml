@@ -7,24 +7,27 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.2</version>
+		<version>4.0.4</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>ovh.excale</groupId>
 	<artifactId>vgreeter</artifactId>
-	<version>2.3.0</version>
+	<version>26.4.0-SNAPSHOT</version>
 
 	<name>VGreeter</name>
 	<description>Let the bot greet your friends when they join vocal chat on Discord!</description>
 	<url>https://github.com/devExcale/VGreeter</url>
 	<packaging>jar</packaging>
 
+	<scm>
+		<connection>scm:git:${project.url}</connection>
+	</scm>
+
 	<properties>
-		<java.version>1.8</java.version>
-		<maven.compiler.source>8</maven.compiler.source>
-		<maven.compiler.target>8</maven.compiler.target>
+		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdave.version>0.1.8</jdave.version>
 	</properties>
 
 	<dependencies>
@@ -43,7 +46,27 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>4.3.0_277</version>
+			<version>6.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>club.minnced</groupId>
+			<artifactId>jdave-api</artifactId>
+			<version>${jdave.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>club.minnced</groupId>
+			<artifactId>jdave-native-win-x86-64</artifactId>
+			<version>${jdave.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>club.minnced</groupId>
+			<artifactId>jdave-native-linux-x86-64</artifactId>
+			<version>${jdave.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>club.minnced</groupId>
+			<artifactId>jdave-native-linux-aarch64</artifactId>
+			<version>${jdave.version}</version>
 		</dependency>
 
 		<!-- Opus processing -->
@@ -62,7 +85,12 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.2.5</version>
+		</dependency>
+
+		<!-- JSON parsing -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
 		<!-- Environment -->
@@ -76,18 +104,18 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.22</version>
+			<version>42.7.7</version>
+		</dependency>
+
+		<!-- Better code -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.44</version>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>dv8tion</id>
-			<name>m2-dv8tion</name>
-			<url>https://m2.dv8tion.net/releases</url>
-		</repository>
-	</repositories>
 
 	<build>
 		<finalName>${project.name}-${project.version}</finalName>
@@ -106,9 +134,30 @@
 		<plugins>
 
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.1</version>
+				<configuration>
+					<release>${java.version}</release>
+					<proc>full</proc>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.44</version>
+						</path>
+						<path>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-configuration-processor</artifactId>
+							<version>${project.parent.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.5.2</version>
 			</plugin>
 
 		</plugins>
