@@ -80,14 +80,14 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          VERSION='${{ needs.prepare-release.outputs.version }}'
+          VERSION='${{ needs.prepare.outputs.version }}'
           JAR_NAME="VGreeter-${VERSION}-${{ matrix.profile }}.jar"
           cp target/*.jar "dist/${JAR_NAME}"
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VGreeter-${{ needs.prepare-release.outputs.version }}-${{ matrix.profile }}
+          name: VGreeter-${{ needs.prepare.outputs.version }}-${{ matrix.profile }}
           path: dist/*.jar
           if-no-files-found: error
 
@@ -107,7 +107,7 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.prepare-release.outputs.version }}
-          name: Release v${{ needs.prepare-release.outputs.version }}
+          tag_name: v${{ needs.prepare.outputs.version }}
+          name: Release v${{ needs.prepare.outputs.version }}
           files: dist/*.jar
           generate_release_notes: true
