@@ -141,12 +141,6 @@
 	<profiles>
 		<profile>
 			<id>win-x86-64</id>
-			<activation>
-				<os>
-					<family>Windows</family>
-					<arch>amd64</arch>
-				</os>
-			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>club.minnced</groupId>
@@ -158,12 +152,6 @@
 
 		<profile>
 			<id>linux-x86-64</id>
-			<activation>
-				<os>
-					<name>Linux</name>
-					<arch>amd64</arch>
-				</os>
-			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>club.minnced</groupId>
@@ -175,12 +163,6 @@
 
 		<profile>
 			<id>linux-aarch64</id>
-			<activation>
-				<os>
-					<name>Linux</name>
-					<arch>aarch64</arch>
-				</os>
-			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>club.minnced</groupId>
