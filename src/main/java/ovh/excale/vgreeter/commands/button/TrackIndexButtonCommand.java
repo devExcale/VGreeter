@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractButtonCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
+import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.util.Arrays;
 
@@ -19,8 +20,11 @@ import java.util.Arrays;
 @Component
 public class TrackIndexButtonCommand extends AbstractButtonCommand {
 
-	public TrackIndexButtonCommand() {
+	private final LogErrorService logErrorService;
+
+	public TrackIndexButtonCommand(LogErrorService logErrorService) {
 		super("trackindex", "List all the tracks");
+		this.logErrorService = logErrorService;
 	}
 
 	@SneakyThrows
@@ -38,6 +42,7 @@ public class TrackIndexButtonCommand extends AbstractButtonCommand {
 		} catch(IllegalArgumentException e) {
 			return replyEphemeralWith(e.getMessage(), event);
 		} catch(Exception e) {
+			logErrorService.error(e);
 			log.error(e.getMessage(), e);
 			return replyEphemeralWith("There has been an internal error", event);
 		}

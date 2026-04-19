@@ -6,6 +6,7 @@ import org.gagravarr.ogg.OggPacket;
 import org.gagravarr.ogg.OggPacketReader;
 import org.jetbrains.annotations.Nullable;
 import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
@@ -20,9 +21,15 @@ public class TrackPlayer implements AudioSendHandler {
 	private final TrackEntity track;
 	private final Iterator<OggPacket> packetIterator;
 	private Runnable trackEndAction;
+	private final LogErrorService logErrorService;
 
 	public TrackPlayer(TrackEntity track) {
+		this(track, null);
+	}
+
+	public TrackPlayer(TrackEntity track, @Nullable LogErrorService logErrorService) {
 		this.track = track;
+		this.logErrorService = logErrorService;
 		this.trackEndAction = () -> { };
 		List<OggPacket> packetList = new LinkedList<>();
 
@@ -35,6 +42,8 @@ public class TrackPlayer implements AudioSendHandler {
 					packetList.add(packet);
 
 			} catch(Exception e) {
+				if(this.logErrorService != null)
+					this.logErrorService.error("Failed to read opus packets from track", e);
 				log.error(e.getMessage(), e);
 			}
 

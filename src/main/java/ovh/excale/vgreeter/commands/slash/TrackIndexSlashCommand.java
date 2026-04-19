@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
+import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -24,21 +25,26 @@ import static ovh.excale.vgreeter.track.TrackIndex.*;
 @Component
 public class TrackIndexSlashCommand extends AbstractSlashCommand {
 
-	public TrackIndexSlashCommand() {
+	private static final String PAGE_LABEL = "Page number";
+
+	private final LogErrorService logErrorService;
+
+	public TrackIndexSlashCommand(LogErrorService logErrorService) {
 		super("trackindex", "List all the tracks");
+		this.logErrorService = logErrorService;
 
 		getBuilder()
 				// [SUB] all
 				.subcommand(FILTER_ALL, "Search for all tracks")
-				.addOption("page", "Page number", OptionType.INTEGER)
+				.addOption("page", PAGE_LABEL, OptionType.INTEGER)
 				// [SUB] name
 				.subcommand(FILTER_NAME, "Search for all tracks with something in the name")
 				.addOptionRequired(TRACK_NAME.ext, "Track name", OptionType.STRING)
-				.addOption("page", "Page number", OptionType.INTEGER)
+				.addOption("page", PAGE_LABEL, OptionType.INTEGER)
 				// [SUB] user
 				.subcommand(FILTER_USER, "Search for tracks by a user")
 				.addOptionRequired(USER_ID.ext, "The user to query for", OptionType.USER)
-				.addOption("page", "Page number", OptionType.INTEGER);
+				.addOption("page", PAGE_LABEL, OptionType.INTEGER);
 
 	}
 
@@ -65,6 +71,7 @@ public class TrackIndexSlashCommand extends AbstractSlashCommand {
 		} catch(IllegalArgumentException e) {
 			return replyEphemeralWith(e.getMessage(), event);
 		} catch(Exception e) {
+			logErrorService.error(e);
 			log.error(e.getMessage(), e);
 			return replyEphemeralWith("There has been an internal error", event);
 		}

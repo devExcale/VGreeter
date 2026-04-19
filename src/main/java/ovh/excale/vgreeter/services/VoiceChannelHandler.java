@@ -26,16 +26,16 @@ public class VoiceChannelHandler extends ListenerAdapter {
 
 	private final GuildRepository guildRepo;
 	private final TrackService trackService;
+	private final LogErrorService logErrorService;
 
 	private final Random random;
 
-	public VoiceChannelHandler(GuildRepository guildRepo, TrackService trackService) {
+	public VoiceChannelHandler(GuildRepository guildRepo, TrackService trackService, LogErrorService logErrorService) {
 		this.guildRepo = guildRepo;
 		this.trackService = trackService;
+		this.logErrorService = logErrorService;
 		random = new Random();
 	}
-
-	// TODO: DISABLE VOICE EVENT HANDLING UNDER MAINTENANCE
 
 	@Transactional
 	@Override
@@ -71,7 +71,7 @@ public class VoiceChannelHandler extends ListenerAdapter {
 		if(random.nextFloat() > greetProbab)
 			return;
 
-		TrackPlayer trackPlayer = new TrackPlayer(trackService.randomTrack());
+		TrackPlayer trackPlayer = new TrackPlayer(trackService.randomTrack(), logErrorService);
 		if(!trackPlayer.canProvide()) {
 			log.error("TrackPlayer cannot provide");
 			return;
@@ -85,7 +85,7 @@ public class VoiceChannelHandler extends ListenerAdapter {
 			audioManager.setSendingHandler(trackPlayer);
 			audioManager.openAudioConnection(channel);
 			guildLocks.add(guild.getIdLong());
-		} catch(InsufficientPermissionException ignored) {
+		} catch(InsufficientPermissionException _) {
 			// The bot doesn't have permissions to connect to the Voice Channel, do nothing
 		}
 

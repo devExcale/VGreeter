@@ -12,11 +12,11 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.repository.TrackRepository;
 import ovh.excale.vgreeter.services.DiscordService;
+import ovh.excale.vgreeter.services.LogErrorService;
 import ovh.excale.vgreeter.track.TrackPlayer;
 
 import java.util.Optional;
@@ -26,8 +26,13 @@ import java.util.Set;
 @Component
 public class PlaytestCommand extends AbstractSlashCommand {
 
-	public PlaytestCommand() {
+	private final TrackRepository trackRepo;
+	private final LogErrorService logErrorService;
+
+	public PlaytestCommand(TrackRepository trackRepo, LogErrorService logErrorService) {
 		super("playtest", "Test a track");
+		this.trackRepo = trackRepo;
+		this.logErrorService = logErrorService;
 
 		this.getBuilder()
 				.addOptionRequired("trackid", "The track to play", OptionType.INTEGER);
@@ -58,10 +63,6 @@ public class PlaytestCommand extends AbstractSlashCommand {
 			return event.reply("You must be connected to a Voice Channel to use this command")
 					.setEphemeral(true);
 
-		TrackRepository trackRepo = VGreeterApplication
-				.getApplicationContext()
-				.getBean(TrackRepository.class);
-
 		//noinspection ConstantConditions
 		long trackId = Long.parseLong(event.getOption("trackid")
 				.getAsString());
@@ -72,7 +73,7 @@ public class PlaytestCommand extends AbstractSlashCommand {
 			return event.reply("A track with that id doesn't exist")
 					.setEphemeral(true);
 
-		TrackPlayer trackPlayer = new TrackPlayer(opt.get());
+		TrackPlayer trackPlayer = new TrackPlayer(opt.get(), logErrorService);
 		if(!trackPlayer.canProvide()) {
 			log.error("TrackPlayer cannot provide");
 			return event.reply("There has been an internal error, retry or contact a developer.")

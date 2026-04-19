@@ -22,7 +22,7 @@ import static ovh.excale.vgreeter.entity.EntityUtils.*;
 		"spring.datasource.password=",
 		"spring.jpa.hibernate.ddl-auto=validate",
 		"spring.sql.init.mode=always",
-		"spring.sql.init.schema-locations=classpath:db/h2_source.sql"
+		"spring.sql.init.schema-locations=classpath:h2/schema.sql"
 	})
 @EntityScan(basePackageClasses = TracklistEntity.class)
 class TracklistEntityTest {

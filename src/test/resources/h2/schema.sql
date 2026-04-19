@@ -77,3 +77,12 @@ CREATE TABLE tracklist_track (
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
+
+CREATE TABLE log_error (
+	id          UUID PRIMARY KEY,
+	level       VARCHAR(16) NOT NULL,
+	message     CLOB,
+	cause       CLOB,
+	stack_trace CLOB,
+	created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
