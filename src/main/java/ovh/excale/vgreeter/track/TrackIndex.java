@@ -11,8 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
-import ovh.excale.vgreeter.models.TrackModel;
-import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.repository.TrackRepository;
 import ovh.excale.vgreeter.utilities.Emojis;
 
 import java.awt.*;
@@ -31,7 +31,7 @@ public class TrackIndex {
 
 	private final CommandOptions options;
 	private final TrackRepository trackRepo;
-	private Page<TrackModel> trackPage;
+	private Page<TrackEntity> trackPage;
 
 	@Setter
 	@Getter
@@ -87,7 +87,7 @@ public class TrackIndex {
 				filterContent = trackName;
 
 				String formattedTrackName = "%" + trackName.replaceAll("\\s+", "%") + "%";
-				trackPage = trackRepo.findAllByNameQuery(formattedTrackName,
+				trackPage = trackRepo.findAllByTitleQuery(formattedTrackName,
 						PageRequest.of(humanBasedPage - 1, pageSize, sorting));
 
 				break;
@@ -99,7 +99,7 @@ public class TrackIndex {
 						.orElseThrow(() -> new IllegalArgumentException("Missing parameter " + USER_ID.ext));
 
 				filterContent = String.format("<@%d>", userId);
-				trackPage = trackRepo.findAllByUploaderIdIs(userId,
+				trackPage = trackRepo.findAllByOwnerIdIs(userId,
 						PageRequest.of(humanBasedPage - 1, pageSize, sorting));
 
 				break;
@@ -123,7 +123,7 @@ public class TrackIndex {
 				.setColor(embedColor)
 				.setDescription(trackPage.getContent()
 						.stream()
-						.map(track -> "**#" + track.getId() + "** *" + track.getName() + "*")
+						.map(track -> "**#" + track.getId() + "** *" + track.getTitle() + "*")
 						.collect(Collectors.joining("\n"))
 						.concat(filterOut));
 

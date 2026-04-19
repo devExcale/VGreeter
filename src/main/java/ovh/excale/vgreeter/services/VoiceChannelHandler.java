@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.models.GuildModel;
-import ovh.excale.vgreeter.repositories.GuildRepository;
+import ovh.excale.vgreeter.entity.GuildEntity;
+import ovh.excale.vgreeter.repository.GuildRepository;
 import ovh.excale.vgreeter.track.TrackPlayer;
 
 import java.util.Optional;
@@ -55,18 +55,18 @@ public class VoiceChannelHandler extends ListenerAdapter {
 		if(user.isBot() || guildLocks.contains(guild.getIdLong()))
 			return;
 
-		int joinProbability;
+		float greetProbab;
 
-		Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
+		Optional<GuildEntity> opt = guildRepo.findById(guild.getIdLong());
 		if(opt.isPresent())
-			joinProbability = opt.get().getJoinProbability();
+			greetProbab = opt.get().getGreetProbab();
 		else {
-			GuildModel guildModel = GuildModel.builder().id(guild.getIdLong()).build();
-			joinProbability = guildModel.getJoinProbability();
+			GuildEntity guildModel = GuildEntity.builder().discordId(guild.getIdLong()).build();
+			greetProbab = guildModel.getGreetProbab();
 			guildRepo.save(guildModel);
 		}
 
-		if(random.nextInt(100) + 1 > joinProbability)
+		if(random.nextFloat() > greetProbab)
 			return;
 
 		TrackPlayer trackPlayer = new TrackPlayer(trackService.randomTrack());

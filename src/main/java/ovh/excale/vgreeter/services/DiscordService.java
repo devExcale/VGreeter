@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
 import ovh.excale.vgreeter.commands.button.TrackIndexButtonCommand;
-import ovh.excale.vgreeter.commands.slash.AltnameCommand;
 import ovh.excale.vgreeter.commands.slash.ProbabilityCommand;
 import ovh.excale.vgreeter.commands.message.RestartCommand;
 import ovh.excale.vgreeter.commands.slash.UploadHelpCommand;
@@ -72,7 +71,6 @@ public class DiscordService {
 				.addCommands(commands
 						// SLASH COMMANDS
 						.register(new ProbabilityCommand())
-						.register(new AltnameCommand())
 						.register(new UploadHelpCommand())
 						.register(new PlaytestCommand())
 						.register(new TrackNameCommand())

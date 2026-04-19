@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
-import ovh.excale.vgreeter.models.TrackModel;
-import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.repository.TrackRepository;
 import ovh.excale.vgreeter.services.DiscordService;
 import ovh.excale.vgreeter.track.TrackPlayer;
 
@@ -61,9 +61,9 @@ public class PlaytestCommand extends AbstractSlashCommand {
 		long trackId = Long.parseLong(event.getOption("trackid")
 				.getAsString());
 
-		Optional<TrackModel> opt = trackRepo.findById(trackId);
+		Optional<TrackEntity> opt = trackRepo.findById(trackId);
 
-		if(!opt.isPresent())
+		if(opt.isEmpty())
 			return event.reply("A track with that id doesn't exist")
 					.setEphemeral(true);
 

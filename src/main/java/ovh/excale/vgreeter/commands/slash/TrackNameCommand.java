@@ -6,9 +6,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
-import ovh.excale.vgreeter.models.TrackModel;
-import ovh.excale.vgreeter.models.UserModel;
-import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.entity.MemberEntity;
+import ovh.excale.vgreeter.repository.TrackRepository;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -47,25 +47,25 @@ public class TrackNameCommand extends AbstractSlashCommand {
 			return event.reply("Invalid track name")
 					.setEphemeral(true);
 
-		Optional<TrackModel> opt = trackRepo.findById(trackId);
+		Optional<TrackEntity> opt = trackRepo.findById(trackId);
 
 		if(!opt.isPresent())
 			return event.reply("Invalid track id")
 					.setEphemeral(true);
 
-		TrackModel track = opt.get();
-		UserModel userModel = track.getUploader();
+		TrackEntity track = opt.get();
+		MemberEntity userModel = track.getOwner();
 		User user = event.getUser();
 
-		if(userModel.getSnowflake() != user.getIdLong())
+		if(userModel.getDiscordId() != user.getIdLong())
 			return event.reply("You're not the uploaded of this track")
 					.setEphemeral(true);
 
-		if(trackRepo.existsByNameAndUploader(trackname, userModel))
+		if(trackRepo.existsByTitleAndOwner(trackname, userModel))
 			return event.reply("A track with that name already exists")
 					.setEphemeral(true);
 
-		track.setName(trackname);
+		track.setTitle(trackname);
 		trackRepo.save(track);
 
 		return event.reply("Track saved successfully")

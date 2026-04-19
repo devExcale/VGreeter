@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
-import ovh.excale.vgreeter.models.TrackModel;
-import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.repository.TrackRepository;
 
 import java.util.Optional;
 
@@ -38,17 +38,17 @@ public class TrackRemoveCommand extends AbstractSlashCommand {
 				.getOption("trackid")
 				.getAsLong();
 
-		Optional<TrackModel> opt = trackRepo.findById(trackId);
-		if(!opt.isPresent())
+		Optional<TrackEntity> opt = trackRepo.findById(trackId);
+		if(opt.isEmpty())
 			reply = event
 					.reply("No track with such id")
 					.setEphemeral(true);
 		else {
 
-			TrackModel track = opt.get();
+			TrackEntity track = opt.get();
 			Long userId = user.getIdLong();
 
-			if(!userId.equals(track.getUploaderId()))
+			if(!userId.equals(track.getOwnerId()))
 				reply = event
 						.reply("You're not the uploader of track `" + trackId + "`")
 						.setEphemeral(true);

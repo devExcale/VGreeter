@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
-import ovh.excale.vgreeter.models.GuildModel;
-import ovh.excale.vgreeter.repositories.GuildRepository;
+import ovh.excale.vgreeter.entity.GuildEntity;
+import ovh.excale.vgreeter.repository.GuildRepository;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 		super("probab", "Manage the Voice Chat Join Probability");
 		this.getBuilder()
 				.subcommand("set", "Set the new Join Probability")
-				.addOptionRequired("percent", "Join Probability (0 to 100)", OptionType.INTEGER)
+				.addOptionRequired("percent", "Join Probability (0 to 100)", OptionType.NUMBER)
 				.subcommand("get", "Get the current Join Probability")
 				.subcommand("default", "Reset the Join Probability to its default");
 
@@ -42,13 +42,14 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 					.setEphemeral(true);
 
 		Member member = event.getMember();
-		Optional<GuildModel> opt = guildRepo.findById(guild.getIdLong());
-		GuildModel guildModel = opt.orElseGet(() -> GuildModel
-				.builder()
-				.id(guild.getIdLong())
-				.build());
+		Optional<GuildEntity> opt = guildRepo.findById(guild.getIdLong());
+		GuildEntity guildEntity = opt.orElseGet(
+			() -> GuildEntity.builder()
+				.discordId(guild.getIdLong())
+				.build()
+		);
 
-		int prevProbab = guildModel.getJoinProbability();
+		float greetProbab100 = guildEntity.getGreetProbab() * 100;
 		RestAction<?> reply;
 
 		String subcommand = Optional.ofNullable(event.getSubcommandName())
@@ -64,24 +65,24 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 							.setEphemeral(true);
 
 				//noinspection ConstantConditions
-				int newProbab = Optional.of(event.getOption("percent"))
-						.map(OptionMapping::getAsString)
-						.map(Integer::parseInt)
-						.get();
+				float newGreetProbab100 = Optional.of(event.getOption("percent"))
+					.map(OptionMapping::getAsString)
+					.map(Float::parseFloat)
+					.get();
 
-				if(newProbab >= 0 && newProbab <= 100) {
-					guildModel.setJoinProbability(newProbab);
-					guildRepo.save(guildModel);
-					reply = event.reply("Changed the Join Probability from " + prevProbab + "% to " + newProbab + "%");
-				} else
-					reply = event.reply("Probability must be between 0 and 100")
-							.setEphemeral(true);
+				if(newGreetProbab100 < 0f || newGreetProbab100 > 100f)
+					return event.reply("Probability must be between 0 and 100")
+						.setEphemeral(true);
+
+				guildEntity.setGreetProbab(newGreetProbab100 / 100f);
+				guildRepo.save(guildEntity);
+				reply = event.reply("Changed the Join Probability from " + greetProbab100 + "% to " + newGreetProbab100 + "%");
 
 				break;
 
 			case "get":
 
-				reply = event.reply("The Join Probability is " + prevProbab + "%");
+				reply = event.reply("The Join Probability is " + greetProbab100 + "%");
 
 				break;
 
@@ -92,9 +93,10 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 					return event.reply("You must have ADMINISTRATOR permission to use this command")
 							.setEphemeral(true);
 
-				guildModel.setJoinProbability(GuildModel.DEFAULT_JOIN_PROBABILITY);
-				guildRepo.save(guildModel);
-				reply = event.reply("Reset the Join Probability to " + guildModel.getJoinProbability() + "%");
+				guildEntity.setGreetProbab(GuildEntity.DEFAULT_GREET_PROBAB);
+				guildRepo.save(guildEntity);
+				greetProbab100 = guildEntity.getGreetProbab() * 100;
+				reply = event.reply("Reset the Join Probability to " + greetProbab100 + "%");
 
 				break;
 

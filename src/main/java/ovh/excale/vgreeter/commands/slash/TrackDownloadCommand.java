@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
-import ovh.excale.vgreeter.models.TrackModel;
-import ovh.excale.vgreeter.repositories.TrackRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.repository.TrackRepository;
 
 import java.util.Optional;
 
@@ -42,16 +42,16 @@ public class TrackDownloadCommand extends AbstractSlashCommand {
 		long trackId = Long.parseLong(event.getOption("trackid")
 				.getAsString());
 
-		Optional<TrackModel> opt = trackRepo.findById(trackId);
+		Optional<TrackEntity> opt = trackRepo.findById(trackId);
 
-		if(!opt.isPresent())
+		if(opt.isEmpty())
 			return event.reply("No track with such id")
 					.setEphemeral(true);
 
-		TrackModel track = opt.get();
+		TrackEntity track = opt.get();
 
 		return event.reply(String.format("Track `#%d`", track.getId()))
-				.addFiles(FileUpload.fromData(track.getData(), track.getName() + ".opus"));
+				.addFiles(FileUpload.fromData(track.getOpusBytes(), track.getTitle() + ".opus"));
 
 	}
 

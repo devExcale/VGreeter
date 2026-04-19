@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractMessageCommand;
-import ovh.excale.vgreeter.models.TrackModel;
-import ovh.excale.vgreeter.models.UserModel;
-import ovh.excale.vgreeter.repositories.TrackRepository;
-import ovh.excale.vgreeter.repositories.UserRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.entity.MemberEntity;
+import ovh.excale.vgreeter.repository.TrackRepository;
+import ovh.excale.vgreeter.repository.MemberRepository;
 import ovh.excale.vgreeter.services.TrackService;
 
 import java.io.ByteArrayInputStream;
@@ -32,15 +32,15 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 
 	private static final Pattern TRACK_NAME_PATTERN = Pattern.compile("([\\w\\d-_]+)\\.opus");
 
-	private final UserRepository userRepo;
+	private final MemberRepository memberRepo;
 	private final TrackService trackService;
 
 	public TrackUploadCommand() {
 		super("upload", "");
 
-		userRepo = VGreeterApplication
+		memberRepo = VGreeterApplication
 				.getApplicationContext()
-				.getBean(UserRepository.class);
+				.getBean(MemberRepository.class);
 
 		trackService = VGreeterApplication
 				.getApplicationContext()
@@ -57,17 +57,23 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 		if(user.isBot())
 			return null;
 
+		// Try get member
 		Message message = event.getMessage();
-		Optional<UserModel> opt = userRepo.findById(user.getIdLong());
+		Optional<MemberEntity> opt = memberRepo.findById(user.getIdLong());
+		MemberEntity memberEntity;
 
-		boolean hasNotAltname = !opt.isPresent() || opt
-				.get()
-				.getAltname() == null;
+		if(opt.isEmpty()) {
 
-		if(hasNotAltname)
-			return message.reply("You must set an `/altname` first to upload a track");
+			// Register new member
+			memberEntity = MemberEntity.builder()
+					.discordId(user.getIdLong())
+					.discordUsername(user.getName())
+					.build();
+			memberRepo.save(memberEntity);
 
-		UserModel userModel = opt.get();
+		} else {
+			memberEntity = opt.get();
+		}
 
 		List<Message.Attachment> attachments = message.getAttachments();
 		if(attachments.isEmpty())
@@ -77,8 +83,9 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 		String filename = attachment.getFileName();
 		int size = attachment.getSize();
 
-		if(size > TrackService.DEFAULT_MAX_TRACK_SIZE)
-			return message.reply("The file is too big (Max. " + TrackService.DEFAULT_MAX_TRACK_SIZE + ")");
+		long memberTrackMaxSize = memberEntity.getTrackMaxSize();
+		if(size > memberTrackMaxSize)
+			return message.reply("The file is too big (Max. " + memberTrackMaxSize + ")");
 
 		Matcher filenameMatcher = TRACK_NAME_PATTERN.matcher(filename.toLowerCase(Locale.ROOT));
 		if(!filenameMatcher.matches())
@@ -126,15 +133,13 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 			TrackRepository trackRepo = trackService.getTrackRepo();
 			String trackName = filenameMatcher.group(1);
 
-			if(trackRepo.existsByNameAndUploader(trackName, userModel))
+			if(trackRepo.existsByTitleAndOwner(trackName, memberEntity))
 				return message.reply("You've already uploaded a track with the same name");
 
-			TrackModel track = TrackModel
-					.builder()
-					.name(filenameMatcher.group(1))
-					.uploader(userModel)
-					.size((long) data.length)
-					.data(data)
+			TrackEntity track = TrackEntity.builder()
+					.title(filenameMatcher.group(1))
+					.owner(memberEntity)
+					.opusBytes(data)
 					.build();
 			trackRepo.save(track);
 

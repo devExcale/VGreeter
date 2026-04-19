@@ -5,9 +5,8 @@ import net.dv8tion.jda.api.audio.AudioSendHandler;
 import org.gagravarr.ogg.OggPacket;
 import org.gagravarr.ogg.OggPacketReader;
 import org.jetbrains.annotations.Nullable;
-import ovh.excale.vgreeter.models.TrackModel;
+import ovh.excale.vgreeter.entity.TrackEntity;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,32 +17,31 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class TrackPlayer implements AudioSendHandler {
 
-	private final TrackModel track;
+	private final TrackEntity track;
 	private final Iterator<OggPacket> packetIterator;
 	private Runnable trackEndAction;
 
-	public TrackPlayer(TrackModel track) {
+	public TrackPlayer(TrackEntity track) {
 		this.track = track;
 		this.trackEndAction = () -> { };
 		List<OggPacket> packetList = new LinkedList<>();
 
-		if(track != null) {
-			OggPacketReader packetReader = track.getPacketReader();
-
+		if(track != null)
 			try {
+
+				OggPacketReader packetReader = track.getOpusPacketReader();
 				OggPacket packet;
 				while((packet = packetReader.getNextPacket()) != null)
 					packetList.add(packet);
-			} catch(IOException e) {
+
+			} catch(Exception e) {
 				log.error(e.getMessage(), e);
 			}
-
-		}
 
 		packetIterator = packetList.iterator();
 	}
 
-	public TrackModel getTrack() {
+	public TrackEntity getTrack() {
 		return track;
 	}
 
