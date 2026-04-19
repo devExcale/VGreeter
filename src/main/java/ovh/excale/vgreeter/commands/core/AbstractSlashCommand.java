@@ -26,7 +26,11 @@ public abstract class AbstractSlashCommand extends AbstractCommand<SlashCommandI
 
 	@Override
 	public boolean accepts(GenericEvent event) {
-		return event instanceof SlashCommandInteractionEvent && name.equals(((SlashCommandInteractionEvent) event).getName());
+
+		if(!(event instanceof SlashCommandInteractionEvent slashCommandEvent))
+			return false;
+
+		return name.equals(slashCommandEvent.getName());
 	}
 
 	public CommandData getData() {

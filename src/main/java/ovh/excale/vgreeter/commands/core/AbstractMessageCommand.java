@@ -21,10 +21,9 @@ public abstract class AbstractMessageCommand extends AbstractCommand<MessageRece
 
 	public boolean accepts(GenericEvent event) {
 
-		if(!(event instanceof MessageReceivedEvent))
+		if(!(event instanceof MessageReceivedEvent messageEvent))
 			return false;
 
-		MessageReceivedEvent messageEvent = (MessageReceivedEvent) event;
 		if(messageEvent.isFromGuild())
 			return false;
 
@@ -34,7 +33,6 @@ public abstract class AbstractMessageCommand extends AbstractCommand<MessageRece
 				.toLowerCase(Locale.ROOT);
 
 		return msgContent.startsWith(PREFIX + name);
-
 	}
 
 }

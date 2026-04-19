@@ -1,7 +1,6 @@
 package ovh.excale.vgreeter.commands.core;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -65,7 +64,8 @@ public class CommandBuilder {
 		if(!subcommand)
 			throw new IllegalStateException("Cannot add a subcommand with previous options");
 
-		subcommands.add(currentSubcommand = new SubcommandData(name, description));
+		currentSubcommand = new SubcommandData(name, description);
+		subcommands.add(currentSubcommand);
 
 		return this;
 	}

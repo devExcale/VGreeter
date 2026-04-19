@@ -81,7 +81,7 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 		if(attachments.isEmpty())
 			return message.reply("The track must be **opus encoded**");
 
-		Message.Attachment attachment = attachments.get(0);
+		Message.Attachment attachment = attachments.getFirst();
 		String filename = attachment.getFileName();
 		int size = attachment.getSize();
 
@@ -125,7 +125,7 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 			in.close();
 
 			if(read != size) {
-				log.warn("Size mismatch while reading InputStream. Expected size: " + size + ", read: " + read);
+				log.warn("Size mismatch while reading InputStream. Expected size: {}, read: {}", size, read);
 				data = Arrays.copyOfRange(data, 0, read);
 			}
 

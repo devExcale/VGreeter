@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Service
 public class CommandRegister {
@@ -24,28 +23,25 @@ public class CommandRegister {
 		masterRecord = new HashMap<>();
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public <C extends AbstractCommand<?>> CommandRegister register(C command) {
 
 		Class<? extends GenericEvent> commandType = command.getTypeClass();
 		//noinspection unchecked
-		Set<C> commandSet = (Set<C>) masterRecord.computeIfAbsent(commandType, k -> new HashSet<>());
-
+		Set<C> commandSet = (Set<C>) masterRecord.computeIfAbsent(commandType, _ -> new HashSet<>());
 		commandSet.add(command);
-		if(command.hasListener())
-			listenerRegister.register(command.getListener());
 
 		return this;
-
 	}
 
 	public CommandData[] getSlashCommandsData() {
 
 		//noinspection unchecked
 		return Optional.ofNullable((Set<AbstractSlashCommand>) masterRecord.get(SlashCommandInteractionEvent.class))
-				.map(Collection::stream)
-				.orElseGet(Stream::empty)
-				.map(AbstractSlashCommand::getData)
-				.toArray(CommandData[]::new);
+			.stream()
+			.flatMap(Collection::stream)
+			.map(AbstractSlashCommand::getData)
+			.toArray(CommandData[]::new);
 
 	}
 
@@ -81,17 +77,15 @@ public class CommandRegister {
 
 			if(abstractCommand != null) {
 
-				//noinspection OptionalGetWithoutIsPresent
-				Method execMethod = Arrays.stream(abstractCommand.getClass()
-								.getDeclaredMethods())
-						.filter(method -> method.getName()
-								.equals("execute"))
+				Method execMethod = Arrays.stream(abstractCommand.getClass().getDeclaredMethods())
+						.filter(method -> "execute".equals(method.getName()))
 						.findFirst()
-						.get();
+						.orElse(null);
 
-				Optional.ofNullable(execMethod.invoke(abstractCommand, event))
-						.map(result -> ((RestAction<?>) result))
-						.ifPresent(RestAction::queue);
+				if(execMethod != null)
+					Optional.ofNullable(execMethod.invoke(abstractCommand, event))
+							.map(result -> ((RestAction<?>) result))
+							.ifPresent(RestAction::queue);
 
 			}
 

@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractButtonCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
@@ -24,7 +25,7 @@ public class TrackIndexButtonCommand extends AbstractButtonCommand {
 
 	@SneakyThrows
 	@Override
-	public @NotNull RestAction<?> execute(ButtonInteractionEvent event) {
+	public @NotNull RestAction<?> execute(@NonNull ButtonInteractionEvent event) {
 
 		CommandOptions command = CommandOptions.fromJson(event.getComponentId());
 		//noinspection DuplicatedCode

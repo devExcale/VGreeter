@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
@@ -30,7 +31,7 @@ public class TrackRemoveCommand extends AbstractSlashCommand {
 	}
 
 	@Override
-	public RestAction<?> execute(SlashCommandInteractionEvent event) {
+	public @NonNull RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		RestAction<?> reply;
 		User user = event.getUser();

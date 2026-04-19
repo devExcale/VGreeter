@@ -18,20 +18,19 @@ public abstract class AbstractButtonCommand extends AbstractCommand<ButtonIntera
 	@Override
 	public boolean accepts(GenericEvent event) {
 
-		if(!(event instanceof ButtonInteractionEvent))
+		if(!(event instanceof ButtonInteractionEvent buttonInteractionEvent))
 			return false;
 
 		CommandOptions command;
 		try {
 
-			command = CommandOptions.fromJson(((ButtonInteractionEvent) event).getComponentId());
+			command = CommandOptions.fromJson(buttonInteractionEvent.getComponentId());
 
-		} catch(JsonProcessingException e) {
+		} catch(JsonProcessingException _) {
 			return false;
 		}
 
 		return name.equalsIgnoreCase(command.getCommand());
-
 	}
 
 }

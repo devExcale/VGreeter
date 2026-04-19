@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
@@ -32,7 +33,7 @@ public class TrackDownloadCommand extends AbstractSlashCommand {
 	// TODO: 30sec cooldown (whole-guild scope) on download, probably with stopwatch and queue
 
 	@Override
-	public RestAction<?> execute(SlashCommandInteractionEvent event) {
+	public @NonNull RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		Guild guild = event.getGuild();
 
