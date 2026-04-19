@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
 import ovh.excale.vgreeter.commands.button.TrackIndexButtonCommand;
+import ovh.excale.vgreeter.commands.core.AbstractCommand;
 import ovh.excale.vgreeter.commands.slash.ProbabilityCommand;
 import ovh.excale.vgreeter.commands.message.RestartCommand;
 import ovh.excale.vgreeter.commands.slash.UploadHelpCommand;
@@ -24,6 +25,7 @@ import ovh.excale.vgreeter.commands.slash.*;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +40,8 @@ public class DiscordService {
 
 	public DiscordService(
 		VoiceChannelHandler eventHandler,
-		CommandRegister commands,
+		CommandRegister commandRegister,
+		Map<String, AbstractCommand<?>> commands,
 		@Value("${env.DISCORD_TOKEN}") String token
 	) throws InterruptedException {
 
@@ -57,7 +60,7 @@ public class DiscordService {
 				CacheFlag.EMOJI
 			)
 			.setActivity(Activity.listening("people"))
-			.addEventListeners(eventHandler, commands.getListener())
+			.addEventListeners(eventHandler, commandRegister.getListener())
 			.setAudioModuleConfig(
 				new AudioModuleConfig().withDaveSessionFactory(new JDaveSessionFactory())
 			)
@@ -66,24 +69,13 @@ public class DiscordService {
 
 		log.info("JDA connected");
 
+		// Register all commands
+		for(AbstractCommand<?> command : commands.values())
+			commandRegister.register(command);
+
 		String commandListString = jda
 				.updateCommands()
-				.addCommands(commands
-						// SLASH COMMANDS
-						.register(new ProbabilityCommand())
-						.register(new UploadHelpCommand())
-						.register(new PlaytestCommand())
-						.register(new TrackNameCommand())
-						.register(new TrackIndexSlashCommand())
-						.register(new TrackRemoveCommand())
-						.register(new TrackDownloadCommand())
-						// MESSAGE COMMANDS
-						.register(new RestartCommand())
-						.register(new TrackUploadCommand())
-						// BUTTON COMMANDS
-						.register(new CloseEmbedCommand())
-						.register(new TrackIndexButtonCommand())
-						.getSlashCommandsData())
+				.addCommands(commandRegister.getSlashCommandsData())
 				.complete()
 				.stream()
 				.map(Command::getName)

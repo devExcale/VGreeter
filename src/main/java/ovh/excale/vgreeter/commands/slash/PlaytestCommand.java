@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands.slash;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -9,6 +10,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Log4j2
+@Component
 public class PlaytestCommand extends AbstractSlashCommand {
 
 	public PlaytestCommand() {
@@ -30,6 +33,7 @@ public class PlaytestCommand extends AbstractSlashCommand {
 
 	}
 
+	@Transactional
 	@Override
 	public RestAction<?> execute(SlashCommandInteractionEvent event) {
 

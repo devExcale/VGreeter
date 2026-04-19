@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.services;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -36,6 +37,7 @@ public class VoiceChannelHandler extends ListenerAdapter {
 
 	// TODO: DISABLE VOICE EVENT HANDLING UNDER MAINTENANCE
 
+	@Transactional
 	@Override
 	public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
 

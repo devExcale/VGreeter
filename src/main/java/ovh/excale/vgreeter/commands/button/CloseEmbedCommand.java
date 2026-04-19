@@ -5,8 +5,10 @@ import java.util.Collections;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractButtonCommand;
 
+@Component
 public class CloseEmbedCommand extends AbstractButtonCommand {
 
 	public CloseEmbedCommand() {

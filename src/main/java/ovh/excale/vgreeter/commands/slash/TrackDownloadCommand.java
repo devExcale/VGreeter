@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
@@ -12,6 +13,7 @@ import ovh.excale.vgreeter.repository.TrackRepository;
 
 import java.util.Optional;
 
+@Component
 public class TrackDownloadCommand extends AbstractSlashCommand {
 
 	private final TrackRepository trackRepo;

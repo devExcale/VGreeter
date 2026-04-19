@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.entity.GuildEntity;
@@ -14,6 +15,7 @@ import ovh.excale.vgreeter.repository.GuildRepository;
 
 import java.util.Optional;
 
+@Component
 public class ProbabilityCommand extends AbstractSlashCommand {
 
 	private final GuildRepository guildRepo;

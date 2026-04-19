@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractButtonCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
@@ -14,6 +15,7 @@ import ovh.excale.vgreeter.track.TrackIndex;
 import java.util.Arrays;
 
 @Log4j2
+@Component
 public class TrackIndexButtonCommand extends AbstractButtonCommand {
 
 	public TrackIndexButtonCommand() {

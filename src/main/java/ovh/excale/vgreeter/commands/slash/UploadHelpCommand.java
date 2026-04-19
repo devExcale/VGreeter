@@ -2,8 +2,10 @@ package ovh.excale.vgreeter.commands.slash;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 
+@Component
 public class UploadHelpCommand extends AbstractSlashCommand {
 
 	public UploadHelpCommand() {

@@ -9,6 +9,7 @@ import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractMessageCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
@@ -28,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Log4j2
+@Component
 public class TrackUploadCommand extends AbstractMessageCommand {
 
 	private static final Pattern TRACK_NAME_PATTERN = Pattern.compile("([\\w\\d-_]+)\\.opus");

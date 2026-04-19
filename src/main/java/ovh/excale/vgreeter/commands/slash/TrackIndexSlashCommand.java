@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
@@ -20,6 +21,7 @@ import static ovh.excale.vgreeter.commands.core.CommandKeyword.USER_ID;
 import static ovh.excale.vgreeter.track.TrackIndex.*;
 
 @Log4j2
+@Component
 public class TrackIndexSlashCommand extends AbstractSlashCommand {
 
 	public TrackIndexSlashCommand() {

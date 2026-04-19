@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
@@ -11,6 +12,7 @@ import ovh.excale.vgreeter.repository.TrackRepository;
 
 import java.util.Optional;
 
+@Component
 public class TrackRemoveCommand extends AbstractSlashCommand {
 
 	private final TrackRepository trackRepo;

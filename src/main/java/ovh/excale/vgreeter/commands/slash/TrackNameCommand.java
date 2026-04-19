@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
@@ -13,6 +14,7 @@ import ovh.excale.vgreeter.repository.TrackRepository;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+@Component
 public class TrackNameCommand extends AbstractSlashCommand {
 
 	private static final Pattern TRACKNAME_PATTERN = Pattern.compile("[\\w\\d-_]+");
