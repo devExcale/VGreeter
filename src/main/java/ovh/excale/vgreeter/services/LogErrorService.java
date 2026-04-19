@@ -1,8 +1,9 @@
 package ovh.excale.vgreeter.services;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ovh.excale.vgreeter.entity.LogErrorEntity;
 import ovh.excale.vgreeter.repository.LogErrorRepository;
 
@@ -15,44 +16,84 @@ public class LogErrorService {
 
 	private final LogErrorRepository logErrorRepo;
 
-	public LogErrorEntity error(String message, Throwable throwable) {
+	public LogErrorEntity error(
+		@Nullable String message,
+		@NotNull Throwable throwable,
+		@Nullable Long userId,
+		@Nullable Long guildId
+	) {
 
 		LogErrorEntity logError = LogErrorEntity.builder()
 			.level("error")
-			.message(message)
-			.cause(throwable != null ? throwable.getMessage() : null)
+			.message(message != null ? message : throwable.getMessage())
+			.cause(throwable.getMessage())
 			.stackTrace(serializeStackTrace(throwable))
+			.userId(userId)
+			.guildId(guildId)
 			.build();
 
 		return logErrorRepo.save(logError);
 	}
 
-	public LogErrorEntity error(String message) {
-		return error(message, null);
+	public LogErrorEntity error(
+		@Nullable String message,
+		@NotNull Throwable throwable
+	) {
+		return error(message, throwable, null, null);
 	}
 
-	public LogErrorEntity error(Throwable throwable) {
-		return error(throwable.getMessage(), throwable);
+	public LogErrorEntity error(
+		@NotNull Throwable throwable
+	) {
+		return error(null, throwable, null, null);
 	}
 
-	public LogErrorEntity warn(String message, Throwable throwable) {
+	public LogErrorEntity error(
+		@NotNull Throwable throwable,
+		@Nullable Long userId,
+		@Nullable Long guildId
+	) {
+		return error(null, throwable, userId, guildId);
+	}
+
+	public LogErrorEntity warn(
+		@Nullable String message,
+		@NotNull Throwable throwable,
+		@Nullable Long userId,
+		@Nullable Long guildId
+	) {
 
 		LogErrorEntity logError = LogErrorEntity.builder()
 			.level("warn")
-			.message(message)
-			.cause(throwable != null ? throwable.getMessage() : null)
+			.message(message != null ? message : throwable.getMessage())
+			.cause(throwable.getMessage())
 			.stackTrace(serializeStackTrace(throwable))
+			.userId(userId)
+			.guildId(guildId)
 			.build();
 
 		return logErrorRepo.save(logError);
 	}
 
-	public LogErrorEntity warn(String message) {
-		return warn(message, null);
+	public LogErrorEntity warn(
+		@Nullable String message,
+		@NotNull Throwable throwable
+	) {
+		return warn(message, throwable, null, null);
 	}
 
-	public LogErrorEntity warn(Throwable throwable) {
-		return warn(throwable.getMessage(), throwable);
+	public LogErrorEntity warn(
+		@NotNull Throwable throwable
+	) {
+		return warn(null, throwable, null, null);
+	}
+
+	public LogErrorEntity warn(
+		@NotNull Throwable throwable,
+		@Nullable Long userId,
+		@Nullable Long guildId
+	) {
+		return warn(null, throwable, userId, guildId);
 	}
 
 	public static String serializeStackTrace(Throwable throwable) {

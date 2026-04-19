@@ -9,10 +9,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import ovh.excale.vgreeter.entity.LogErrorEntity;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(
 	properties = {
@@ -42,14 +39,14 @@ class LogErrorServiceH2Test {
 	private EntityManager em;
 
 	@Test
-	void givenErrorEntry_whenSave_thenPersistedInDatabase() {
+	void givenErrorEntryWithIds_whenSave_thenPersistedInDatabase() {
 
 		// Prepare test data
-		String message = "Something failed";
-		RuntimeException throwable = new RuntimeException("boom");
+		Long userId = 8001L;
+		Long guildId = 9001L;
 
 		// Save error entry
-		LogErrorEntity saved = logErrorService.error(message, throwable);
+		LogErrorEntity saved = logErrorService.error(null, new RuntimeException("boom"), userId, guildId);
 		entityManager.flush();
 		entityManager.clear();
 
@@ -57,22 +54,26 @@ class LogErrorServiceH2Test {
 		LogErrorEntity reloaded = em.find(LogErrorEntity.class, saved.getId());
 		assertNotNull(reloaded);
 		assertEquals(ERROR_LEVEL, reloaded.getLevel());
-		assertEquals(message, reloaded.getMessage());
+		assertEquals("boom", reloaded.getMessage());
 		assertEquals("boom", reloaded.getCause());
+		assertEquals(userId, reloaded.getUserId());
+		assertEquals(guildId, reloaded.getGuildId());
 		assertTrue(reloaded.getStackTrace().contains("RuntimeException: boom"));
-		assertTrue(reloaded.getStackTrace().contains("givenErrorEntry_whenSave_thenPersistedInDatabase"));
+		assertTrue(reloaded.getStackTrace().contains("givenErrorEntryWithIds_whenSave_thenPersistedInDatabase"));
 		assertNotNull(reloaded.getCreatedAt());
 
 	}
 
 	@Test
-	void givenWarnEntry_whenSave_thenPersistedInDatabase() {
+	void givenWarnEntryWithIds_whenSave_thenPersistedInDatabase() {
 
 		// Prepare test data
 		String message = "Something suspicious";
+		Long userId = 8002L;
+		Long guildId = 9002L;
 
 		// Save warning entry
-		LogErrorEntity saved = logErrorService.warn(message);
+		LogErrorEntity saved = logErrorService.warn(message, new IllegalArgumentException(message), userId, guildId);
 		entityManager.flush();
 		entityManager.clear();
 
@@ -81,8 +82,10 @@ class LogErrorServiceH2Test {
 		assertNotNull(reloaded);
 		assertEquals(WARN_LEVEL, reloaded.getLevel());
 		assertEquals(message, reloaded.getMessage());
-		assertNull(reloaded.getCause());
-		assertNull(reloaded.getStackTrace());
+		assertEquals("Something suspicious", reloaded.getCause());
+		assertEquals(userId, reloaded.getUserId());
+		assertEquals(guildId, reloaded.getGuildId());
+		assertTrue(reloaded.getStackTrace().contains("IllegalArgumentException: Something suspicious"));
 		assertNotNull(reloaded.getCreatedAt());
 
 	}

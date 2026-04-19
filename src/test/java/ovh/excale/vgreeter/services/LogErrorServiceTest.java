@@ -23,6 +23,57 @@ class LogErrorServiceTest {
 	@Captor
 	private ArgumentCaptor<LogErrorEntity> logErrorCaptor;
 
+	private static void assertSavedLogError(
+		LogErrorEntity logError,
+		String level,
+		String message,
+		String cause,
+		Long userId,
+		Long guildId,
+		String stackTracePart
+	) {
+
+		assertThat(logError.getLevel()).isEqualTo(level);
+		assertThat(logError.getMessage()).isEqualTo(message);
+		assertThat(logError.getCause()).isEqualTo(cause);
+		assertThat(logError.getUserId()).isEqualTo(userId);
+		assertThat(logError.getGuildId()).isEqualTo(guildId);
+
+		if(stackTracePart == null)
+			assertThat(logError.getStackTrace()).isNull();
+		else
+			assertThat(logError.getStackTrace()).contains(stackTracePart);
+
+	}
+
+	@Test
+	void givenNullMessageAndThrowableAndIds_whenError_thenMessageFallsBackAndIdsAreSaved() {
+
+		// Prepare test data
+		RuntimeException throwable = new RuntimeException("boom");
+		Long userId = 6001L;
+		Long guildId = 7001L;
+
+		// Save error entry
+		LogErrorService service = new LogErrorService(logErrorRepo);
+		when(logErrorRepo.save(any(LogErrorEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		LogErrorEntity logError = service.error(null, throwable, userId, guildId);
+
+		// Verify saved error
+		verify(logErrorRepo).save(logErrorCaptor.capture());
+		assertThat(logError).isSameAs(logErrorCaptor.getValue());
+		assertSavedLogError(
+			logError,
+			"error",
+			"boom",
+			"boom",
+			userId,
+			guildId,
+			"RuntimeException: boom"
+		);
+
+	}
+
 	@Test
 	void givenMessageAndThrowable_whenError_thenSavedAsErrorLevel() {
 
@@ -38,37 +89,48 @@ class LogErrorServiceTest {
 		// Verify saved error
 		verify(logErrorRepo).save(logErrorCaptor.capture());
 		assertThat(logError).isSameAs(logErrorCaptor.getValue());
-		assertThat(logError.getLevel()).isEqualTo("error");
-		assertThat(logError.getMessage()).isEqualTo(message);
-		assertThat(logError.getCause()).isEqualTo("boom");
-		assertThat(logError.getStackTrace()).contains("RuntimeException: boom");
-		assertThat(logError.getStackTrace()).contains("givenMessageAndThrowable_whenError_thenSavedAsErrorLevel");
+		assertSavedLogError(
+			logError,
+			"error",
+			message,
+			"boom",
+			null,
+			null,
+			"RuntimeException: boom"
+		);
 
 	}
 
 	@Test
-	void givenMessageOnly_whenError_thenCauseAndStackTraceAreNull() {
+	void givenThrowableAndIds_whenError_thenMessageFallsBackAndIdsAreSaved() {
 
 		// Prepare test data
-		String message = "Something failed";
+		IllegalStateException throwable = new IllegalStateException("bad state");
+		Long userId = 6002L;
+		Long guildId = 7002L;
 
 		// Save error entry
 		LogErrorService service = new LogErrorService(logErrorRepo);
 		when(logErrorRepo.save(any(LogErrorEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
-		LogErrorEntity logError = service.error(message);
+		LogErrorEntity logError = service.error(throwable, userId, guildId);
 
 		// Verify saved error
 		verify(logErrorRepo).save(logErrorCaptor.capture());
 		assertThat(logError).isSameAs(logErrorCaptor.getValue());
-		assertThat(logError.getLevel()).isEqualTo("error");
-		assertThat(logError.getMessage()).isEqualTo(message);
-		assertThat(logError.getCause()).isNull();
-		assertThat(logError.getStackTrace()).isNull();
+		assertSavedLogError(
+			logError,
+			"error",
+			"bad state",
+			"bad state",
+			userId,
+			guildId,
+			"IllegalStateException: bad state"
+		);
 
 	}
 
 	@Test
-	void givenThrowableOnly_whenError_thenMessageAndCauseComeFromThrowable() {
+	void givenThrowableOnly_whenError_thenMessageFallsBackAndIdsAreNull() {
 
 		// Prepare test data
 		IllegalStateException throwable = new IllegalStateException("bad state");
@@ -81,10 +143,44 @@ class LogErrorServiceTest {
 		// Verify saved error
 		verify(logErrorRepo).save(logErrorCaptor.capture());
 		assertThat(logError).isSameAs(logErrorCaptor.getValue());
-		assertThat(logError.getLevel()).isEqualTo("error");
-		assertThat(logError.getMessage()).isEqualTo("bad state");
-		assertThat(logError.getCause()).isEqualTo("bad state");
-		assertThat(logError.getStackTrace()).contains("IllegalStateException: bad state");
+		assertSavedLogError(
+			logError,
+			"error",
+			"bad state",
+			"bad state",
+			null,
+			null,
+			"IllegalStateException: bad state"
+		);
+
+	}
+
+	@Test
+	void givenMessageAndThrowableAndIds_whenWarn_thenSavedAsWarnLevel() {
+
+		// Prepare test data
+		String message = "Something suspicious";
+		RuntimeException throwable = new RuntimeException("warned");
+		Long userId = 6003L;
+		Long guildId = 7003L;
+
+		// Save warning entry
+		LogErrorService service = new LogErrorService(logErrorRepo);
+		when(logErrorRepo.save(any(LogErrorEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		LogErrorEntity logError = service.warn(message, throwable, userId, guildId);
+
+		// Verify saved warning
+		verify(logErrorRepo).save(logErrorCaptor.capture());
+		assertThat(logError).isSameAs(logErrorCaptor.getValue());
+		assertSavedLogError(
+			logError,
+			"warn",
+			message,
+			"warned",
+			userId,
+			guildId,
+			"RuntimeException: warned"
+		);
 
 	}
 
@@ -103,36 +199,48 @@ class LogErrorServiceTest {
 		// Verify saved warning
 		verify(logErrorRepo).save(logErrorCaptor.capture());
 		assertThat(logError).isSameAs(logErrorCaptor.getValue());
-		assertThat(logError.getLevel()).isEqualTo("warn");
-		assertThat(logError.getMessage()).isEqualTo(message);
-		assertThat(logError.getCause()).isEqualTo("warned");
-		assertThat(logError.getStackTrace()).contains("RuntimeException: warned");
+		assertSavedLogError(
+			logError,
+			"warn",
+			message,
+			"warned",
+			null,
+			null,
+			"RuntimeException: warned"
+		);
 
 	}
 
 	@Test
-	void givenMessageOnly_whenWarn_thenCauseAndStackTraceAreNull() {
+	void givenThrowableAndIds_whenWarn_thenMessageFallsBackAndIdsAreSaved() {
 
 		// Prepare test data
-		String message = "Something suspicious";
+		IllegalArgumentException throwable = new IllegalArgumentException("warn state");
+		Long userId = 6004L;
+		Long guildId = 7004L;
 
 		// Save warning entry
 		LogErrorService service = new LogErrorService(logErrorRepo);
 		when(logErrorRepo.save(any(LogErrorEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
-		LogErrorEntity logError = service.warn(message);
+		LogErrorEntity logError = service.warn(throwable, userId, guildId);
 
 		// Verify saved warning
 		verify(logErrorRepo).save(logErrorCaptor.capture());
 		assertThat(logError).isSameAs(logErrorCaptor.getValue());
-		assertThat(logError.getLevel()).isEqualTo("warn");
-		assertThat(logError.getMessage()).isEqualTo(message);
-		assertThat(logError.getCause()).isNull();
-		assertThat(logError.getStackTrace()).isNull();
+		assertSavedLogError(
+			logError,
+			"warn",
+			"warn state",
+			"warn state",
+			userId,
+			guildId,
+			"IllegalArgumentException: warn state"
+		);
 
 	}
 
 	@Test
-	void givenThrowableOnly_whenWarn_thenMessageAndCauseComeFromThrowable() {
+	void givenThrowableOnly_whenWarn_thenMessageFallsBackAndIdsAreNull() {
 
 		// Prepare test data
 		IllegalArgumentException throwable = new IllegalArgumentException("warn state");
@@ -145,10 +253,15 @@ class LogErrorServiceTest {
 		// Verify saved warning
 		verify(logErrorRepo).save(logErrorCaptor.capture());
 		assertThat(logError).isSameAs(logErrorCaptor.getValue());
-		assertThat(logError.getLevel()).isEqualTo("warn");
-		assertThat(logError.getMessage()).isEqualTo("warn state");
-		assertThat(logError.getCause()).isEqualTo("warn state");
-		assertThat(logError.getStackTrace()).contains("IllegalArgumentException: warn state");
+		assertSavedLogError(
+			logError,
+			"warn",
+			"warn state",
+			"warn state",
+			null,
+			null,
+			"IllegalArgumentException: warn state"
+		);
 
 	}
 
@@ -166,8 +279,8 @@ class LogErrorServiceTest {
 		String stackTrace = LogErrorService.serializeStackTrace(new RuntimeException("boom"));
 
 		assertThat(stackTrace)
-				.contains("RuntimeException: boom")
-				.contains("at ");
+			.contains("RuntimeException: boom")
+			.contains("at ");
 
 	}
 

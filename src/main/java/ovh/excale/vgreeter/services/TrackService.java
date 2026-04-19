@@ -1,32 +1,39 @@
 package ovh.excale.vgreeter.services;
 
-import lombok.Getter;
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.repository.TrackRepository;
 
+import java.util.Random;
+
+@RequiredArgsConstructor
 @Service
 public class TrackService {
 
-	public static final int DEFAULT_MAX_TRACK_SIZE = 1024 * 64;
-
-	@Getter
 	private final TrackRepository trackRepo;
 
-	public TrackService(TrackRepository trackRepo) {
-		this.trackRepo = trackRepo;
-	}
+	private final Random random = new Random();
 
-	// TODO: nullsafe
-	public TrackEntity randomTrack() {
+	/**
+	 * Get a random track from the database.
+	 *
+	 * @return a random track, or null if no tracks are available
+	 */
+	public @Nullable TrackEntity randomTrack() {
 
-		long qty = trackRepo.count();
-		int idx = (int) (Math.random() * qty);
+		// Get random track index (not id)
+		int qty = (int) trackRepo.count();
+		int idx = random.nextInt() * qty;
 
+		// Retrieve a single track using pagination
 		Page<TrackEntity> trackPage = trackRepo.findAll(PageRequest.of(idx, 1));
 		TrackEntity track = null;
+
+		// Return the track if found
 		if(trackPage.hasContent())
 			track = trackPage.getContent()
 					.getFirst();

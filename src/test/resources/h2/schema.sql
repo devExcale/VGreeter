@@ -84,5 +84,7 @@ CREATE TABLE log_error (
 	message     CLOB,
 	cause       CLOB,
 	stack_trace CLOB,
-	created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	user_id     BIGINT,
+	guild_id    BIGINT
 );

@@ -13,9 +13,12 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.entity.GuildEntity;
+import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.repository.GuildRepository;
 import ovh.excale.vgreeter.track.TrackPlayer;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -71,22 +74,30 @@ public class VoiceChannelHandler extends ListenerAdapter {
 		if(random.nextFloat() > greetProbab)
 			return;
 
-		TrackPlayer trackPlayer = new TrackPlayer(trackService.randomTrack(), logErrorService);
-		if(!trackPlayer.canProvide()) {
-			log.error("TrackPlayer cannot provide");
+		TrackEntity track = trackService.randomTrack();
+		if(track == null) {
+			log.error("TrackService cannot provide a track");
 			return;
 		}
 
 		AudioChannelUnion channel = event.getChannelJoined();
 		AudioManager audioManager = guild.getAudioManager();
-		trackPlayer.setTrackEndAction(audioManager::closeAudioConnection);
+
+		TrackPlayer trackPlayer;
+		try {
+			trackPlayer = new TrackPlayer(track.getOpusPacketReader(), audioManager::closeAudioConnection);
+		} catch(SQLException | IOException exception) {
+			log.error(exception.getMessage(), exception);
+			logErrorService.error("Failed to create TrackPlayer", exception, user.getIdLong(), guild.getIdLong());
+			return;
+		}
 
 		try {
 			audioManager.setSendingHandler(trackPlayer);
 			audioManager.openAudioConnection(channel);
 			guildLocks.add(guild.getIdLong());
 		} catch(InsufficientPermissionException _) {
-			// The bot doesn't have permissions to connect to the Voice Channel, do nothing
+			// TODO: notify user
 		}
 
 	}

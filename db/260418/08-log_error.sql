@@ -5,6 +5,8 @@ CREATE TABLE log_error (
 	message     TEXT,
 	cause       TEXT,
 	stack_trace TEXT,
-	created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	user_id     BIGINT,
+	guild_id    BIGINT
 
 );

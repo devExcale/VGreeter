@@ -16,6 +16,8 @@ import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.util.Arrays;
 
+import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
+
 @Log4j2
 @Component
 public class TrackIndexButtonCommand extends AbstractButtonCommand {
@@ -53,11 +55,6 @@ public class TrackIndexButtonCommand extends AbstractButtonCommand {
 		return event.editMessageEmbeds(index.buildEmbed().build())
 				.setComponents(ActionRow.of(Arrays.asList(index.buildButtons())));
 
-	}
-
-	private static RestAction<?> replyEphemeralWith(String message, IReplyCallback event) {
-		return event.reply(message)
-				.setEphemeral(true);
 	}
 
 }

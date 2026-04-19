@@ -46,4 +46,10 @@ public class LogErrorEntity {
 	@Column(insertable = false, updatable = false)
 	private Timestamp createdAt;
 
+	@Basic
+	private Long userId;
+
+	@Basic
+	private Long guildId;
+
 }

@@ -36,18 +36,18 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 
 	private final MemberRepository memberRepo;
 	private final TrackService trackService;
+	private final TrackRepository trackRepo;
 
-	public TrackUploadCommand() {
+	public TrackUploadCommand(
+		MemberRepository memberRepo,
+		TrackService trackService,
+		TrackRepository trackRepo
+	) {
 		super("upload", "");
 
-		memberRepo = VGreeterApplication
-				.getApplicationContext()
-				.getBean(MemberRepository.class);
-
-		trackService = VGreeterApplication
-				.getApplicationContext()
-				.getBean(TrackService.class);
-
+		this.memberRepo = memberRepo;
+		this.trackService = trackService;
+		this.trackRepo = trackRepo;
 	}
 
 	@Override
@@ -131,10 +131,7 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 
 			new OpusFile(new OggFile(new ByteArrayInputStream(data)));
 
-			// TODO: USE TRACK_SERVICE
-			TrackRepository trackRepo = trackService.getTrackRepo();
 			String trackName = filenameMatcher.group(1);
-
 			if(trackRepo.existsByTitleAndOwner(trackName, memberEntity))
 				return message.reply("You've already uploaded a track with the same name");
 
