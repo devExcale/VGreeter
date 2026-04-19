@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ovh.excale.vgreeter.commands.core.AbstractCommand;
 import ovh.excale.vgreeter.commands.core.CommandRegister;
-import ovh.excale.vgreeter.commands.slash.*;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,7 +32,7 @@ public class DiscordService {
 	private final JDA jda;
 
 	public DiscordService(
-		VoiceChannelHandler eventHandler,
+		VoiceGreeterHandler eventHandler,
 		CommandRegister commandRegister,
 		Map<String, AbstractCommand<?>> commands,
 		@Value("${env.DISCORD_TOKEN}") String token
