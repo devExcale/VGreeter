@@ -13,14 +13,8 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
-import ovh.excale.vgreeter.commands.button.TrackIndexButtonCommand;
 import ovh.excale.vgreeter.commands.core.AbstractCommand;
-import ovh.excale.vgreeter.commands.slash.ProbabilityCommand;
-import ovh.excale.vgreeter.commands.message.RestartCommand;
-import ovh.excale.vgreeter.commands.slash.UploadHelpCommand;
 import ovh.excale.vgreeter.commands.core.CommandRegister;
-import ovh.excale.vgreeter.commands.message.TrackUploadCommand;
 import ovh.excale.vgreeter.commands.slash.*;
 
 import java.util.Collections;
@@ -57,7 +51,10 @@ public class DiscordService {
 				CacheFlag.ONLINE_STATUS,
 				CacheFlag.CLIENT_STATUS,
 				CacheFlag.MEMBER_OVERRIDES,
-				CacheFlag.EMOJI
+				CacheFlag.EMOJI,
+				CacheFlag.STICKER,
+				CacheFlag.SOUNDBOARD_SOUNDS,
+				CacheFlag.SCHEDULED_EVENTS
 			)
 			.setActivity(Activity.listening("people"))
 			.addEventListeners(eventHandler, commandRegister.getListener())
@@ -81,8 +78,7 @@ public class DiscordService {
 				.map(Command::getName)
 				.collect(Collectors.joining(", "));
 
-		log.info("[Registered SlashCommands] " + commandListString);
-
+		log.info("[Registered SlashCommands] {}", commandListString);
 	}
 
 	@Bean(destroyMethod = "shutdown")
