@@ -10,6 +10,20 @@ import java.text.MessageFormat;
 public class TrackMessages {
 
 	/**
+	 * Message shown when a track with the provided ID does not exist.
+	 * Has a placeholder for the track ID.
+	 */
+	private final String errorNoSuchId;
+
+	/**
+	 * Message shown when a track with the provided ID does not exist.
+	 * Has a placeholder for the track ID.
+	 */
+	public String getErrorNoSuchId(long id) {
+		return MessageFormat.format(errorNoSuchId, id);
+	}
+
+	/**
 	 * Message shown when a track is played.
 	 * Has placeholders for the track ID and title.
 	 */
