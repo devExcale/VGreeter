@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.text.MessageFormat;
+
 @AllArgsConstructor
 @ConfigurationProperties(prefix = "probab")
 public class ProbabilityMessages {
@@ -25,7 +27,7 @@ public class ProbabilityMessages {
 	 * Has placeholders for the old and new probability values.
 	 */
 	public String getSetFromTo(float from, float to) {
-		return String.format(setFromTo, from, to);
+		return MessageFormat.format(setFromTo, from, to);
 	}
 
 	/**
@@ -39,7 +41,7 @@ public class ProbabilityMessages {
 	 * Has a placeholder for the probability value.
 	 */
 	public String getCurrentlySet(float probab) {
-		return String.format(currentlySet, probab);
+		return MessageFormat.format(currentlySet, probab);
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class ProbabilityMessages {
 	 * Has a placeholder for the default probability value.
 	 */
 	public String getResetDefault(float defaultProbab) {
-		return String.format(resetDefault, defaultProbab);
+		return MessageFormat.format(resetDefault, defaultProbab);
 	}
 
 }

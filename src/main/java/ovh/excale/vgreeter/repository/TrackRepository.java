@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import ovh.excale.vgreeter.entity.MemberEntity;
 import ovh.excale.vgreeter.entity.TrackEntity;
 
+import java.util.Optional;
+
 @Repository
 public interface TrackRepository extends JpaRepository<TrackEntity, Long> {
 
@@ -17,5 +19,7 @@ public interface TrackRepository extends JpaRepository<TrackEntity, Long> {
 	Page<TrackEntity> findAllByTitleQuery(String title, Pageable pageable);
 
 	Page<TrackEntity> findAllByOwnerIdIs(long ownerId, Pageable pageable);
+
+	Optional<TrackEntity> findByIdAndOwnerId(Long trackId, Long ownerId);
 
 }

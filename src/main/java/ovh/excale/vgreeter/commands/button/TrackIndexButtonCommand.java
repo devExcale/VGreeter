@@ -4,12 +4,10 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.commands.core.AbstractButtonCommand;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.track.TrackIndex;
 import ovh.excale.vgreeter.services.LogErrorService;
@@ -20,17 +18,16 @@ import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
 @Log4j2
 @Component
-public class TrackIndexButtonCommand extends AbstractButtonCommand {
+public class TrackIndexButtonCommand {
 
 	private final LogErrorService logErrorService;
 
 	public TrackIndexButtonCommand(LogErrorService logErrorService) {
-		super("trackindex", "List all the tracks");
+//		super("trackindex", "List all the tracks");
 		this.logErrorService = logErrorService;
 	}
 
 	@SneakyThrows
-	@Override
 	public @NotNull RestAction<?> execute(@NonNull ButtonInteractionEvent event) {
 
 		CommandOptions command = CommandOptions.fromJson(event.getComponentId());

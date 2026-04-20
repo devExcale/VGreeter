@@ -1,27 +1,31 @@
 package ovh.excale.vgreeter.commands.slash;
 
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.requests.RestAction;
-import org.jspecify.annotations.NonNull;
-import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import org.jetbrains.annotations.NotNull;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
+import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.GuildEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;
 import ovh.excale.vgreeter.message.ProbabilityMessages;
 import ovh.excale.vgreeter.repository.GuildRepository;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
-@Component
-public class ProbabilityCommand extends AbstractSlashCommand {
+@SuppressWarnings("DuplicatedCode")
+@RequiredArgsConstructor
+@CommandController(
+	commandName = "probab",
+	commandDescription = "Manage the Voice Chat Greet Probability"
+)
+public class ProbabilityCommand {
 
 	private final GuildRepository guildRepo;
 
@@ -29,27 +33,15 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 
 	private final ProbabilityMessages msgProbab;
 
-	public ProbabilityCommand(
-		GuildRepository guildRepo,
-		ErrorMessages msgError,
-		ProbabilityMessages msgProbab
+	@SlashMapping(
+		name = "probab",
+		subcommand = "set",
+		description = "Set the new Greet Probability"
+	)
+	public @NotNull ReplyCallbackAction probabSet(
+		SlashCommandInteractionEvent event,
+		@Option(name = "percent", description = "Join Probability (0 to 100)") Double newGreetProbab100
 	) {
-		super("probab", "Manage the Voice Chat Join Probability");
-
-		this.guildRepo = guildRepo;
-		this.msgError = msgError;
-		this.msgProbab = msgProbab;
-
-		this.getBuilder()
-				.subcommand("set", "Set the new Join Probability")
-				.addOptionRequired("percent", "Join Probability (0 to 100)", OptionType.NUMBER)
-				.subcommand("get", "Get the current Join Probability")
-				.subcommand("default", "Reset the Join Probability to its default");
-
-	}
-
-	@Override
-	public @NonNull RestAction<?> execute(SlashCommandInteractionEvent event) {
 
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
@@ -72,64 +64,93 @@ public class ProbabilityCommand extends AbstractSlashCommand {
 
 		// Get the current probability and convert it to percentage for display
 		float greetProbab100 = guildEntity.getGreetProbab() * 100;
-		RestAction<?> reply;
 
-		String subcommand = event.getSubcommandName();
-		if(subcommand == null)
-			subcommand = "";
+		// Check if the user has administrator permissions
+		if(!member.hasPermission(Permission.ADMINISTRATOR))
+			return replyEphemeralWith(msgError.getCmdNeedAdminPerms(), event);
 
-		switch(subcommand) {
+		// Check if the new probability is between 0 and 100%
+		if(newGreetProbab100 < 0f || newGreetProbab100 > 100f)
+			return replyEphemeralWith(msgProbab.getErrorOutOfBounds(), event);
 
-			case "set":
+		// Update the probability (0-1 based)
+		guildEntity.setGreetProbab(newGreetProbab100.floatValue() / 100f);
+		guildRepo.save(guildEntity);
 
-				// Check if the user has administrator permissions
-				if(!member.hasPermission(Permission.ADMINISTRATOR))
-					return replyEphemeralWith(msgError.getCmdNeedAdminPerms(), event);
+		return event.reply(msgProbab.getSetFromTo(greetProbab100, newGreetProbab100.floatValue()));
+	}
 
-				// Get the new probability from the command options and parse it
-				float newGreetProbab100 = Optional.of(Objects.requireNonNull(event.getOption("percent")))
-					.map(OptionMapping::getAsString)
-					.map(Float::parseFloat)
-					.get();
+	@SlashMapping(
+		name = "probab",
+		subcommand = "get",
+		description = "Set the new Greet Probability"
+	)
+	public @NotNull ReplyCallbackAction probabGet(
+		SlashCommandInteractionEvent event
+	) {
 
-				// Check if the new probability is between 0 and 100%
-				if(newGreetProbab100 < 0f || newGreetProbab100 > 100f)
-					return replyEphemeralWith(msgProbab.getErrorOutOfBounds(), event);
+		Guild guild = event.getGuild();
+		Member member = event.getMember();
 
-				// Update the probability (0-1 based)
-				guildEntity.setGreetProbab(newGreetProbab100 / 100f);
-				guildRepo.save(guildEntity);
+		// Check if the command is used in a guild
+		if(guild == null)
+			return replyEphemeralWith(msgError.getCmdGuildOnly(), event);
 
-				reply = event.reply(msgProbab.getSetFromTo(greetProbab100, newGreetProbab100));
+		// Member is never null if guild is set
+		Objects.requireNonNull(member);
 
-				break;
+		// Fetch guild settings (or create if don't exist)
+		GuildEntity guildEntity = guildRepo.findByIdOrSave(
+			guild.getIdLong(),
+			() -> GuildEntity.builder()
+				.discordId(guild.getIdLong())
+				.name(guild.getName())
+				.build()
+		);
 
-			case "get":
+		// Get the current probability and convert it to percentage for display
+		float greetProbab100 = guildEntity.getGreetProbab() * 100f;
 
-				reply = event.reply(msgProbab.getCurrentlySet(greetProbab100));
+		return event.reply(msgProbab.getCurrentlySet(greetProbab100));
+	}
 
-				break;
+	@SlashMapping(
+		name = "probab",
+		subcommand = "default",
+		description = "Set the new Greet Probability"
+	)
+	public @NotNull ReplyCallbackAction probabDefault(
+		SlashCommandInteractionEvent event
+	) {
 
-			case "default":
+		Guild guild = event.getGuild();
+		Member member = event.getMember();
 
-				// Check if the user has administrator permissions
-				if(!member.hasPermission(Permission.ADMINISTRATOR))
-					return replyEphemeralWith(msgError.getCmdNeedAdminPerms(), event);
+		// Check if the command is used in a guild
+		if(guild == null)
+			return replyEphemeralWith(msgError.getCmdGuildOnly(), event);
 
-				// Update the probability (with default value(
-				guildEntity.setGreetProbab(GuildEntity.DEFAULT_GREET_PROBAB);
-				guildRepo.save(guildEntity);
+		// Member is never null if guild is set
+		Objects.requireNonNull(member);
 
-				reply = event.reply(msgProbab.getResetDefault(guildEntity.getGreetProbab() * 100));
+		// Fetch guild settings (or create if don't exist)
+		GuildEntity guildEntity = guildRepo.findByIdOrSave(
+			guild.getIdLong(),
+			() -> GuildEntity.builder()
+				.discordId(guild.getIdLong())
+				.name(guild.getName())
+				.build()
+		);
 
-				break;
+		// Check if the user has administrator permissions
+		if(!member.hasPermission(Permission.ADMINISTRATOR))
+			return replyEphemeralWith(msgError.getCmdNeedAdminPerms(), event);
 
-			default:
-				reply = replyEphemeralWith(msgError.getUnknownOption(subcommand), event);
+		// Update the probability (with default value(
+		guildEntity.setGreetProbab(GuildEntity.DEFAULT_GREET_PROBAB);
+		guildRepo.save(guildEntity);
 
-		}
-
-		return reply;
+		return event.reply(msgProbab.getResetDefault(guildEntity.getGreetProbab() * 100f));
 	}
 
 }

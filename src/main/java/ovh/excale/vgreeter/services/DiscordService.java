@@ -8,17 +8,18 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import ovh.excale.vgreeter.commands.core.AbstractCommand;
-import ovh.excale.vgreeter.commands.core.CommandRegister;
+import ovh.excale.vgreeter.commands.core.CommandDispatcher;
+import ovh.excale.vgreeter.commands.core.event.CommandUpdateEvent;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,12 @@ public class DiscordService {
 	@Getter
 	private static final Set<Long> guildVoiceLocks = Collections.synchronizedSet(new HashSet<>());
 
+	@Getter(onMethod_ = @Bean(destroyMethod = "shutdown"))
 	private final JDA jda;
 
 	public DiscordService(
 		VoiceGreeterHandler eventHandler,
-		CommandRegister commandRegister,
-		Map<String, AbstractCommand<?>> commands,
+		CommandDispatcher commandDispatcher,
 		@Value("${env.DISCORD_TOKEN}") String token
 	) throws InterruptedException {
 
@@ -56,7 +57,7 @@ public class DiscordService {
 				CacheFlag.SCHEDULED_EVENTS
 			)
 			.setActivity(Activity.listening("people"))
-			.addEventListeners(eventHandler, commandRegister.getListener())
+			.addEventListeners(eventHandler, commandDispatcher)
 			.setAudioModuleConfig(
 				new AudioModuleConfig().withDaveSessionFactory(new JDaveSessionFactory())
 			)
@@ -64,25 +65,22 @@ public class DiscordService {
 			.awaitReady();
 
 		log.info("JDA connected");
-
-		// Register all commands
-		for(AbstractCommand<?> command : commands.values())
-			commandRegister.register(command);
-
-		String commandListString = jda
-				.updateCommands()
-				.addCommands(commandRegister.getSlashCommandsData())
-				.complete()
-				.stream()
-				.map(Command::getName)
-				.collect(Collectors.joining(", "));
-
-		log.info("[Registered SlashCommands] {}", commandListString);
 	}
 
-	@Bean(destroyMethod = "shutdown")
-	public JDA getJda() {
-		return jda;
+	@EventListener
+	public void onCommandUpdateEvent(CommandUpdateEvent event) {
+
+		CommandData[] commandData = event.getCommandData();
+
+		String commandListString = jda
+			.updateCommands()
+			.addCommands(commandData)
+			.complete()
+			.stream()
+			.map(Command::getName)
+			.collect(Collectors.joining(", "));
+
+		log.info("[Registered SlashCommands: {}] {}", commandData.length, commandListString);
 	}
 
 }

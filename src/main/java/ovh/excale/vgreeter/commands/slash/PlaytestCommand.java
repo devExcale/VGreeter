@@ -1,18 +1,19 @@
 package ovh.excale.vgreeter.commands.slash;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jspecify.annotations.NonNull;
-import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
+import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.LogErrorEntity;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;
@@ -28,9 +29,10 @@ import java.util.Set;
 import static java.lang.String.format;
 import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
+@RequiredArgsConstructor
 @Log4j2
-@Component
-public class PlaytestCommand extends AbstractSlashCommand {
+@CommandController
+public class PlaytestCommand {
 
 	private final TrackRepository trackRepo;
 
@@ -40,27 +42,15 @@ public class PlaytestCommand extends AbstractSlashCommand {
 
 	private final TrackMessages msgTrack;
 
-	public PlaytestCommand(
-		TrackRepository trackRepo,
-		LogErrorService logErrorService,
-		ErrorMessages msgError,
-		TrackMessages msgTrack
-	) {
-		super("playtest", "Test a track");
-
-		this.trackRepo = trackRepo;
-		this.logErrorService = logErrorService;
-		this.msgError = msgError;
-		this.msgTrack = msgTrack;
-
-		this.getBuilder()
-				.addOptionRequired("trackid", "The track to play", OptionType.INTEGER);
-
-	}
-
 	@Transactional
-	@Override
-	public @NonNull RestAction<?> execute(SlashCommandInteractionEvent event) {
+	@SlashMapping(
+		name = "playtest",
+		description = "Test a track"
+	)
+	public @NonNull ReplyCallbackAction playtest(
+		SlashCommandInteractionEvent event,
+		@Option(name = "trackid", description = "The track to play") Long trackId
+	) {
 
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
@@ -79,9 +69,6 @@ public class PlaytestCommand extends AbstractSlashCommand {
 
 		if(channel == null)
 			return replyEphemeralWith(msgError.getMemberMustConnectVc(), event);
-
-		//noinspection ConstantConditions
-		long trackId = Long.parseLong(event.getOption("trackid").getAsString());
 
 		Optional<TrackEntity> opt = trackRepo.findById(trackId);
 		if(opt.isEmpty())

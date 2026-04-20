@@ -24,9 +24,9 @@ import static ovh.excale.vgreeter.commands.core.CommandKeyword.USER_ID;
 
 public class TrackIndex {
 
-	public static final String FILTER_ALL = "all";
-	public static final String FILTER_NAME = "name";
-	public static final String FILTER_USER = "user";
+	public static final String CMD_FILTER_ALL = "all";
+	public static final String CMD_FILTER_NAME = "name";
+	public static final String CMD_FILTER_USER = "user";
 	public static final int DEFAULT_PAGE_SIZE = 15;
 
 	private final CommandOptions options;
@@ -70,17 +70,17 @@ public class TrackIndex {
 			throw new IllegalArgumentException("Page option must be positive");
 
 		Sort sorting = Sort.by(Sort.Direction.ASC, "id");
-		String filter = options.hasSubcommand() ? options.getSubcommand() : FILTER_ALL;
+		String filter = options.hasSubcommand() ? options.getSubcommand() : CMD_FILTER_ALL;
 
 		switch(filter) {
 
-			case FILTER_ALL:
+			case CMD_FILTER_ALL:
 
 				trackPage = trackRepo.findAll(PageRequest.of(humanBasedPage - 1, pageSize, sorting));
 
 				break;
 
-			case FILTER_NAME:
+			case CMD_FILTER_NAME:
 
 				String trackName = options.getOption(TRACK_NAME.ext)
 						.orElseThrow(() -> new IllegalArgumentException("Missing parameter " + TRACK_NAME.ext));
@@ -92,7 +92,7 @@ public class TrackIndex {
 
 				break;
 
-			case FILTER_USER:
+			case CMD_FILTER_USER:
 
 				long userId = options.getOption(USER_ID.ext)
 						.map(Long::valueOf)

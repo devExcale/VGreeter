@@ -1,5 +1,6 @@
 package ovh.excale.vgreeter.commands.message;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -9,14 +10,12 @@ import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.VGreeterApplication;
-import ovh.excale.vgreeter.commands.core.AbstractMessageCommand;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
+import ovh.excale.vgreeter.commands.core.annotation.MessageMapping;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.entity.MemberEntity;
 import ovh.excale.vgreeter.repository.TrackRepository;
 import ovh.excale.vgreeter.repository.MemberRepository;
-import ovh.excale.vgreeter.services.TrackService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,58 +23,40 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 @Log4j2
-@Component
-public class TrackUploadCommand extends AbstractMessageCommand {
+@CommandController
+public class TrackUploadCommand {
 
 	private static final Pattern TRACK_NAME_PATTERN = Pattern.compile("([\\w\\d-_]+)\\.opus");
 
 	private final MemberRepository memberRepo;
-	private final TrackService trackService;
+
 	private final TrackRepository trackRepo;
 
-	public TrackUploadCommand(
-		MemberRepository memberRepo,
-		TrackService trackService,
-		TrackRepository trackRepo
-	) {
-		super("upload", "");
-
-		this.memberRepo = memberRepo;
-		this.trackService = trackService;
-		this.trackRepo = trackRepo;
-	}
-
-	@Override
+	@MessageMapping(name = "upload")
 	public @Nullable RestAction<?> execute(@NotNull MessageReceivedEvent event) {
 
 		// TODO: COMMAND PARAMETERS
+		// TODO: Message properties
 
+		// Ignore bots
 		User user = event.getAuthor();
 		if(user.isBot())
 			return null;
 
-		// Try get member
+		// Get member
 		Message message = event.getMessage();
-		Optional<MemberEntity> opt = memberRepo.findById(user.getIdLong());
-		MemberEntity memberEntity;
-
-		if(opt.isEmpty()) {
-
-			// Register new member
-			memberEntity = MemberEntity.builder()
-					.discordId(user.getIdLong())
-					.discordUsername(user.getName())
-					.build();
-			memberRepo.save(memberEntity);
-
-		} else {
-			memberEntity = opt.get();
-		}
+		MemberEntity memberEntity = memberRepo.findByIdOrSave(
+			user.getIdLong(),
+			() -> MemberEntity.builder()
+				.discordId(user.getIdLong())
+				.discordUsername(user.getName())
+				.build()
+		);
 
 		List<Message.Attachment> attachments = message.getAttachments();
 		if(attachments.isEmpty())
@@ -113,7 +94,8 @@ public class TrackUploadCommand extends AbstractMessageCommand {
 		byte[] data = new byte[size];
 		try {
 
-			int read = 0, c;
+			int read = 0;
+			int c;
 			do {
 
 				c = in.read(data, read, size - read);

@@ -3,18 +3,17 @@ package ovh.excale.vgreeter.commands.slash;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jspecify.annotations.NonNull;
-import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.commands.core.AbstractSlashCommand;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
+import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 
-@Component
-public class UploadHelpCommand extends AbstractSlashCommand {
+@CommandController
+public class UploadHelpCommand {
 
-	public UploadHelpCommand() {
-		super("upload", "Show help to upload a track");
-	}
-
-	@Override
-	public @NonNull RestAction<?> execute(SlashCommandInteractionEvent event) {
+	@SlashMapping(
+		name = "upload",
+		description = "Show help to upload a track"
+	)
+	public @NonNull RestAction<?> showUploadHelp(SlashCommandInteractionEvent event) {
 
 		//noinspection StringBufferReplaceableByString
 		StringBuilder sb = new StringBuilder();
@@ -33,7 +32,6 @@ public class UploadHelpCommand extends AbstractSlashCommand {
 				.append("In the future there might be loyalty programs to increase these limitations.");
 
 		return event.reply(sb.toString());
-
 	}
 
 }

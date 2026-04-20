@@ -38,6 +38,11 @@ public class ErrorMessages {
 	}
 
 	/**
+	 * Feature is not implemented yet.
+	 */
+	private final String notImplementedYet;
+
+	/**
 	 * Command is used in a DM, but it can only be used in a guild.
 	 */
 	@Getter
