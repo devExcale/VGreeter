@@ -26,10 +26,28 @@ public class ErrorMessages {
 	}
 
 	/**
+	 * Unknown command option provided.
+	 */
+	private final String unknownOption;
+
+	/**
+	 * Unknown command option provided.
+	 */
+	public String getUnknownOption(String option) {
+		return MessageFormat.format(unknownOption, option);
+	}
+
+	/**
 	 * Command is used in a DM, but it can only be used in a guild.
 	 */
 	@Getter
 	private final String cmdGuildOnly;
+
+	/**
+	 * Command requires admin permissions and the user does not have them.
+	 */
+	@Getter
+	private final String cmdNeedAdminPerms;
 
 	/**
 	 * Command is used in a guild, but the user is not connected to a voice channel.
@@ -55,7 +73,7 @@ public class ErrorMessages {
 	 * Command is used in a guild, but the bot is already connected to a voice channel.
 	 * Has a placeholder for the voice channel name.
 	 */
-	public final String botConnectedToVc;
+	private final String botConnectedToVc;
 
 	/**
 	 * Command is used in a guild, but the bot is already connected to a voice channel.
@@ -64,5 +82,4 @@ public class ErrorMessages {
 	public String getBotConnectedToVc(String channel) {
 		return MessageFormat.format(botConnectedToVc, channel);
 	}
-
 }

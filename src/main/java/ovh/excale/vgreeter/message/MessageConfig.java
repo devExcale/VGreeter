@@ -8,7 +8,8 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:messages.properties")
 @EnableConfigurationProperties({
 	ErrorMessages.class,
-	TrackMessages.class
+	TrackMessages.class,
+	ProbabilityMessages.class
 })
 public class MessageConfig {
 

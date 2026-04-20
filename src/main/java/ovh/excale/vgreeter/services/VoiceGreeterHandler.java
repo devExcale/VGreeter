@@ -20,7 +20,6 @@ import ovh.excale.vgreeter.track.TrackPlayer;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -67,19 +66,14 @@ public class VoiceGreeterHandler extends ListenerAdapter {
 		if(user.isBot() || guildLocks.contains(guild.getIdLong()))
 			return;
 
-		// Fetch guild settings
-		Optional<GuildEntity> guildEntityOpt = guildRepo.findById(guild.getIdLong());
-		GuildEntity guildEntity;
-		if(guildEntityOpt.isEmpty()) {
-			// Create new guild settings if not found
-			guildEntity = GuildEntity.builder()
+		// Fetch guild settings (or create if don't exist)
+		GuildEntity guildEntity = guildRepo.findByIdOrSave(
+			guild.getIdLong(),
+			() -> GuildEntity.builder()
 				.discordId(guild.getIdLong())
 				.name(guild.getName())
-				.build();
-			guildRepo.save(guildEntity);
-		} else {
-			guildEntity = guildEntityOpt.get();
-		}
+				.build()
+		);
 
 		// Apply probability of greeting the user
 		float greetProbab = guildEntity.getGreetProbab();
