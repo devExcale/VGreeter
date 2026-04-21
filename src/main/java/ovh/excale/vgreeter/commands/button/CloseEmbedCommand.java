@@ -1,20 +1,20 @@
 package ovh.excale.vgreeter.commands.button;
 
-import java.util.Collections;
-
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
+import ovh.excale.vgreeter.commands.core.annotation.ButtonMapping;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 
-@Component()
+import java.util.Collections;
+
+@CommandController
 public class CloseEmbedCommand {
 
-	public CloseEmbedCommand() {
-//		super("close", "Close and embed or a message");
-	}
+	public static final String CMD_NAME = "CloseEmbed";
 
-	public @NotNull RestAction<?> execute(@NotNull ButtonInteractionEvent event) {
+	@ButtonMapping(name = CMD_NAME)
+	public @NotNull RestAction<?> closeEmbed(@NotNull ButtonInteractionEvent event) {
 
 		return event.editMessage("Closed")
 				.setEmbeds(Collections.emptyList())

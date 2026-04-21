@@ -7,18 +7,21 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Pageable;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.commands.core.annotation.CommandController;
+import ovh.excale.vgreeter.commands.core.annotation.Option;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.message.ErrorMessages;
-import ovh.excale.vgreeter.track.TrackIndex;
+import ovh.excale.vgreeter.repository.TrackRepository;
+import ovh.excale.vgreeter.track.TracklistEmbed;
 import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 import static ovh.excale.vgreeter.commands.slash.TracklistCommand.TRACKLIST;
-import static ovh.excale.vgreeter.track.TrackIndex.*;
+import static ovh.excale.vgreeter.track.TracklistEmbed.*;
 import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
 @RequiredArgsConstructor
@@ -37,13 +40,27 @@ public class TracklistCommand {
 
 	private final ErrorMessages msgError;
 
+	private final TrackRepository trackRepo;
+
 	@SlashMapping(
 		name = TRACKLIST,
 		subcommand = CMD_FILTER_ALL,
 		description = "Search for all tracks"
 	)
-	public RestAction<?> searchAll(SlashCommandInteractionEvent event) {
-		return replyEphemeralWith("Not implemented yet", event);
+	public RestAction<?> searchAll(
+		SlashCommandInteractionEvent event,
+		@Option(name = "page", description = PAGE_LABEL, required = false) Long page
+	) {
+
+		// Get tracklist page
+		TracklistEmbed tracklistEmbed = new TracklistEmbed(trackRepo.findAll(
+			Pageable.ofSize(DEFAULT_PAGE_SIZE)
+				.withPage(page == null ? 0 : page.intValue() - 1)
+		));
+
+		return event.replyEmbeds(tracklistEmbed.buildEmbed().build())
+			.addComponents(ActionRow.of(Arrays.asList(tracklistEmbed.buildButtons())))
+			.setEphemeral(true);
 	}
 
 	@SlashMapping(
@@ -62,42 +79,6 @@ public class TracklistCommand {
 	)
 	public RestAction<?> searchByUser(SlashCommandInteractionEvent event) {
 		return replyEphemeralWith("Not implemented yet", event);
-	}
-
-	public @NotNull RestAction<?> execute(SlashCommandInteractionEvent event) {
-
-		int page = Optional.ofNullable(event.getOption("page"))
-				.map(OptionMapping::getAsLong)
-				.map(Long::intValue)
-				.orElse(1);
-
-		CommandOptions command = new CommandOptions(event.getName(), event.getSubcommandName()).setPage(page);
-		event.getOptions()
-				.stream()
-				.filter(option -> !"page".equals(option.getName()))
-				.forEach(option -> command.putOption(option.getName(), option.getAsString()));
-
-		//noinspection DuplicatedCode
-		TrackIndex index = new TrackIndex(command);
-		try {
-
-			index.fetch();
-
-		} catch(IllegalArgumentException e) {
-			return replyEphemeralWith(e.getMessage(), event);
-		} catch(Exception e) {
-			logErrorService.error(e);
-			log.error(e.getMessage(), e);
-			return replyEphemeralWith("There has been an internal error", event);
-		}
-
-		if(index.isEmpty())
-			return replyEphemeralWith("Empty page", event);
-
-		return event.replyEmbeds(index.buildEmbed().build())
-				.setEphemeral(true)
-				.addComponents(ActionRow.of(Arrays.asList(index.buildButtons())));
-
 	}
 
 }

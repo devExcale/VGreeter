@@ -1,6 +1,5 @@
 package ovh.excale.vgreeter.track;
 
-import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import org.gagravarr.ogg.OggPacket;
 import org.gagravarr.ogg.OggPacketReader;
@@ -16,7 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Log4j2
 public class TrackPlayer implements AudioSendHandler {
 
 	private final Iterator<OggPacket> packetIterator;

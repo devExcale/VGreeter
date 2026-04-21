@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
-import ovh.excale.vgreeter.track.TrackIndex;
+import ovh.excale.vgreeter.track.TracklistEmbed;
 import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.util.Arrays;
@@ -27,31 +27,31 @@ public class TrackIndexButtonCommand {
 		this.logErrorService = logErrorService;
 	}
 
-	@SneakyThrows
-	public @NotNull RestAction<?> execute(@NonNull ButtonInteractionEvent event) {
-
-		CommandOptions command = CommandOptions.fromJson(event.getComponentId());
-		//noinspection DuplicatedCode
-		TrackIndex index = new TrackIndex(command);
-
-		try {
-
-			index.fetch();
-
-		} catch(IllegalArgumentException e) {
-			return replyEphemeralWith(e.getMessage(), event);
-		} catch(Exception e) {
-			logErrorService.error(e);
-			log.error(e.getMessage(), e);
-			return replyEphemeralWith("There has been an internal error", event);
-		}
-
-		if(index.isEmpty())
-			return replyEphemeralWith("Empty page", event);
-
-		return event.editMessageEmbeds(index.buildEmbed().build())
-				.setComponents(ActionRow.of(Arrays.asList(index.buildButtons())));
-
-	}
+//	@SneakyThrows
+//	public @NotNull RestAction<?> execute(@NonNull ButtonInteractionEvent event) {
+//
+//		CommandOptions command = CommandOptions.fromJson(event.getComponentId());
+//		//noinspection DuplicatedCode
+//		TracklistEmbed index = new TracklistEmbed();
+//
+//		try {
+//
+////			index.fetch();
+//
+//		} catch(IllegalArgumentException e) {
+//			return replyEphemeralWith(e.getMessage(), event);
+//		} catch(Exception e) {
+//			logErrorService.error(e);
+//			log.error(e.getMessage(), e);
+//			return replyEphemeralWith("There has been an internal error", event);
+//		}
+//
+////		if(index.isEmpty())
+////			return replyEphemeralWith("Empty page", event);
+//
+//		return event.editMessageEmbeds(index.buildEmbed().build())
+//				.setComponents(ActionRow.of(Arrays.asList(index.buildButtons())));
+//
+//	}
 
 }
