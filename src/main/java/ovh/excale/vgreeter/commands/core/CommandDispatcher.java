@@ -11,6 +11,10 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
+import org.msgpack.core.MessageBufferPacker;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -28,6 +32,7 @@ import ovh.excale.vgreeter.entity.LogErrorEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;
 import ovh.excale.vgreeter.services.LogErrorService;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,12 +57,6 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 	private final Map<String, SlashCommandData> commandData = new HashMap<>();
 	private final ErrorMessages msgError;
-
-	public static String encodeButtonId(String name) {
-		CRC32 crc = new CRC32();
-		crc.update(name.getBytes());
-		return Integer.toHexString((int) crc.getValue());
-	}
 
 	/**
 	 * Scan for command controllers and their methods, create invokers,
@@ -317,14 +316,23 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 	@Override
 	public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-
-		// Compute command hash from hex-encoded button id
-		String buttonId = event.getComponentId();
-		int cmdHashId = Integer.parseUnsignedInt(buttonId, 16);
-
-		// Invoke command
-		ButtonCommandInvoker invoker = buttonInvokers.get(cmdHashId);
 		try {
+
+			// Unpack command options
+			String buttonId = event.getComponentId();
+			byte[] packedOptions = Base64.getDecoder().decode(buttonId);
+
+			// Peek cmdHashId from packed options
+			int cmdHashId;
+			try(MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(packedOptions)) {
+
+				unpacker.unpackArrayHeader();
+				cmdHashId = unpacker.unpackInt();
+
+			}
+
+			// Invoke command
+			ButtonCommandInvoker invoker = buttonInvokers.get(cmdHashId);
 
 			if(invoker == null)
 				throw new IllegalArgumentException(format(
@@ -333,7 +341,7 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 			invoker.invoke(event);
 
-		} catch(CommandInvocationException | IllegalArgumentException e) {
+		} catch(CommandInvocationException | IllegalArgumentException | IOException e) {
 
 			//noinspection DuplicatedCode: I won't extract this simple block for slash and button interactions only
 			log.error(e.getMessage(), e);
@@ -405,6 +413,112 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 				.queue();
 
 		}
+	}
+
+	public String serializeBtnOptions(
+		String btnCmdName, Object... options
+	) throws IllegalArgumentException, IOException {
+
+		// Convert name to hash id
+		CRC32 crc = new CRC32();
+		crc.update(btnCmdName.getBytes());
+		int cmdHashId = (int) crc.getValue();
+
+		// Find invoker
+		ButtonCommandInvoker invoker = buttonInvokers.get(cmdHashId);
+		if(invoker == null)
+			throw new IllegalArgumentException(format(
+				"No invoker found for ButtonCommand `%s`.", btnCmdName
+			));
+
+		// Get parameter types and validate options count (exclude event)
+		Class<?>[] optionTypes = invoker.getOptionTypes();
+		if(options.length != optionTypes.length - 1)
+			throw new IllegalArgumentException(format(
+				"Expected %d options for ButtonCommand `%s`, but got %d.",
+				optionTypes.length - 1, btnCmdName, options.length
+			));
+
+		// Open packed options with cmdHashId
+		MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
+		packer.packArrayHeader(optionTypes.length);
+		packer.packInt(cmdHashId);
+
+		// Validate option types and pack them
+		int iOpt = 0;
+		for(Class<?> optionType : optionTypes) {
+
+			// Skip event parameter
+			if(ButtonInteractionEvent.class.isAssignableFrom(optionType))
+				continue;
+
+			// Validate option type
+			Object option = options[iOpt];
+			if(optionType != option.getClass())
+				throw new IllegalArgumentException(format(
+					"Expected option of type `%s` for parameter %d in ButtonCommand `%s`, but got `%s`.",
+					optionType.getName(), iOpt + 1, btnCmdName, option.getClass().getName()
+				));
+
+			// Pack option value
+			packArgument(packer, option);
+			iOpt++;
+
+		}
+
+		// Close packer and get packed options
+		packer.close();
+		byte[] packedOptions = packer.toByteArray();
+
+		// Return base64-encoded packed options
+		return Base64.getEncoder().encodeToString(packedOptions);
+
+	}
+
+	public static void packArgument(MessagePacker packer, Object argument) throws IOException {
+
+		switch(argument) {
+
+			case String str -> packer.packString(str);
+
+			case Long l -> packer.packLong(l);
+
+			case Integer i -> packer.packInt(i);
+
+			case Double d -> packer.packDouble(d);
+
+			case Boolean b -> packer.packBoolean(b);
+
+			default -> throw new IllegalArgumentException(format(
+				"Unsupported argument type: `%s`",
+				argument.getClass()
+					.getName()
+			));
+
+		}
+	}
+
+	public static <T> T unpackArgument(MessageUnpacker unpacker, Class<T> argType) throws IOException {
+
+		if(argType == String.class)
+			return argType.cast(unpacker.unpackString());
+
+		if(argType == Long.class)
+			return argType.cast(unpacker.unpackLong());
+
+		if(argType == Integer.class)
+			return argType.cast(unpacker.unpackInt());
+
+		if(argType == Double.class)
+			return argType.cast(unpacker.unpackDouble());
+
+		if(argType == Boolean.class)
+			return argType.cast(unpacker.unpackBoolean());
+
+		throw new IllegalArgumentException(format(
+			"Unsupported argument type: `%s`",
+			argType.getName()
+		));
 	}
 
 }

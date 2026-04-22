@@ -1,13 +1,7 @@
 package ovh.excale.vgreeter.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -29,16 +23,13 @@ public class LogErrorEntity {
 	@Basic
 	private String level;
 
-	@Lob
 	@Column(columnDefinition = "TEXT")
 	private String message;
 
-	@Lob
 	@Column(columnDefinition = "TEXT")
 	@ToString.Exclude
 	private String cause;
 
-	@Lob
 	@Column(columnDefinition = "TEXT")
 	@ToString.Exclude
 	private String stackTrace;
