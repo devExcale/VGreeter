@@ -11,8 +11,6 @@ public @interface SlashMapping {
 
 	String name();
 
-	String subcommand() default "";
-
 	String description() default "";
 
 }

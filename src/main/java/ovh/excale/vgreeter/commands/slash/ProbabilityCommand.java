@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jetbrains.annotations.NotNull;
 import ovh.excale.vgreeter.commands.core.annotation.CommandController;
-import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.GuildEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;
@@ -22,8 +22,8 @@ import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 @SuppressWarnings("DuplicatedCode")
 @RequiredArgsConstructor
 @CommandController(
-	commandName = "probab",
-	commandDescription = "Manage the Voice Chat Greet Probability"
+	name = "probab",
+	description = "Manage the Voice Chat Greet Probability"
 )
 public class ProbabilityCommand {
 
@@ -34,13 +34,12 @@ public class ProbabilityCommand {
 	private final ProbabilityMessages msgProbab;
 
 	@SlashMapping(
-		name = "probab",
-		subcommand = "set",
+		name = "set",
 		description = "Set the new Greet Probability"
 	)
 	public @NotNull ReplyCallbackAction probabSet(
 		SlashCommandInteractionEvent event,
-		@Option(name = "percent", description = "Join Probability (0 to 100)") Double newGreetProbab100
+		@CmdOption(name = "percent", description = "Join Probability (0 to 100)") Double newGreetProbab100
 	) {
 
 		Guild guild = event.getGuild();
@@ -81,8 +80,7 @@ public class ProbabilityCommand {
 	}
 
 	@SlashMapping(
-		name = "probab",
-		subcommand = "get",
+		name = "get",
 		description = "Set the new Greet Probability"
 	)
 	public @NotNull ReplyCallbackAction probabGet(
@@ -115,8 +113,7 @@ public class ProbabilityCommand {
 	}
 
 	@SlashMapping(
-		name = "probab",
-		subcommand = "default",
+		name = "default",
 		description = "Set the new Greet Probability"
 	)
 	public @NotNull ReplyCallbackAction probabDefault(

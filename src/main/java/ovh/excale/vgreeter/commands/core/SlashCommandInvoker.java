@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
-import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 
 import java.lang.reflect.Method;
@@ -56,7 +56,7 @@ public class SlashCommandInvoker implements CommandInvoker<SlashCommandInteracti
 				}
 
 				// Inject parameters annotated with @Option
-				Option optionMeta = param.getAnnotation(Option.class);
+				CmdOption optionMeta = param.getAnnotation(CmdOption.class);
 				OptionMapping jdaOption = event.getOption(optionMeta.name());
 
 				// Raise exception if required option is missing

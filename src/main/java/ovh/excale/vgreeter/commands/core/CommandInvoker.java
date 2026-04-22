@@ -3,7 +3,7 @@ package ovh.excale.vgreeter.commands.core;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
-import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public interface CommandInvoker<T extends GenericEvent> {
 		int eventParams = 0;
 		for(var param : method.getParameters()) {
 
-			Option optionMeta = param.getAnnotation(Option.class);
+			CmdOption optionMeta = param.getAnnotation(CmdOption.class);
 
 			if(GenericEvent.class.isAssignableFrom(param.getType()))
 

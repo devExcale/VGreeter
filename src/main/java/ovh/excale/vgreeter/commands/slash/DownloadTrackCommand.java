@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jspecify.annotations.NonNull;
 import ovh.excale.vgreeter.commands.core.annotation.CommandController;
-import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;
@@ -38,7 +38,7 @@ public class DownloadTrackCommand {
 	)
 	public @NonNull RestAction<?> downloadTrack(
 		SlashCommandInteractionEvent event,
-		@Option(name = "trackid", description = "The id of the track to download") Long trackId
+		@CmdOption(name = "trackid", description = "The id of the track to download") Long trackId
 	) {
 
 		Guild guild = event.getGuild();

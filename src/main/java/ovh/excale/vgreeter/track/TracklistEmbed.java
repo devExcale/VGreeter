@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
+import ovh.excale.vgreeter.commands.core.CommandDispatcher;
 import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.utilities.Emojis;
@@ -60,7 +61,10 @@ public class TracklistEmbed {
 		Button reloadButton = Button.secondary("<reload>", Emojis.RELOAD)
 			.withDisabled(true);
 
-		Button closeButton = Button.secondary(new CommandOptions(CloseEmbedCommand.CMD_NAME).json(), Emojis.CLOSE);
+		Button closeButton = Button.secondary(
+			CommandDispatcher.encodeButtonId(CloseEmbedCommand.CMD_NAME),
+			Emojis.CLOSE
+		);
 
 		return new Button[] { prevButton, nextButton, reloadButton, closeButton };
 

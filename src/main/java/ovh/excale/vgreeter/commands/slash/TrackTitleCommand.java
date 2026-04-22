@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jspecify.annotations.NonNull;
 import ovh.excale.vgreeter.commands.core.annotation.CommandController;
-import ovh.excale.vgreeter.commands.core.annotation.Option;
+import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.entity.MemberEntity;
@@ -34,8 +34,8 @@ public class TrackTitleCommand {
 	)
 	public @NonNull RestAction<?> editTracktitle(
 		SlashCommandInteractionEvent event,
-		@Option(name = "trackid", description = "Track's id") Long trackId,
-		@Option(name = "title", description = "Track's new title") String trackTitle
+		@CmdOption(name = "trackid", description = "Track's id") Long trackId,
+		@CmdOption(name = "title", description = "Track's new title") String trackTitle
 	) {
 
 		// Find track and validate ownership

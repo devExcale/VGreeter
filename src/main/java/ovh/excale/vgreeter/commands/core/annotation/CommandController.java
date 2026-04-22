@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 @Component
 public @interface CommandController {
 
-	String commandName() default "";
+	String name() default "";
 
-	String commandDescription() default "";
+	String description() default "";
 
 }
