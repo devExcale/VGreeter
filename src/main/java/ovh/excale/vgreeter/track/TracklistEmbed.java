@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
 import ovh.excale.vgreeter.commands.core.CommandDispatcher;
-import ovh.excale.vgreeter.commands.core.CommandOptions;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.utilities.Emojis;
 
