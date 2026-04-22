@@ -16,21 +16,29 @@ import ovh.excale.vgreeter.track.TracklistEmbed;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static ovh.excale.vgreeter.commands.slash.TracklistCommand.TRACKLIST;
-import static ovh.excale.vgreeter.track.TracklistEmbed.*;
+import static ovh.excale.vgreeter.commands.slash.TracklistCommand.CMD_TRACKLIST;
+import static ovh.excale.vgreeter.track.TracklistEmbed.DEFAULT_PAGE_SIZE;
 import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
 @RequiredArgsConstructor
 @Log4j2
 @CommandController(
-	name = TRACKLIST,
+	name = CMD_TRACKLIST,
 	description = "List all the tracks"
 )
 public class TracklistCommand {
 
-	protected static final String TRACKLIST = "tracklist";
+	public static final String CMD_TRACKLIST = "tracklist";
 
-	private static final String PAGE_LABEL = "Page number";
+	private static final String OPTDESC_PAGE_NUMBER = "Page number";
+
+	public static final String SUBCMD_ALL = "all";
+
+	public static final String SUBCMD_TITLE = "title";
+
+	public static final String SUBCMD_USER = "user";
+
+	public static final String BTN_CHANGE_PAGE = "TracklistChangePage";
 
 	private final LogErrorService logErrorService;
 
@@ -39,12 +47,12 @@ public class TracklistCommand {
 	private final TrackRepository trackRepo;
 
 	@SlashMapping(
-		name = CMD_FILTER_ALL,
+		name = SUBCMD_ALL,
 		description = "Search for all tracks"
 	)
 	public RestAction<?> searchAll(
 		SlashCommandInteractionEvent event,
-		@CmdOption(name = "page", description = PAGE_LABEL, required = false) Long humanPage
+		@CmdOption(name = "page", description = OPTDESC_PAGE_NUMBER, required = false) Long humanPage
 	) {
 
 		// Get tracklist page
@@ -59,25 +67,25 @@ public class TracklistCommand {
 	}
 
 	@SlashMapping(
-		name = CMD_FILTER_NAME,
-		description = "Search for all tracks with something in the name"
+		name = SUBCMD_TITLE,
+		description = "Search for all tracks by their title"
 	)
 	public RestAction<?> searchByName(SlashCommandInteractionEvent event) {
 		return replyEphemeralWith("Not implemented yet", event);
 	}
 
 	@SlashMapping(
-		name = CMD_FILTER_USER,
+		name = SUBCMD_USER,
 		description = "Search for tracks by a user"
 	)
 	public RestAction<?> searchByUser(SlashCommandInteractionEvent event) {
 		return replyEphemeralWith("Not implemented yet", event);
 	}
 
-	@ButtonMapping(name = "TracklistChangePage")
+	@ButtonMapping(name = BTN_CHANGE_PAGE)
 	public RestAction<?> changePage(
 		ButtonInteractionEvent event,
-		@BtnOption Long indexPage
+		@BtnOption Integer indexPage
 	) {
 
 		Objects.requireNonNull(indexPage);
@@ -85,7 +93,7 @@ public class TracklistCommand {
 		// Get new tracklist page
 		TracklistEmbed tracklistEmbed = new TracklistEmbed(trackRepo.findAll(
 			Pageable.ofSize(DEFAULT_PAGE_SIZE)
-				.withPage(indexPage.intValue() - 1)
+				.withPage(indexPage)
 		));
 
 		return event.editMessageEmbeds(tracklistEmbed.buildEmbed().build())

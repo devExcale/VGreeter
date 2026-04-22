@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import ovh.excale.vgreeter.VGreeterApplication;
 import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
 import ovh.excale.vgreeter.commands.core.CommandDispatcher;
+import ovh.excale.vgreeter.commands.slash.TracklistCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.utilities.Emojis;
 
@@ -20,15 +21,12 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class TracklistEmbed {
 
-	public static final String CMD_FILTER_ALL = "all";
-
-	public static final String CMD_FILTER_NAME = "name";
-
-	public static final String CMD_FILTER_USER = "user";
-
 	public static final int DEFAULT_PAGE_SIZE = 15;
 
 	private final Page<TrackEntity> trackPage;
+
+	private final CommandDispatcher commandDispatcher = VGreeterApplication.getApplicationContext()
+		.getBean(CommandDispatcher.class);
 
 	public @NotNull EmbedBuilder buildEmbed() {
 
@@ -49,28 +47,39 @@ public class TracklistEmbed {
 	@SneakyThrows
 	public Button[] buildButtons() {
 
-		// <previous> button
-		Button prevButton = Button.secondary("<previous>", Emojis.PREVIOUS)
-			.withDisabled(true);
+		// Get previous page (or circle back)
+		int prevZeroPage = trackPage.hasPrevious() ? trackPage.getNumber() - 1 : trackPage.getTotalPages() - 1;
+		Button prevButton = Button.secondary(
+			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, prevZeroPage),
+			Emojis.PREVIOUS
+		);
 
-		// <next> button
-		Button nextButton = Button.secondary("<next>", Emojis.NEXT)
-			.withDisabled(true);
+		// Set next page (or circle back)
+		int nextZeroPage = trackPage.hasNext() ? trackPage.getNumber() + 1 : 0;
+		Button nextButton = Button.secondary(
+			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, nextZeroPage),
+			Emojis.NEXT
+		);
 
-		// <reload> button
-		Button reloadButton = Button.secondary("<reload>", Emojis.RELOAD)
-			.withDisabled(true);
+		// Reload page
+		Button reloadButton = Button.secondary(
+			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, trackPage.getNumber()),
+			Emojis.RELOAD
+		);
 
-		CommandDispatcher commandDispatcher = VGreeterApplication.getApplicationContext()
-			.getBean(CommandDispatcher.class);
-
+		// Close embed
 		Button closeButton = Button.secondary(
 			commandDispatcher.serializeBtnOptions(CloseEmbedCommand.CMD_NAME),
 			Emojis.CLOSE
 		);
 
-		return new Button[] { prevButton, nextButton, reloadButton, closeButton };
+		// Disable previous and next buttons if there's only one page
+		if (trackPage.getTotalPages() <= 1) {
+			prevButton = prevButton.asDisabled();
+			nextButton = nextButton.asDisabled();
+		}
 
+		return new Button[] { prevButton, nextButton, reloadButton, closeButton };
 	}
 
 }

@@ -94,15 +94,19 @@ public class ButtonCommandInvoker implements CommandInvoker<ButtonInteractionEve
 
 		try(MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(payloadBytes)) {
 
-			// Get method parameters and prepare arguments array
+			// Skip the packed command hash stored by the dispatcher
 			int argsCount = unpacker.unpackArrayHeader();
-			Object[] args = new Object[argsCount];
+			unpacker.unpackInt();
 
+			// Get method parameters and prepare arguments array
+			Object[] args = new Object[argsCount];
 			for(int i = 0; i < argsCount; i++) {
+
 				Class<?> type = optionTypes[i];
 				args[i] = ButtonInteractionEvent.class != type
 					? CommandDispatcher.unpackArgument(unpacker, type)
 					: event;
+
 			}
 
 			// Invoke the method on the target bean
