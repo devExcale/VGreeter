@@ -1,17 +1,19 @@
 package ovh.excale.vgreeter.commands.core;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.build.*;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,10 @@ import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.MessageMapping;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.commands.core.event.CommandUpdateEvent;
+import ovh.excale.vgreeter.commands.core.exception.CommandInvocationException;
+import ovh.excale.vgreeter.entity.LogErrorEntity;
+import ovh.excale.vgreeter.message.ErrorMessages;
+import ovh.excale.vgreeter.services.LogErrorService;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -36,24 +42,21 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 	public static final String PREFIX = "vg:";
 
+	private final ApplicationEventPublisher eventPublisher;
+
+	private final LogErrorService logErrorService;
+
 	private final Map<String, SlashCommandInvoker> slashInvokers = new HashMap<>();
-
 	private final Map<Integer, ButtonCommandInvoker> buttonInvokers = new HashMap<>();
-
 	private final Map<String, MessageCommandInvoker> messageInvokers = new HashMap<>();
 
 	private final Map<String, SlashCommandData> commandData = new HashMap<>();
-
-	private final ApplicationEventPublisher eventPublisher;
+	private final ErrorMessages msgError;
 
 	public static String encodeButtonId(String name) {
 		CRC32 crc = new CRC32();
 		crc.update(name.getBytes());
 		return Integer.toHexString((int) crc.getValue());
-	}
-
-	public SlashCommandData[] getCommandData() {
-		return commandData.values().toArray(SlashCommandData[]::new);
 	}
 
 	/**
@@ -104,7 +107,8 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 		);
 
 		// Notify listeners that slash command data is ready.
-		eventPublisher.publishEvent(new CommandUpdateEvent(getCommandData()));
+		SlashCommandData[] cmdData = commandData.values().toArray(SlashCommandData[]::new);
+		eventPublisher.publishEvent(new CommandUpdateEvent(cmdData));
 
 	}
 
@@ -276,10 +280,38 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 		// Invoke command
 		SlashCommandInvoker invoker = slashInvokers.get(fullname);
-		if(invoker != null)
+		try {
+
+			if(invoker == null)
+				throw new IllegalArgumentException(format(
+					"No invoker found for SlashCommand `%s`.", fullname
+				));
+
 			invoker.invoke(event);
-		else
-			log.warn("No invoker found for command `{}`", fullname);
+
+		} catch(CommandInvocationException | IllegalArgumentException e) {
+
+			//noinspection DuplicatedCode: I won't extract this simple block for slash and button interactions only
+			log.error(e.getMessage(), e);
+
+			// Retrieve user and guild info for logging
+			Long userId = Optional.of(event.getUser())
+				.map(ISnowflake::getIdLong)
+				.get();
+
+			Long guildId = Optional.ofNullable(event.getGuild())
+				.map(ISnowflake::getIdLong)
+				.orElse(null);
+
+			// Log the error
+			LogErrorEntity logInfo = logErrorService.error(e, userId, guildId);
+
+			// Reply to the user with generic error
+			event.reply(msgError.getInternalErrorUuid(logInfo.getId()))
+				.setEphemeral(true)
+				.queue();
+
+		}
 
 	}
 
@@ -292,8 +324,39 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 		// Invoke command
 		ButtonCommandInvoker invoker = buttonInvokers.get(cmdHashId);
-		if(invoker != null)
+		try {
+
+			if(invoker == null)
+				throw new IllegalArgumentException(format(
+					"No invoker found for ButtonCommand `%s`.", buttonId
+				));
+
 			invoker.invoke(event);
+
+		} catch(CommandInvocationException | IllegalArgumentException e) {
+
+			//noinspection DuplicatedCode: I won't extract this simple block for slash and button interactions only
+			log.error(e.getMessage(), e);
+
+			// Retrieve user and guild info for logging
+			Long userId = Optional.of(event.getUser())
+				.map(ISnowflake::getIdLong)
+				.get();
+
+			Long guildId = Optional.ofNullable(event.getGuild())
+				.map(ISnowflake::getIdLong)
+				.orElse(null);
+
+			// Log the error
+			LogErrorEntity logInfo = logErrorService.error(e, userId, guildId);
+
+			// Reply to the user with generic error
+			event.editMessage(msgError.getInternalErrorUuid(logInfo.getId()))
+				.setEmbeds(Collections.emptyList())
+				.setComponents(Collections.emptyList())
+				.queue();
+
+		}
 
 	}
 
@@ -312,9 +375,36 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 		// Invoke command
 		MessageCommandInvoker invoker = messageInvokers.get(commandName);
-		if(invoker != null)
+		try {
+
+			if(invoker == null)
+				throw new IllegalArgumentException(format(
+					"No invoker found for MessageCommand `%s`.", commandName
+				));
+
 			invoker.invoke(event);
 
+		} catch(CommandInvocationException | IllegalArgumentException e) {
+
+			// Retrieve user and guild info for logging
+			Long userId = Optional.of(event.getAuthor())
+				.map(ISnowflake::getIdLong)
+				.get();
+
+			Long guildId = Optional.ofNullable(event.isFromGuild() ? event.getGuild() : null)
+				.map(ISnowflake::getIdLong)
+				.orElse(null);
+
+			// Log the error
+			log.error(e.getMessage(), e);
+			LogErrorEntity logInfo = logErrorService.error(e, userId, guildId);
+
+			// Reply to the user with generic error
+			event.getMessage()
+				.reply(msgError.getInternalErrorUuid(logInfo.getId()))
+				.queue();
+
+		}
 	}
 
 }

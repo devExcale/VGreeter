@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+import ovh.excale.vgreeter.commands.core.exception.CommandInvocationException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import static ovh.excale.vgreeter.utilities.DiscordUtil.getOptionType;
 
 public interface CommandInvoker<T extends GenericEvent> {
 
-	void invoke(T event);
+	void invoke(T event) throws CommandInvocationException;
 
 	static void validateReturnType(Method method) {
 

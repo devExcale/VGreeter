@@ -5,8 +5,11 @@ import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.commands.core.annotation.ButtonMapping;
+import ovh.excale.vgreeter.commands.core.exception.CommandInvocationException;
 
 import java.lang.reflect.Method;
+
+import static java.lang.String.format;
 
 @Getter
 @Log4j2
@@ -28,7 +31,7 @@ public class ButtonCommandInvoker implements CommandInvoker<ButtonInteractionEve
 	}
 
 	@Override
-	public void invoke(ButtonInteractionEvent event) {
+	public void invoke(ButtonInteractionEvent event) throws CommandInvocationException {
 		try {
 
 			// Invoke the method on the target bean
@@ -38,9 +41,15 @@ public class ButtonCommandInvoker implements CommandInvoker<ButtonInteractionEve
 			if(result instanceof RestAction<?> restAction)
 				restAction.queue();
 
-		} catch(Exception e) {
-			// TODO: Proper error handling
-			log.error("Error invoking command method: {}", e.getMessage(), e);
+		} catch (Exception e) {
+
+			throw new CommandInvocationException(format(
+				"Failed to invoke ButtonCommand `%s` in class `%s`: %s",
+				mapping.name().trim(),
+				bean.getClass().getName(),
+				e.getMessage()
+			), e);
+
 		}
 	}
 

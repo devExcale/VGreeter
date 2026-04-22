@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
+import ovh.excale.vgreeter.commands.core.exception.CommandInvocationException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -19,14 +20,14 @@ import static ovh.excale.vgreeter.utilities.DiscordUtil.castOptionTo;
 @Log4j2
 public class SlashCommandInvoker implements CommandInvoker<SlashCommandInteractionEvent> {
 
-	private final Object instance;
+	private final Object bean;
 	private final Method method;
 	private final SlashMapping mapping;
 	private final OptionData[] options;
 
-	public SlashCommandInvoker(Object instance, Method method) {
+	public SlashCommandInvoker(Object bean, Method method) {
 
-		this.instance = instance;
+		this.bean = bean;
 		this.method = method;
 		this.mapping = method.getAnnotation(SlashMapping.class);
 
@@ -37,7 +38,7 @@ public class SlashCommandInvoker implements CommandInvoker<SlashCommandInteracti
 	}
 
 	@Override
-	public void invoke(SlashCommandInteractionEvent event) {
+	public void invoke(SlashCommandInteractionEvent event) throws CommandInvocationException {
 		try {
 
 			Parameter[] params = method.getParameters();
@@ -83,15 +84,21 @@ public class SlashCommandInvoker implements CommandInvoker<SlashCommandInteracti
 			}
 
 			// Invoke method with the dynamic argument array
-			Object result = method.invoke(instance, args);
+			Object result = method.invoke(bean, args);
 
 			// Run callback if provided
 			if(result instanceof RestAction<?> restAction)
 				restAction.queue();
 
-		} catch(Exception e) {
-			// TODO: Proper error handling
-			log.error("Error invoking command method: {}", e.getMessage(), e);
+		} catch (Exception e) {
+
+			throw new CommandInvocationException(format(
+				"Failed to invoke SlashCommand `%s` in class `%s`: %s",
+				mapping.name().trim(),
+				bean.getClass().getName(),
+				e.getMessage()
+			), e);
+
 		}
 	}
 }
