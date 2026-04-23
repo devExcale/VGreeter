@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jetbrains.annotations.NotNull;
-import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.GuildEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;
@@ -39,7 +39,10 @@ public class ProbabilityCommand {
 	)
 	public @NotNull ReplyCallbackAction probabSet(
 		SlashCommandInteractionEvent event,
-		@CmdOption(name = "percent", description = "Join Probability (0 to 100)") Double newGreetProbab100
+		@CmdOption(
+			name = "percent", description = "Join Probability (0 to 100)",
+			minValueD = 0, maxValueD = 100
+		) Double newGreetProbab100
 	) {
 
 		Guild guild = event.getGuild();

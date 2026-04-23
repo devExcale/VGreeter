@@ -60,7 +60,7 @@ public class TracklistCommand {
 	)
 	public ReplyCallbackAction searchAll(
 		SlashCommandInteractionEvent event,
-		@CmdOption(name = "page", description = OPTDESC_PAGE_NUMBER, required = false) Long humanPage
+		@CmdOption(name = "page", description = OPTDESC_PAGE_NUMBER, required = false, minValueL = 1) Long humanPage
 	) {
 
 		// Fetch the page

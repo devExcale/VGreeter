@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
 import ovh.excale.vgreeter.commands.core.exception.CommandInvocationException;
+import ovh.excale.vgreeter.utilities.DiscordUtil;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
-import static ovh.excale.vgreeter.utilities.DiscordUtil.getOptionType;
 
 public interface CommandInvoker<T extends GenericEvent> {
 
@@ -75,17 +75,15 @@ public interface CommandInvoker<T extends GenericEvent> {
 
 		// Validate all parameters
 		int eventParams = 0;
-		for(var param : params) {
+		for(Parameter param : params) {
 
 			CmdOption optionMeta = param.getAnnotation(CmdOption.class);
 
 			if(GenericEvent.class.isAssignableFrom(param.getType()))
-
 				// GenericEvent found
 				eventParams++;
 
 			else if(optionMeta == null)
-
 				// Parameter is not a GenericEvent and is not annotated with @Option
 				throw new IllegalArgumentException(format(
 					"Parameter `%s` in `%s` must either extend %s or be annotated with @%s.",
@@ -96,14 +94,9 @@ public interface CommandInvoker<T extends GenericEvent> {
 				));
 
 			else
+				// Add option data to list
+				options.add(DiscordUtil.optionData(optionMeta, param));
 
-				// Create option data for parameter
-				options.add(new OptionData(
-					getOptionType(param.getType()),
-					optionMeta.name(),
-					optionMeta.description(),
-					optionMeta.required()
-				));
 		}
 
 		if(eventParams > 1)

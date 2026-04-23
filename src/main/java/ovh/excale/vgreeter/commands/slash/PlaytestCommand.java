@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jspecify.annotations.NonNull;
-import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.LogErrorEntity;
 import ovh.excale.vgreeter.entity.TrackEntity;
@@ -49,7 +49,7 @@ public class PlaytestCommand {
 	)
 	public @NonNull ReplyCallbackAction playtest(
 		SlashCommandInteractionEvent event,
-		@CmdOption(name = "trackid", description = "The track to play") Long trackId
+		@CmdOption(name = "trackid", description = "The track to play", minValueL = 0) Long trackId
 	) {
 
 		Guild guild = event.getGuild();

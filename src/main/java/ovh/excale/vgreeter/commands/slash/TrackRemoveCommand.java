@@ -3,10 +3,10 @@ package ovh.excale.vgreeter.commands.slash;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jspecify.annotations.NonNull;
-import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.message.TrackMessages;
@@ -28,9 +28,9 @@ public class TrackRemoveCommand {
 		name = "trackremove",
 		description = "Delete a track given its id"
 	)
-	public @NonNull RestAction<?> deleteTrack(
+	public @NonNull ReplyCallbackAction deleteTrack(
 		SlashCommandInteractionEvent event,
-		@CmdOption(name = "trackid", description = "The id of the track to delete") Long trackId
+		@CmdOption(name = "trackid", description = "The id of the track to delete", minValueL = 0) Long trackId
 	) {
 
 		// Find the track with the provided id

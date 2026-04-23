@@ -4,7 +4,11 @@ import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+
+import java.lang.reflect.Parameter;
 
 import static java.lang.String.format;
 
@@ -16,7 +20,39 @@ public class DiscordUtil {
 			.setEphemeral(true);
 	}
 
-	public static OptionType getOptionType(Class<?> type) {
+	public static OptionData optionData(CmdOption optionMeta, Parameter parameter) throws IllegalArgumentException {
+
+		// Create option data for parameter
+		OptionData optionData = new OptionData(
+			optionType(parameter.getType()),
+			optionMeta.name(),
+			optionMeta.description(),
+			optionMeta.required()
+		);
+
+		// Set option constraints if specified
+		if(optionMeta.minValueD() != OptionData.MIN_NEGATIVE_NUMBER)
+			optionData.setMinValue(optionMeta.minValueD());
+
+		if(optionMeta.maxValueD() != OptionData.MAX_POSITIVE_NUMBER)
+			optionData.setMaxValue(optionMeta.maxValueD());
+
+		if(optionMeta.minValueL() != (long) OptionData.MIN_NEGATIVE_NUMBER)
+			optionData.setMinValue(optionMeta.minValueL());
+
+		if(optionMeta.maxValueL() != (long) OptionData.MAX_POSITIVE_NUMBER)
+			optionData.setMaxValue(optionMeta.maxValueL());
+
+		if(optionMeta.minLength() > 0)
+			optionData.setMinLength(optionMeta.minLength());
+
+		if(optionMeta.maxLength() < Integer.MAX_VALUE)
+			optionData.setMaxLength(optionMeta.maxLength());
+
+		return optionData;
+	}
+
+	public static OptionType optionType(Class<?> type) throws IllegalArgumentException {
 
 		if(type == String.class)
 			return OptionType.STRING;
