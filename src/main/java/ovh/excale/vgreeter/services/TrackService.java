@@ -1,7 +1,7 @@
 package ovh.excale.vgreeter.services;
 
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class TrackService {
 
 		// Get random track index (not id)
 		int qty = (int) trackRepo.count();
-		int idx = random.nextInt() * qty;
+		int idx = random.nextInt(qty);
 
 		// Retrieve a single track using pagination
 		Page<TrackEntity> trackPage = trackRepo.findAll(PageRequest.of(idx, 1));
