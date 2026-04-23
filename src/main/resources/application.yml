@@ -1,0 +1,15 @@
+spring:
+  main:
+    banner-mode: off
+  datasource:
+    url: ${env.DATASOURCE_URL}
+    username: ${env.DATASOURCE_USERNAME}
+    password: ${env.DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 10
+      keepalive-time: 30_000
+      idle-timeout: 600_000
+      max-lifetime: 1_800_000
+      connection-timeout: 30_000
