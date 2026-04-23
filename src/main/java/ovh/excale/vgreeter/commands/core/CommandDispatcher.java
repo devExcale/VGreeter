@@ -203,14 +203,14 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 			// Create subcommand data and add it to parent command
 			SubcommandData subCmdData = new SubcommandData(name, description)
-				.addOptions(invoker.getOptions());
+				.addOptions(invoker.getOptionsData());
 			parentCmdData.addSubcommands(subCmdData);
 
 		} else {
 
 			// Create main command data and register it
 			SlashCommandData cmdData = Commands.slash(fullname, description)
-				.addOptions(invoker.getOptions());
+				.addOptions(invoker.getOptionsData());
 			commandData.put(fullname, cmdData);
 
 		}
