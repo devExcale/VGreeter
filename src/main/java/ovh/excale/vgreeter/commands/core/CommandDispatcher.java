@@ -470,8 +470,7 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 
 			}
 
-			// Close packer and get packed options
-			packer.close();
+			// Get packed options
 			packedOptions = packer.toByteArray();
 
 		}
