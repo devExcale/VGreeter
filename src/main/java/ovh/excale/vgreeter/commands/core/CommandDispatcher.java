@@ -2,6 +2,7 @@ package ovh.excale.vgreeter.commands.core;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -439,40 +440,54 @@ public class CommandDispatcher extends ListenerAdapter implements ApplicationLis
 				optionTypes.length - 1, btnCmdName, options.length
 			));
 
-		// Open packed options with cmdHashId
-		MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
-		packer.packArrayHeader(optionTypes.length);
-		packer.packInt(cmdHashId);
+		byte[] packedOptions;
+		try(MessageBufferPacker packer = MessagePack.newDefaultBufferPacker()) {
 
-		// Validate option types and pack them
-		int iOpt = 0;
-		for(Class<?> optionType : optionTypes) {
+			// Open packed options with cmdHashId
+			packer.packArrayHeader(optionTypes.length);
+			packer.packInt(cmdHashId);
 
-			// Skip event parameter
-			if(ButtonInteractionEvent.class.isAssignableFrom(optionType))
-				continue;
+			// Validate option types and pack them
+			int iOpt = 0;
+			for(Class<?> optionType : optionTypes) {
 
-			// Validate option type
-			Object option = options[iOpt];
-			if(optionType != option.getClass())
-				throw new IllegalArgumentException(format(
-					"Expected option of type `%s` for parameter %d in ButtonCommand `%s`, but got `%s`.",
-					optionType.getName(), iOpt + 1, btnCmdName, option.getClass().getName()
-				));
+				// Skip event parameter
+				if(ButtonInteractionEvent.class.isAssignableFrom(optionType))
+					continue;
 
-			// Pack option value
-			packArgument(packer, option);
-			iOpt++;
+				// Validate option type
+				Object option = options[iOpt];
+				if(optionType != option.getClass())
+					throw new IllegalArgumentException(format(
+						"Expected option of type `%s` for parameter %d in ButtonCommand `%s`, but got `%s`.",
+						optionType.getName(), iOpt + 1, btnCmdName, option.getClass()
+							.getName()
+					));
+
+				// Pack option value
+				packArgument(packer, option);
+				iOpt++;
+
+			}
+
+			// Close packer and get packed options
+			packer.close();
+			packedOptions = packer.toByteArray();
 
 		}
 
-		// Close packer and get packed options
-		packer.close();
-		byte[] packedOptions = packer.toByteArray();
+		// Encode packed options to Base64
+		String base64Options = Base64.getEncoder()
+			.encodeToString(packedOptions);
 
-		// Return base64-encoded packed options
-		return Base64.getEncoder().encodeToString(packedOptions);
+		// Check if encoded options exceed Discord's button ID limit
+		if(base64Options.length() > Button.ID_MAX_LENGTH)
+			throw new IllegalArgumentException(format(
+				"Encoded options for ButtonCommand `%s` exceed maximum length of %d characters: %s.",
+				btnCmdName, Button.ID_MAX_LENGTH, base64Options
+			));
 
+		return base64Options;
 	}
 
 	public static void packArgument(MessagePacker packer, Object argument) throws IOException {
