@@ -44,6 +44,7 @@ public class TracklistEmbed {
 			.setDescription(description);
 	}
 
+	// TODO: Remove @SneakyThrows
 	@SneakyThrows
 	public List<Button> buildButtons(@NotNull Page<TrackEntity> trackPage) {
 
