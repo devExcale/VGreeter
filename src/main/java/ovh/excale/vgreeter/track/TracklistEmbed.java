@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
-import ovh.excale.vgreeter.VGreeterApplication;
+import org.springframework.stereotype.Component;
 import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
 import ovh.excale.vgreeter.commands.core.CommandDispatcher;
 import ovh.excale.vgreeter.commands.slash.TracklistCommand;
@@ -14,72 +14,69 @@ import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.utilities.Emojis;
 
 import java.awt.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 @RequiredArgsConstructor
+@Component
 public class TracklistEmbed {
 
-	public static final int DEFAULT_PAGE_SIZE = 15;
+	private final CommandDispatcher commandDispatcher;
 
-	private final Page<TrackEntity> trackPage;
+	public @NotNull EmbedBuilder buildEmbed(@NotNull Page<TrackEntity> trackPage) {
 
-	private final CommandDispatcher commandDispatcher = VGreeterApplication.getApplicationContext()
-		.getBean(CommandDispatcher.class);
+		int totalPages = trackPage.getTotalPages();
+		int humanPageNumber = (totalPages > 0) ? trackPage.getNumber() + 1 : 0;
 
-	public @NotNull EmbedBuilder buildEmbed() {
-
-		int humanPageNumber = trackPage.getNumber() + 1;
+		String description = trackPage.isEmpty()
+			? "No tracks found."
+			: trackPage.getContent()
+				.stream()
+				.map(track -> format("**#%d** *%s*", track.getId(), track.getTitle()))
+				.collect(Collectors.joining("\n"));
 
 		return new EmbedBuilder()
 			.setTitle("Tracklist")
 			.setFooter(format("Page %d/%d", humanPageNumber, trackPage.getTotalPages()))
 			.setColor(Color.BLUE)
-			.setDescription(
-				trackPage.getContent()
-					.stream()
-					.map(track -> format("**#%d** *%s*", track.getId(), track.getTitle()))
-					.collect(Collectors.joining("\n"))
-			);
+			.setDescription(description);
 	}
 
 	@SneakyThrows
-	public Button[] buildButtons() {
+	public List<Button> buildButtons(@NotNull Page<TrackEntity> trackPage) {
 
-		// Get previous page (or circle back)
-		int prevZeroPage = trackPage.hasPrevious() ? trackPage.getNumber() - 1 : trackPage.getTotalPages() - 1;
-		Button prevButton = Button.secondary(
-			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, prevZeroPage),
-			Emojis.PREVIOUS
-		);
+		// Compute page indices for buttons
+		int totalPages = trackPage.getTotalPages();
+		int currZeroPage = trackPage.getNumber();
+		int prevZeroPage = trackPage.hasPrevious() ? currZeroPage - 1 : totalPages - 1;
+		int nextZeroPage = trackPage.hasNext() ? currZeroPage + 1 : 0;
 
-		// Set next page (or circle back)
-		int nextZeroPage = trackPage.hasNext() ? trackPage.getNumber() + 1 : 0;
-		Button nextButton = Button.secondary(
-			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, nextZeroPage),
-			Emojis.NEXT
-		);
-
-		// Reload page
-		Button reloadButton = Button.secondary(
-			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, trackPage.getNumber()),
-			Emojis.RELOAD
-		);
-
-		// Close embed
-		Button closeButton = Button.secondary(
+		// [Close] Close the embed
+		Button btnClose = Button.secondary(
 			commandDispatcher.serializeBtnOptions(CloseEmbedCommand.CMD_NAME),
 			Emojis.CLOSE
 		);
 
-		// Disable previous and next buttons if there's only one page
-		if (trackPage.getTotalPages() <= 1) {
-			prevButton = prevButton.asDisabled();
-			nextButton = nextButton.asDisabled();
+		// [Previous Page] Go to the previous page (circular)
+		Button btnPrev = Button.secondary(
+			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, prevZeroPage),
+			Emojis.PREVIOUS
+		);
+
+		// [Next Page] Go to the next page (circular)
+		Button btnNext = Button.secondary(
+			commandDispatcher.serializeBtnOptions(TracklistCommand.BTN_CHANGE_PAGE, nextZeroPage),
+			Emojis.NEXT
+		);
+
+		if (totalPages <= 1) {
+			btnPrev = btnPrev.asDisabled();
+			btnNext = btnNext.asDisabled();
 		}
 
-		return new Button[] { prevButton, nextButton, reloadButton, closeButton };
+		return List.of(btnClose, btnPrev, btnNext);
 	}
 
 }

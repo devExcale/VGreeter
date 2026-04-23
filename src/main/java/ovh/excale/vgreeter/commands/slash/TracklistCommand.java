@@ -5,19 +5,20 @@ import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.MessageEditCallbackAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ovh.excale.vgreeter.commands.core.annotation.*;
-import ovh.excale.vgreeter.message.ErrorMessages;
+import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.repository.TrackRepository;
-import ovh.excale.vgreeter.services.LogErrorService;
+import ovh.excale.vgreeter.services.TrackService;
 import ovh.excale.vgreeter.track.TracklistEmbed;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.Optional;
 
 import static ovh.excale.vgreeter.commands.slash.TracklistCommand.CMD_TRACKLIST;
-import static ovh.excale.vgreeter.track.TracklistEmbed.DEFAULT_PAGE_SIZE;
 import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
 @RequiredArgsConstructor
@@ -40,29 +41,36 @@ public class TracklistCommand {
 
 	public static final String BTN_CHANGE_PAGE = "TracklistChangePage";
 
-	private final LogErrorService logErrorService;
-
-	private final ErrorMessages msgError;
+	private final TrackService trackService;
 
 	private final TrackRepository trackRepo;
 
+	private final TracklistEmbed tracklistEmbed;
+
+	/**
+	 * Search for all tracks, with pagination.
+	 *
+	 * @param event slash command event
+	 * @param humanPage optional one-based page number (defaults to 1 if not provided or invalid)
+	 * @return a reply action with the tracklist embed and pagination buttons
+	 */
 	@SlashMapping(
 		name = SUBCMD_ALL,
 		description = "Search for all tracks"
 	)
-	public RestAction<?> searchAll(
+	public ReplyCallbackAction searchAll(
 		SlashCommandInteractionEvent event,
 		@CmdOption(name = "page", description = OPTDESC_PAGE_NUMBER, required = false) Long humanPage
 	) {
 
-		// Get tracklist page
-		TracklistEmbed tracklistEmbed = new TracklistEmbed(trackRepo.findAll(
-			Pageable.ofSize(DEFAULT_PAGE_SIZE)
-				.withPage(humanPage == null ? 0 : humanPage.intValue() - 1)
-		));
+		// Fetch the page
+		Page<TrackEntity> trackPage = trackRepo.findAll(
+			Pageable.ofSize(TrackService.DEFAULT_PAGE_SIZE)
+				.withPage(normalizeHumanPage(humanPage, TrackService.DEFAULT_PAGE_SIZE))
+		);
 
-		return event.replyEmbeds(tracklistEmbed.buildEmbed().build())
-			.addComponents(ActionRow.of(Arrays.asList(tracklistEmbed.buildButtons())))
+		return event.replyEmbeds(tracklistEmbed.buildEmbed(trackPage).build())
+			.addComponents(ActionRow.of(tracklistEmbed.buildButtons(trackPage)))
 			.setEphemeral(true);
 	}
 
@@ -70,7 +78,7 @@ public class TracklistCommand {
 		name = SUBCMD_TITLE,
 		description = "Search for all tracks by their title"
 	)
-	public RestAction<?> searchByName(SlashCommandInteractionEvent event) {
+	public ReplyCallbackAction searchByName(SlashCommandInteractionEvent event) {
 		return replyEphemeralWith("Not implemented yet", event);
 	}
 
@@ -78,26 +86,74 @@ public class TracklistCommand {
 		name = SUBCMD_USER,
 		description = "Search for tracks by a user"
 	)
-	public RestAction<?> searchByUser(SlashCommandInteractionEvent event) {
+	public ReplyCallbackAction searchByUser(SlashCommandInteractionEvent event) {
 		return replyEphemeralWith("Not implemented yet", event);
 	}
 
+	/**
+	 * Handle pagination button clicks to change the page of the tracklist embed.
+	 *
+	 * @param event button interaction event
+	 * @param indexPage zero-based page index from the button options
+	 * @return a message edit action to update the embed with the new page of tracks
+	 */
 	@ButtonMapping(name = BTN_CHANGE_PAGE)
-	public RestAction<?> changePage(
+	public MessageEditCallbackAction changePage(
 		ButtonInteractionEvent event,
 		@BtnOption Integer indexPage
 	) {
 
-		Objects.requireNonNull(indexPage);
+		// Fetch the page
+		Page<TrackEntity> trackPage = trackRepo.findAll(
+			Pageable.ofSize(TrackService.DEFAULT_PAGE_SIZE)
+				.withPage(normalizeIndexPage(indexPage.longValue(), TrackService.DEFAULT_PAGE_SIZE))
+		);
 
-		// Get new tracklist page
-		TracklistEmbed tracklistEmbed = new TracklistEmbed(trackRepo.findAll(
-			Pageable.ofSize(DEFAULT_PAGE_SIZE)
-				.withPage(indexPage)
-		));
-
-		return event.editMessageEmbeds(tracklistEmbed.buildEmbed().build())
-			.setComponents(ActionRow.of(Arrays.asList(tracklistEmbed.buildButtons())));
+		return event.editMessageEmbeds(tracklistEmbed.buildEmbed(trackPage).build())
+			.setComponents(ActionRow.of(tracklistEmbed.buildButtons(trackPage)));
 	}
+
+	/**
+	 * Normalize a human-friendly page number (one-based) to a zero-based index,
+	 * and clamp it to the valid range of pages.
+	 *
+	 * @param humanPage one-based page number
+	 * @param pageSize number of items per page
+	 * @return the zero-based page index
+	 */
+	private int normalizeHumanPage(@Nullable Long humanPage, int pageSize) {
+
+		int totalPages = trackService.totalPages(pageSize);
+		if(totalPages <= 0)
+			return 0;
+
+		return Optional.ofNullable(humanPage)
+			.map(Long::intValue)
+			.map(hp -> Math.clamp(1, hp, totalPages))
+			.map(hp -> hp - 1)
+			.orElse(0);
+
+	}
+
+	/**
+	 * Normalize a zero-based page index, and clamp it to the valid range of pages.
+	 *
+	 * @param indexPage zero-based page index
+	 * @param pageSize number of items per page
+	 * @return the normalized zero-based page index
+	 */
+	private int normalizeIndexPage(@Nullable Long indexPage, int pageSize) {
+
+		int totalPages = trackService.totalPages(pageSize);
+		if(totalPages <= 0)
+			return 0;
+
+		return Optional.ofNullable(indexPage)
+			.map(Long::intValue)
+			.map(ip -> Math.clamp(0, ip, totalPages - 1))
+			.orElse(0);
+
+	}
+
 
 }

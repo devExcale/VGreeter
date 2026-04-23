@@ -14,6 +14,8 @@ import java.util.Random;
 @Service
 public class TrackService {
 
+	public static final int DEFAULT_PAGE_SIZE = 15;
+
 	private final TrackRepository trackRepo;
 
 	private final Random random = new Random();
@@ -41,4 +43,18 @@ public class TrackService {
 		return track;
 	}
 
+	/**
+	 * Calculate the total number of pages for a given page size.
+	 *
+	 * @param pageSize the number of tracks per page
+	 * @return the total number of pages
+	 */
+	public int totalPages(int pageSize) {
+
+		// Get total number of track
+		long totalTracks = trackRepo.count();
+
+		// Calculate the total number of pages
+		return (int) Math.ceil((double) totalTracks / pageSize);
+	}
 }
