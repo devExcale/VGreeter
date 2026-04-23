@@ -1,15 +1,15 @@
-package ovh.excale.vgreeter.commands.slash;
+package ovh.excale.vgreeter.commands.track;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jspecify.annotations.NonNull;
-import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
-import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.entity.MemberEntity;
+import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.message.TrackMessages;
 import ovh.excale.vgreeter.repository.TrackRepository;
 

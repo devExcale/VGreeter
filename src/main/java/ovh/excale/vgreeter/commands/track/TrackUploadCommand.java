@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.message;
+package ovh.excale.vgreeter.commands.track;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,10 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.MessageMapping;
-import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.entity.MemberEntity;
-import ovh.excale.vgreeter.repository.TrackRepository;
+import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.repository.MemberRepository;
+import ovh.excale.vgreeter.repository.TrackRepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

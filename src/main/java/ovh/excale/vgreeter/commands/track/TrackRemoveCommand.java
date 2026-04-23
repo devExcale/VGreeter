@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.slash;
+package ovh.excale.vgreeter.commands.track;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;

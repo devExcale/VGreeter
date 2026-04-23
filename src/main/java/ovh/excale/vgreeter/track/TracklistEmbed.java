@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-import ovh.excale.vgreeter.commands.button.CloseEmbedCommand;
 import ovh.excale.vgreeter.commands.core.CommandDispatcher;
-import ovh.excale.vgreeter.commands.slash.TracklistCommand;
+import ovh.excale.vgreeter.commands.misc.CloseEmbedCommand;
+import ovh.excale.vgreeter.commands.tracklist.TracklistCommand;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.utilities.Emojis;
 

@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.slash;
+package ovh.excale.vgreeter.commands.tracklist;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -18,7 +18,7 @@ import ovh.excale.vgreeter.track.TracklistEmbed;
 
 import java.util.Optional;
 
-import static ovh.excale.vgreeter.commands.slash.TracklistCommand.CMD_TRACKLIST;
+import static ovh.excale.vgreeter.commands.tracklist.TracklistCommand.CMD_TRACKLIST;
 import static ovh.excale.vgreeter.utilities.DiscordUtil.replyEphemeralWith;
 
 @RequiredArgsConstructor

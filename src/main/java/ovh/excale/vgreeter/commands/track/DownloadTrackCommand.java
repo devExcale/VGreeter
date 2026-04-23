@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.slash;
+package ovh.excale.vgreeter.commands.track;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jspecify.annotations.NonNull;
-import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.CmdOption;
+import ovh.excale.vgreeter.commands.core.annotation.CommandController;
 import ovh.excale.vgreeter.commands.core.annotation.SlashMapping;
 import ovh.excale.vgreeter.entity.TrackEntity;
 import ovh.excale.vgreeter.message.ErrorMessages;

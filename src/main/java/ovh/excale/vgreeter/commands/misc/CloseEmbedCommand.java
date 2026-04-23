@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.button;
+package ovh.excale.vgreeter.commands.misc;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;

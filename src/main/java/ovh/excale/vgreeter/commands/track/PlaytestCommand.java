@@ -1,4 +1,4 @@
-package ovh.excale.vgreeter.commands.slash;
+package ovh.excale.vgreeter.commands.track;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
