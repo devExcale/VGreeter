@@ -3,6 +3,7 @@ package ovh.excale.vgreeter.commands.tracklist;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.MessageEditCallbackAction;
@@ -11,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ovh.excale.vgreeter.commands.core.annotation.*;
+import ovh.excale.vgreeter.entity.MemberEntity;
 import ovh.excale.vgreeter.entity.TrackEntity;
+import ovh.excale.vgreeter.repository.MemberRepository;
 import ovh.excale.vgreeter.repository.TrackRepository;
 import ovh.excale.vgreeter.services.TrackService;
 import ovh.excale.vgreeter.track.TracklistEmbed;
@@ -33,6 +36,9 @@ public class TracklistCommand {
 
 	private static final String OPTDESC_PAGE_NUMBER = "Page number";
 
+	// TODO: User filter description
+	private static final String OPTDESC_USER = "User ID";
+
 	public static final String SUBCMD_ALL = "all";
 
 	public static final String SUBCMD_TITLE = "title";
@@ -44,6 +50,8 @@ public class TracklistCommand {
 	private final TrackService trackService;
 
 	private final TrackRepository trackRepo;
+
+	private final MemberRepository memberRepo;
 
 	private final TracklistEmbed tracklistEmbed;
 
@@ -69,8 +77,10 @@ public class TracklistCommand {
 				.withPage(normalizeHumanPage(humanPage, TrackService.DEFAULT_PAGE_SIZE))
 		);
 
-		return event.replyEmbeds(tracklistEmbed.buildEmbed(trackPage).build())
-			.addComponents(ActionRow.of(tracklistEmbed.buildButtons(trackPage)))
+		TracklistEmbed.Generator embedGen = tracklistEmbed.with(trackPage);
+
+		return event.replyEmbeds(embedGen.buildEmbed())
+			.addComponents(ActionRow.of(embedGen.buildButtons()))
 			.setEphemeral(true);
 	}
 
@@ -86,8 +96,33 @@ public class TracklistCommand {
 		name = SUBCMD_USER,
 		description = "Search for tracks by a user"
 	)
-	public ReplyCallbackAction searchByUser(SlashCommandInteractionEvent event) {
-		return replyEphemeralWith("Not implemented yet", event);
+	public ReplyCallbackAction searchByUser(
+		SlashCommandInteractionEvent event,
+		@CmdOption(name = "user", description = OPTDESC_USER) User owner,
+		@CmdOption(name = "page", description = OPTDESC_PAGE_NUMBER, required = false, minValueL = 1) Long humanPage
+	) {
+
+		// Fetch the owner data if provided
+		MemberEntity ownerEntity = memberRepo.findByIdOrSave(
+			owner.getIdLong(),
+			() -> MemberEntity.builder()
+				.discordId(owner.getIdLong())
+				.discordUsername(owner.getName())
+				.build()
+		);
+
+		// Fetch the page
+		Page<TrackEntity> trackPage = trackRepo.findAllByOwnerId(
+			owner.getIdLong(),
+			Pageable.ofSize(TrackService.DEFAULT_PAGE_SIZE)
+				.withPage(normalizeHumanPage(humanPage, TrackService.DEFAULT_PAGE_SIZE))
+		);
+
+		TracklistEmbed.Generator embedGen = tracklistEmbed.with(trackPage, ownerEntity);
+
+		return event.replyEmbeds(embedGen.buildEmbed())
+			.addComponents(ActionRow.of(embedGen.buildButtons()))
+			.setEphemeral(true);
 	}
 
 	/**
@@ -100,17 +135,35 @@ public class TracklistCommand {
 	@ButtonMapping(name = BTN_CHANGE_PAGE)
 	public MessageEditCallbackAction changePage(
 		ButtonInteractionEvent event,
-		@BtnOption Integer indexPage
+		@BtnOption Integer indexPage,
+		@BtnOption Long ownerId
 	) {
 
-		// Fetch the page
-		Page<TrackEntity> trackPage = trackRepo.findAll(
-			Pageable.ofSize(TrackService.DEFAULT_PAGE_SIZE)
-				.withPage(normalizeIndexPage(indexPage.longValue(), TrackService.DEFAULT_PAGE_SIZE))
-		);
+		// Fetch the owner data if provided
+		MemberEntity owner = null;
+		if(ownerId > 0)
+			owner = memberRepo.findById(ownerId)
+				.orElse(null);
 
-		return event.editMessageEmbeds(tracklistEmbed.buildEmbed(trackPage).build())
-			.setComponents(ActionRow.of(tracklistEmbed.buildButtons(trackPage)));
+		// Fetch the page
+		Page<TrackEntity> trackPage;
+
+		if(owner == null)
+			trackPage = trackRepo.findAll(
+				Pageable.ofSize(TrackService.DEFAULT_PAGE_SIZE)
+					.withPage(normalizeIndexPage(indexPage.longValue(), TrackService.DEFAULT_PAGE_SIZE))
+			);
+		else
+			trackPage = trackRepo.findAllByOwnerId(
+				ownerId,
+				Pageable.ofSize(TrackService.DEFAULT_PAGE_SIZE)
+					.withPage(normalizeIndexPage(indexPage.longValue(), TrackService.DEFAULT_PAGE_SIZE))
+			);
+
+		TracklistEmbed.Generator embedGen = tracklistEmbed.with(trackPage, owner);
+
+		return event.editMessageEmbeds(embedGen.buildEmbed())
+			.setComponents(ActionRow.of(embedGen.buildButtons()));
 	}
 
 	/**

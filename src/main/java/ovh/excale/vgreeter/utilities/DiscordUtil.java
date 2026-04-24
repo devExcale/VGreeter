@@ -1,6 +1,7 @@
 package ovh.excale.vgreeter.utilities;
 
 import lombok.NoArgsConstructor;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -69,6 +70,9 @@ public class DiscordUtil {
 		if(type == Boolean.class)
 			return OptionType.BOOLEAN;
 
+		if(type == User.class)
+			return OptionType.USER;
+
 		throw new IllegalArgumentException("Unsupported option type: " + type.getName());
 	}
 
@@ -91,6 +95,9 @@ public class DiscordUtil {
 
 		if(type == Boolean.class)
 			return type.cast(option.getAsBoolean());
+
+		if(type == User.class)
+			return type.cast(option.getAsUser());
 
 		throw new IllegalArgumentException(format("Unknown option type: %s", type.getName()));
 	}
